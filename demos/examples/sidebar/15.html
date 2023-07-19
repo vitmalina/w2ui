@@ -1,8 +1,8 @@
 <div class="content">
     <div id="example_title">
-        <h1>Node Badges</h1>
-        Each node can have a count, which is just a badge with soem text, or it can custom badges. In the example below it shows
-        how to add 2 new buttons for each node and how to catch events.
+        <h1>Node Handles</h1>
+        Node handles are controls displayed on the left from the nodes. They are not indented as do nested nodes.
+        Handles could be used as line numbers or breakpoints in debugging.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
@@ -10,85 +10,92 @@
 
 <!--CODE-->
 <div id="sidebar" style="height: 400px; width: 200px; float: left"></div>
-<div style="padding: 10px">
-    <button class="w2ui-btn" onclick="setCount('item1', 25)">Set Count</button>
-    <button class="w2ui-btn" onclick="setCount('item1', 'text', { className: 'custom', style: 'color: red; padding: 2px 5px; background-color: lightblue;' })">Set Text</button>
-    <button class="w2ui-btn" onclick="setCount('item1', 1)">Reset</button>
+<div style="margin-left: 220px;">
 </div>
-<div style="padding: 10px; float: left" id="logs">
-    Move over a node to see actions
-</div>
-<div style="clear: both"/>
 <style>
-.custom-action {
-    color: transparent;
-    text-shadow: none;
-    padding: 5px 2px;
-    border-radius: 2px;
-    margin-top: -4px;
+.w2ui-sidebar[name=sidebar] .w2ui-node-handle > div {
+    width: 11px;
+    height: 11px;
+    border-radius: 10px;
+    margin-left: 4px;
+    margin-top: 6px;
+    background-color: #e1e1e1;
+    border: 1px solid transparent;
 }
-.custom-action:hover {
-    background-color: #d3d3d3;
+.w2ui-sidebar[name=sidebar] .w2ui-node-handle > div:hover {
+    border: 1px solid #55ca2e
 }
-.w2ui-node .w2ui-node-badge {
-    margin-right: -5px !important;
-}
-.w2ui-node:hover .w2ui-node-badge .custom-action {
-    color: #777;
+.w2ui-sidebar[name=sidebar] .w2ui-node-handle > div.bp-set {
+    background-color: #55ca2e;
+    border: 1px solid #55ca2e
 }
 </style>
+<div style="clear: both"/>
 
 <!--CODE-->
 <script type="module">
-import { w2sidebar, w2utils, query } from '__W2UI_PATH__'
+import { w2sidebar, query } from '__W2UI_PATH__'
 
+let bp = ['level-1-1-2', 'level-1-2-3', 'level-1-2-2']
 let sidebar = new w2sidebar({
     box: '#sidebar',
     name: 'sidebar',
-    toggleAlign: 'left',
-    badge: {
-        text() {
-            return `
-                <span class="custom-action w2ui-icon-plus" data-action="add"></span>
-                <span class="custom-action w2ui-icon-cross" data-action="delete"></span>
-            `
-        },
-        tooltip(node, event) {
-            if (node.count) {
-                return `Node's count is "${node.count}"`
-            }
+    handle: {
+        width: 20,
+        text: `<div class="break-point"></div>`, // can be a function
+        tooltip(node) {
+            return `Set at "${node.text}"`
         },
         onClick(node, event) {
-            let action = query(event.target).attr('data-action')
-            query('#logs').html(`Node "${node.text}", action "${action}"`)
+            this.setBreakPoint(event.target)
         }
     },
     nodes: [
-        { id: 'level-1', text: 'Level 1', img: 'icon-folder', expanded: true, group: true,
+        { id: 'level-1-1', text: 'Level 1.1', icon: 'fa fa-folder-o', expanded: true,
             nodes: [
-                { id: 'item1', text: 'Item 1', icon: 'fa fa-star-o', count: 1 },
-                { id: 'item2', text: 'Item 2', icon: 'fa fa-star-o' },
-                { id: 'item3', text: 'Item 3', icon: 'fa fa-star-o' },
-                { id: 'sum-item', text: 'Nested Items', icon1: 'fa fa-folder-o', expanded: true,
-                    nodes: [
-                        { id: 'sub-item1', text: 'Item 1', icon: 'fa fa-file-o', count: 10 },
-                        { id: 'sub-item2', text: 'Item 2', icon: 'fa fa-file-o' },
-                        { id: 'sub-item3', text: 'Item 3', icon: 'fa fa-file-o' }
-                    ]
-                },
-                { id: 'sum-item2', text: 'More Items', icon1: 'fa fa-folder-o', expanded: true,
-                    nodes: [
-                        { id: 'sub-item21', text: 'Item 1', icon: 'fa fa-file-o' },
-                        { id: 'sub-item22', text: 'Item 2', icon: 'fa fa-file-o' },
-                        { id: 'sub-item23', text: 'Item 3', icon: 'fa fa-file-o' }
-                    ]
-                }
+                { id: 'level-1-1-1', text: 'Level 1.1.1', icon: 'fa fa-star-o', count: 5 },
+                { id: 'level-1-1-2', text: 'Level 1.1.2', icon: 'fa fa-star-o', count: 6 },
+                { id: 'level-1-1-3', text: 'Level 1.1.3', icon: 'fa fa-star-o', count: 12 }
+            ]
+        },
+        { id: 'level-1-2', text: 'Level 1.2', icon: 'fa fa-folder-o', expanded: true,
+            nodes: [
+                { id: 'level-1-2-1', text: 'Level 1.2.1', icon: 'fa fa-star-o' },
+                { id: 'level-1-2-2', text: 'Level 1.2.2', icon: 'fa fa-star-o' },
+                { id: 'level-1-2-3', text: 'Level 1.2.3', icon: 'fa fa-star-o' }
+            ]
+        },
+        { id: 'level-1-3', text: 'Level 1.3', icon: 'fa fa-folder-o', expanded: true,
+            nodes: [
+                { id: 'level-1-3-1', text: 'Level 1.3.1', icon: 'fa fa-star-o' },
+                { id: 'level-1-3-2', text: 'Level 1.3.2', icon: 'fa fa-star-o' },
+                { id: 'level-1-3-3', text: 'Level 1.3.3', icon: 'fa fa-star-o' }
             ]
         }
-    ]
+    ],
+    setBreakPoint(el) {
+        let stepId = query(el).closest('.w2ui-node').attr('id').substr(5)
+        if (bp.indexOf(stepId) != -1) {
+            bp.splice(bp.indexOf(stepId), 1)
+            query(el).removeClass('bp-set')
+        } else {
+            bp.push(stepId)
+            query(el).addClass('bp-set')
+        }
+        event.preventDefault()
+        event.stopPropagation()
+    },
+    onRefresh(event) {
+        event.done(() => {
+            let node = query('#node_' + event.target + ' .w2ui-node-handle > div')
+            if (bp.indexOf(event.target) == -1) {
+                node.removeClass('bp-set')
+            } else {
+                node.addClass('bp-set')
+            }
+        })
+    }
 })
 
-window.setCount = function(id, count, options) {
-    sidebar.setCount(id, count, options)
-}
+sidebar.render('#sidebar')
 </script>

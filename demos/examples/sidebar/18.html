@@ -1,21 +1,17 @@
 <div class="content">
     <div id="example_title">
-        <h1>Rename Nodes</h1>
-        There are 2 events to help you rename nodes: onEdit and onRename. First one is fired when user starts editing, and last one when
-        user successfully renames the node.
+        <h1>Search Nodes</h1>
+        The example below shows how to search nodes in the sidebar.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
 </div>
 
 <!--CODE-->
-<div id="sidebar" style="height: 400px; width: 200px; float: left"></div>
-<div style="padding: 10px; float: left; color: gray">
-    Double click on a node to rename it<br>
-    Or hit enter key on an active node
-</div>
-
-<div style="padding: 10px">
+<div id="sidebar" style="height: 600px; width: 200px; float: left"></div>
+<div style="margin-left: 220px;">
+    <button class="w2ui-btn" onclick="action('collapseAll')">Collapse All</button>
+    <button class="w2ui-btn" onclick="action('expandAll')">Expand All</button>
 </div>
 <div style="clear: both"/>
 
@@ -23,39 +19,67 @@
 <script type="module">
 import { w2sidebar, w2utils, query } from '__W2UI_PATH__'
 
-let sidebar = new w2sidebar({
+let sb = new w2sidebar({
     box: '#sidebar',
     name: 'sidebar',
-    editable: true,
-    onEdit(event) {
-        w2utils.notify()
-        console.log(`Start editing: ${event.target}`, event)
-    },
-    onRename(event) {
-        w2utils.notify(`Rename "${event.target}" from "${event.detail.text_previous}" to "${event.detail.text_new}"`)
-    },
-    nodes: [
-        { id: 'level-1', text: 'Level 1', expanded: true, group: true,
-            nodes: [
-                { id: 'item1', text: 'Item 1', icon: 'fa fa-home', count: 1 },
-                { id: 'item2', text: 'Item 2', icon: 'fa fa-coffee' },
-                { id: 'item3', text: 'Item 3', icon: 'fa fa-comment-o' },
-                { id: 'sum-item', text: 'Nested Items', icon: 'fa fa-star', expanded: true,
-                    nodes: [
-                        { id: 'sub-item1', text: 'Item 1', icon: 'fa fa-star-o', count: 10 },
-                        { id: 'sub-item2', text: 'Item 2', icon: 'fa fa-star-o' },
-                        { id: 'sub-item3', text: 'Item 3', icon: 'fa fa-star-o' }
-                    ]
-                },
-            ]
-        },
-        { id: 'level-2', text: 'Level 2', expanded: true, group: true,
-            nodes: [
-                { id: 'sub-item21', text: 'Item 1', icon: 'fa fa-comment-o', count: 'Text' },
-                { id: 'sub-item22', text: 'Item 2', icon: 'fa fa-comment-o' },
-                { id: 'sub-item23', text: 'Item 3', icon: 'fa fa-comment-o' }
-            ]
+    levelPadding: 22,
+    nodes: [],
+    topHTML: `
+        <div style="height: 36px; padding: 3px 2px; border-bottom: 1px solid silver">
+            <input id="search" style="width: 100%" class="w2ui-input" placeholder="Search nodes..."
+                onchange="search(this.value)">
+        </div>
+    `,
+    async onRefresh(event) {
+        await event.complete
+        if (event.detail.fullRefresh) {
+            if (query('#search').length > 0) {
+                query('#search').val(sb.last_search ?? '').get(0).focus()
+            }
         }
-    ]
+    }
 })
+
+window.action = function(method) {
+    sb[method]()
+}
+
+window.search = function(value) {
+    sb.last_search = value
+    let count = sb.search(value)
+    sb.expandAll()
+    query(sb.box).find('#empty-search').remove()
+    if (count == 0) {
+        query(sb.box)
+            .append('<div id="empty-search" style="font-size: 13px; color: #666; z-index: 1400; top: 45%; left: 50%; transform: translateX(-50%); width: 100%!important; text-align: center">No nodes found</div>')
+        w2utils.marker(sb.box)
+    } else {
+        let words = []
+        if (value !== '') words.push(value)
+        w2utils.marker(sb.box, words)
+    }
+}
+
+window.generate = function(nodes, id, options, count, subCount) {
+    let icons = ['fa fa-home', 'fa fa-coffee', 'fa fa-comment-o', 'fa fa-star', 'fa fa-bug']
+    let texts = ['Test', 'Label', 'Item', 'Simple', 'Formula', 'Single']
+    for (let i=0; i<count; i++) {
+        let node = w2utils.extend({
+            id: id + '-' + i,
+            expanded: false,
+            text: texts[Math.floor(Math.random() * texts.length)],
+            icon: icons[Math.floor(Math.random() * icons.length)],
+            nodes: []
+        }, options)
+        if (subCount > 0) {
+            generate(node.nodes, id + '-' + i, {}, Math.floor(Math.random() * subCount) + 2)
+        }
+        nodes.push(node)
+    }
+}
+
+window.generate(sb.nodes, 'item', { icon: 'fa fa-folder-o' }, 5, 10)
+window.generate(sb.nodes[0].nodes[1].nodes, 'sub', { expanded: false }, 3)
+window.generate(sb.nodes[2].nodes[1].nodes, 'sb', { expanded: false }, 3)
+sb.refresh()
 </script>

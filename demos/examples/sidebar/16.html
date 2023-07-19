@@ -1,68 +1,94 @@
 <div class="content">
     <div id="example_title">
-        <h1>Sort Nodes</h1>
-        The example below shows how to sort nodes in the sidebar.
+        <h1>Node Badges</h1>
+        Each node can have a count, which is just a badge with soem text, or it can custom badges. In the example below it shows
+        how to add 2 new buttons for each node and how to catch events.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
 </div>
 
 <!--CODE-->
-<div id="sidebar" style="height: 600px; width: 200px; float: left"></div>
-<div style="margin-left: 220px;">
-    <div style="padding: 7px; line-height: 2">
-        <label><input id="foldersFirst" style="position: relative; top: 2px; left: -1px" type="checkbox"> Folders First</label><br>
-        <label><input id="caseSensitive" style="position: relative; top: 2px; left: -1px" type="checkbox"> Case Sensitive</label><br>
-        <label><input id="reverse" style="position: relative; top: 2px; left: -1px" type="checkbox"> Reverse</label><br>
-    </div>
-    <div style="height: 10px;"></div>
-    <button class="w2ui-btn" onclick="sort()">Sort</button>
+<div id="sidebar" style="height: 400px; width: 200px; float: left"></div>
+<div style="padding: 10px">
+    <button class="w2ui-btn" onclick="setCount('item1', 25)">Set Count</button>
+    <button class="w2ui-btn" onclick="setCount('item1', 'text', { className: 'custom', style: 'color: red; padding: 2px 5px; background-color: lightblue;' })">Set Text</button>
+    <button class="w2ui-btn" onclick="setCount('item1', 1)">Reset</button>
+</div>
+<div style="padding: 10px; float: left" id="logs">
+    Move over a node to see actions
 </div>
 <div style="clear: both"/>
+<style>
+.custom-action {
+    color: transparent;
+    text-shadow: none;
+    padding: 5px 2px;
+    border-radius: 2px;
+    margin-top: -4px;
+}
+.custom-action:hover {
+    background-color: #d3d3d3;
+}
+.w2ui-node .w2ui-node-badge {
+    margin-right: -5px !important;
+}
+.w2ui-node:hover .w2ui-node-badge .custom-action {
+    color: #777;
+}
+</style>
 
 <!--CODE-->
 <script type="module">
 import { w2sidebar, w2utils, query } from '__W2UI_PATH__'
 
-let sb = new w2sidebar({
+let sidebar = new w2sidebar({
     box: '#sidebar',
     name: 'sidebar',
-    levelPadding: 22,
-    nodes: [],
+    toggleAlign: 'left',
+    badge: {
+        text() {
+            return `
+                <span class="custom-action w2ui-icon-plus" data-action="add"></span>
+                <span class="custom-action w2ui-icon-cross" data-action="delete"></span>
+            `
+        },
+        tooltip(node, event) {
+            if (node.count) {
+                return `Node's count is "${node.count}"`
+            }
+        },
+        onClick(node, event) {
+            let action = query(event.target).attr('data-action')
+            query('#logs').html(`Node "${node.text}", action "${action}"`)
+        }
+    },
+    nodes: [
+        { id: 'level-1', text: 'Level 1', img: 'icon-folder', expanded: true, group: true,
+            nodes: [
+                { id: 'item1', text: 'Item 1', icon: 'fa fa-star-o', count: 1 },
+                { id: 'item2', text: 'Item 2', icon: 'fa fa-star-o' },
+                { id: 'item3', text: 'Item 3', icon: 'fa fa-star-o' },
+                { id: 'sum-item', text: 'Nested Items', icon1: 'fa fa-folder-o', expanded: true,
+                    nodes: [
+                        { id: 'sub-item1', text: 'Item 1', icon: 'fa fa-file-o', count: 10 },
+                        { id: 'sub-item2', text: 'Item 2', icon: 'fa fa-file-o' },
+                        { id: 'sub-item3', text: 'Item 3', icon: 'fa fa-file-o' }
+                    ]
+                },
+                { id: 'sum-item2', text: 'More Items', icon1: 'fa fa-folder-o', expanded: true,
+                    nodes: [
+                        { id: 'sub-item21', text: 'Item 1', icon: 'fa fa-file-o' },
+                        { id: 'sub-item22', text: 'Item 2', icon: 'fa fa-file-o' },
+                        { id: 'sub-item23', text: 'Item 3', icon: 'fa fa-file-o' }
+                    ]
+                }
+            ]
+        }
+    ]
 })
 
-window.sort = function() {
-    let options = {
-        foldersFirst: query('#foldersFirst')[0].checked,
-        caseSensitive: query('#caseSensitive')[0].checked,
-        reverse: query('#reverse')[0].checked,
-    }
-    console.log(options)
-    sb.sort(options)
-    sb.refresh()
-
+window.setCount = function(id, count, options) {
+    sidebar.setCount(id, count, options)
 }
-
-window.generate = function(nodes, id, options, count, subCount) {
-    let icons = ['fa fa-home', 'fa fa-coffee', 'fa fa-comment-o', 'fa fa-star', 'fa fa-bug']
-    let texts = ['Test', 'Label', 'Item', 'Simple', 'Formula', 'Single']
-    for (let i=0; i<count; i++) {
-        let node = w2utils.extend({
-            id: id + '-' + i,
-            expanded: true,
-            text: texts[Math.floor(Math.random() * texts.length)],
-            icon: icons[Math.floor(Math.random() * icons.length)],
-            nodes: []
-        }, options)
-        if (subCount > 0) {
-            generate(node.nodes, id + '-' + i, {}, Math.floor(Math.random() * subCount) + 2)
-        }
-        nodes.push(node)
-    }
-}
-
-window.generate(sb.nodes, 'item', { icon: 'fa fa-folder-o' }, 5, 10)
-window.generate(sb.nodes[0].nodes[1].nodes, 'sub', { expanded: false }, 3)
-window.generate(sb.nodes[2].nodes[1].nodes, 'sb', { expanded: false }, 3)
-sb.refresh()
 </script>

@@ -1,7 +1,7 @@
 <div class="content">
     <div id="example_title">
-        <h1>Search Nodes</h1>
-        The example below shows how to search nodes in the sidebar.
+        <h1>Sort Nodes</h1>
+        The example below shows how to sort nodes in the sidebar.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
@@ -10,8 +10,13 @@
 <!--CODE-->
 <div id="sidebar" style="height: 600px; width: 200px; float: left"></div>
 <div style="margin-left: 220px;">
-    <button class="w2ui-btn" onclick="action('collapseAll')">Collapse All</button>
-    <button class="w2ui-btn" onclick="action('expandAll')">Expand All</button>
+    <div style="padding: 7px; line-height: 2">
+        <label><input id="foldersFirst" style="position: relative; top: 2px; left: -1px" type="checkbox"> Folders First</label><br>
+        <label><input id="caseSensitive" style="position: relative; top: 2px; left: -1px" type="checkbox"> Case Sensitive</label><br>
+        <label><input id="reverse" style="position: relative; top: 2px; left: -1px" type="checkbox"> Reverse</label><br>
+    </div>
+    <div style="height: 10px;"></div>
+    <button class="w2ui-btn" onclick="sort()">Sort</button>
 </div>
 <div style="clear: both"/>
 
@@ -24,40 +29,18 @@ let sb = new w2sidebar({
     name: 'sidebar',
     levelPadding: 22,
     nodes: [],
-    topHTML: `
-        <div style="height: 36px; padding: 3px 2px; border-bottom: 1px solid silver">
-            <input id="search" style="width: 100%" class="w2ui-input" placeholder="Search nodes..."
-                onchange="search(this.value)">
-        </div>
-    `,
-    async onRefresh(event) {
-        await event.complete
-        if (event.detail.fullRefresh) {
-            if (query('#search').length > 0) {
-                query('#search').val(sb.last_search ?? '').get(0).focus()
-            }
-        }
-    }
 })
 
-window.action = function(method) {
-    sb[method]()
-}
-
-window.search = function(value) {
-    sb.last_search = value
-    let count = sb.search(value)
-    sb.expandAll()
-    query(sb.box).find('#empty-search').remove()
-    if (count == 0) {
-        query(sb.box)
-            .append('<div id="empty-search" style="font-size: 13px; color: #666; z-index: 1400; top: 45%; left: 50%; transform: translateX(-50%); width: 100%!important; text-align: center">No nodes found</div>')
-        w2utils.marker(sb.box)
-    } else {
-        let words = []
-        if (value !== '') words.push(value)
-        w2utils.marker(sb.box, words)
+window.sort = function() {
+    let options = {
+        foldersFirst: query('#foldersFirst')[0].checked,
+        caseSensitive: query('#caseSensitive')[0].checked,
+        reverse: query('#reverse')[0].checked,
     }
+    console.log(options)
+    sb.sort(options)
+    sb.refresh()
+
 }
 
 window.generate = function(nodes, id, options, count, subCount) {
@@ -66,7 +49,7 @@ window.generate = function(nodes, id, options, count, subCount) {
     for (let i=0; i<count; i++) {
         let node = w2utils.extend({
             id: id + '-' + i,
-            expanded: false,
+            expanded: true,
             text: texts[Math.floor(Math.random() * texts.length)],
             icon: icons[Math.floor(Math.random() * icons.length)],
             nodes: []
