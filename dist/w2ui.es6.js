@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (7/17/2023, 11:51:12 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (7/20/2023, 7:34:10 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -3367,9 +3367,11 @@ class Dialog extends w2base {
         options._last_focus = document.activeElement
         // keyboard events
         if (options.keyboard) {
-            query(document.body).on('keydown', (event) => {
-                this.keydown(event)
-            })
+            query(document.body)
+                .off('.w2popup')
+                .on('keydown.w2popup', (event) => {
+                    this.keydown(event)
+                })
         }
         query(window).on('resize', this.handleResize)
         // initialize move
@@ -3747,7 +3749,7 @@ function w2alert(msg, title, callBack) {
         title: w2utils.lang(title ?? 'Notification'),
         body: `<div class="w2ui-centered w2ui-msg-text">${msg}</div>`,
         showClose: false,
-        actions: ['Ok'],
+        actions: { ok: 'Ok' },
         cancelAction: 'ok'
     }
     if (query('#w2ui-popup').length > 0 && w2popup.status != 'closing') {
@@ -3755,7 +3757,7 @@ function w2alert(msg, title, callBack) {
     } else {
         prom = w2popup.open(options)
     }
-    prom.ok((event) => {
+    prom.ok(event => {
         if (typeof event.detail.self?.close == 'function') {
             event.detail.self.close()
         }
@@ -3889,6 +3891,7 @@ let w2popup = new Dialog()
  * - multiple tooltips to the same anchor
  * - options.contextMenu
  * - options.prefilter - if true, it will show prefiltered items for w2menu, otherwise all
+ * - menu.item.help, menu.item.hotkey
  */
 
 class Tooltip {
@@ -5043,7 +5046,9 @@ class MenuTooltip extends Tooltip {
         //   count    : '',
         //   tooltip  : '',
         //   hotkey   : '',
-        //   remove   : false,
+        //   removable: false,
+        //   help     : '',      // text for help tooltip
+        //   hotkey   ; '',      // hotkey text for the items
         //   items    : []
         //   indent   : 0,
         //   type     : null,    // check/radio
@@ -5229,6 +5234,24 @@ class MenuTooltip extends Tooltip {
             .on('mouseLeave.w2menu', event => {
                 w2tooltip.hide(overlay.name + '-tooltip')
             })
+            .find('.menu-help')
+            .off('.w2menu')
+            .on('mouseEnter.w2menu', event => {
+                let dt = event.target.parentNode.parentNode.dataset
+                let tooltip = overlay.options.items[dt.index]?.help
+                if (tooltip) {
+                    w2tooltip.show({
+                        name: overlay.name + '-help-tp',
+                        anchor: event.target,
+                        html: tooltip,
+                        position: 'right|left',
+                        hideOn: ['doc-click']
+                    })
+                }
+            })
+            .on('mouseLeave.w2menu', event => {
+                w2tooltip.hide(overlay.name + '-help-tp')
+            })
         if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
             query(overlay.anchor)
                 .off('.w2menu')
@@ -5339,7 +5362,7 @@ class MenuTooltip extends Tooltip {
                     if (mitem.tooltip == null && mitem.hint != null) mitem.tooltip = mitem.hint // for backward compatibility
                     let count_dsp = ''
                     if (mitem.removable === true) {
-                        count_dsp = '<span class="remove">x</span>'
+                        count_dsp = '<span class="menu-remove">x</span>'
                     } else if (mitem.items != null) {
                         let _items = []
                         if (typeof mitem.items == 'function') {
@@ -5354,7 +5377,8 @@ class MenuTooltip extends Tooltip {
                             </div>`
                     } else {
                         if (mitem.count != null) count_dsp += '<span>' + mitem.count + '</span>'
-                        if (mitem.hotkey != null) count_dsp += '<span class="hotkey">' + mitem.hotkey + '</span>'
+                        if (mitem.hotkey != null) count_dsp += '<span class="menu-hotkey">' + mitem.hotkey + '</span>'
+                        if (mitem.help != null) count_dsp += '<span class="menu-help">?</span>'
                     }
                     if (mitem.disabled === true) classes.push('w2ui-disabled')
                     if (mitem._noSearchInside === true) classes.push('w2ui-no-search-inside')
@@ -5771,7 +5795,8 @@ class MenuTooltip extends Tooltip {
             })
         }
         if ((options.type === 'check' || options.type === 'radio') && item.group !== false
-                    && !query(event.target).hasClass('remove')
+                    && !query(event.target).hasClass('menu-remove')
+                    && !query(event.target).hasClass('menu-help')
                     && !query(event.target).closest('.w2ui-menu-item').hasClass('has-sub-menu')) {
             item.checked = options.type == 'radio' ? true : !item.checked
             if (item.checked) {
@@ -5789,7 +5814,7 @@ class MenuTooltip extends Tooltip {
             }
         }
         // highlight record
-        if (!query(event.target).hasClass('remove')) {
+        if (!query(event.target).hasClass('menu-remove') && !query(event.target).hasClass('menu-help')) {
             menu.find('.w2ui-menu-item').removeClass('w2ui-selected')
             query(event.delegate).addClass('w2ui-selected')
         }
@@ -5814,11 +5839,11 @@ class MenuTooltip extends Tooltip {
             items = items({ overlay, index, parentIndex, event })
         }
         let item = items[index]
-        if (!item || (item.disabled && !query(event.target).hasClass('remove'))) {
+        if (!item || (item.disabled && !query(event.target).hasClass('menu-remove'))) {
             return
         }
         let edata
-        if (query(event.target).hasClass('remove')) {
+        if (query(event.target).hasClass('menu-remove')) {
             edata = this.trigger('remove', { originalEvent: event, target: overlay.name,
                 overlay, item, index, parentIndex, el: $item[0] })
             if (edata.isCancelled === true) {
@@ -8486,9 +8511,8 @@ class w2sidebar extends w2base {
                 }, 100)
             })
             .on('keydown', function(event) {
-                if (event.keyCode != 9) { // not tab
-                    w2ui[obj.name].keydown.call(w2ui[obj.name], event)
-                }
+                // do not cancel tab key (keyCode=9) so that event is dispatched to self
+                w2ui[obj.name].keydown.call(w2ui[obj.name], event)
             })
         query(this.box).off('mousedown')
             .on('mousedown', function(event) {
@@ -10779,7 +10803,7 @@ class w2grid extends w2base {
                 colIndEnd     : 0,    // for column virtual scrolling
                 pull_more     : false,
                 pull_refresh  : true,
-                show_extra    : 0,        // last show extra for virtual scrolling
+                show_extra    : 0,    // last show extra for virtual scrolling
             },
             sel_ind       : null,     // last selected cell index
             sel_col       : null,     // last selected column
