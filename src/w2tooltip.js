@@ -9,6 +9,7 @@
  * - multiple tooltips to the same anchor
  * - options.contextMenu
  * - options.prefilter - if true, it will show prefiltered items for w2menu, otherwise all
+ * - menu.item.help, menu.item.hotkey
  */
 
 import { w2base } from './w2base.js'
@@ -1210,7 +1211,9 @@ class MenuTooltip extends Tooltip {
         //   count    : '',
         //   tooltip  : '',
         //   hotkey   : '',
-        //   remove   : false,
+        //   removable: false,
+        //   help     : '',      // text for help tooltip
+        //   hotkey   ; '',      // hotkey text for the items
         //   items    : []
         //   indent   : 0,
         //   type     : null,    // check/radio
@@ -1400,6 +1403,24 @@ class MenuTooltip extends Tooltip {
             .on('mouseLeave.w2menu', event => {
                 w2tooltip.hide(overlay.name + '-tooltip')
             })
+            .find('.menu-help')
+            .off('.w2menu')
+            .on('mouseEnter.w2menu', event => {
+                let dt = event.target.parentNode.parentNode.dataset
+                let tooltip = overlay.options.items[dt.index]?.help
+                if (tooltip) {
+                    w2tooltip.show({
+                        name: overlay.name + '-help-tp',
+                        anchor: event.target,
+                        html: tooltip,
+                        position: 'right|left',
+                        hideOn: ['doc-click']
+                    })
+                }
+            })
+            .on('mouseLeave.w2menu', event => {
+                w2tooltip.hide(overlay.name + '-help-tp')
+            })
 
         if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
             query(overlay.anchor)
@@ -1513,7 +1534,7 @@ class MenuTooltip extends Tooltip {
                     if (mitem.tooltip == null && mitem.hint != null) mitem.tooltip = mitem.hint // for backward compatibility
                     let count_dsp = ''
                     if (mitem.removable === true) {
-                        count_dsp = '<span class="remove">x</span>'
+                        count_dsp = '<span class="menu-remove">x</span>'
                     } else if (mitem.items != null) {
                         let _items = []
                         if (typeof mitem.items == 'function') {
@@ -1528,7 +1549,8 @@ class MenuTooltip extends Tooltip {
                             </div>`
                     } else {
                         if (mitem.count != null) count_dsp += '<span>' + mitem.count + '</span>'
-                        if (mitem.hotkey != null) count_dsp += '<span class="hotkey">' + mitem.hotkey + '</span>'
+                        if (mitem.hotkey != null) count_dsp += '<span class="menu-hotkey">' + mitem.hotkey + '</span>'
+                        if (mitem.help != null) count_dsp += '<span class="menu-help">?</span>'
                     }
                     if (mitem.disabled === true) classes.push('w2ui-disabled')
                     if (mitem._noSearchInside === true) classes.push('w2ui-no-search-inside')
@@ -1952,7 +1974,8 @@ class MenuTooltip extends Tooltip {
             })
         }
         if ((options.type === 'check' || options.type === 'radio') && item.group !== false
-                    && !query(event.target).hasClass('remove')
+                    && !query(event.target).hasClass('menu-remove')
+                    && !query(event.target).hasClass('menu-help')
                     && !query(event.target).closest('.w2ui-menu-item').hasClass('has-sub-menu')) {
             item.checked = options.type == 'radio' ? true : !item.checked
             if (item.checked) {
@@ -1970,7 +1993,7 @@ class MenuTooltip extends Tooltip {
             }
         }
         // highlight record
-        if (!query(event.target).hasClass('remove')) {
+        if (!query(event.target).hasClass('menu-remove') && !query(event.target).hasClass('menu-help')) {
             menu.find('.w2ui-menu-item').removeClass('w2ui-selected')
             query(event.delegate).addClass('w2ui-selected')
         }
@@ -1996,11 +2019,11 @@ class MenuTooltip extends Tooltip {
             items = items({ overlay, index, parentIndex, event })
         }
         let item = items[index]
-        if (!item || (item.disabled && !query(event.target).hasClass('remove'))) {
+        if (!item || (item.disabled && !query(event.target).hasClass('menu-remove'))) {
             return
         }
         let edata
-        if (query(event.target).hasClass('remove')) {
+        if (query(event.target).hasClass('menu-remove')) {
             edata = this.trigger('remove', { originalEvent: event, target: overlay.name,
                 overlay, item, index, parentIndex, el: $item[0] })
             if (edata.isCancelled === true) {

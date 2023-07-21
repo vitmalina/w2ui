@@ -419,7 +419,7 @@
                 box-shadow: @menu-node-count-shadow;
                 text-shadow: @menu-node-count-text-shadow;
             }
-            span.hotkey {
+            span.menu-hotkey {
                 border: none;
                 border-radius: 0px;
                 background-color: transparent;
@@ -427,7 +427,31 @@
                 box-shadow: none;
                 text-shadow: none;
             }
-            span.remove {
+            span.menu-help {
+                color: #838383;
+                background-color: #f7f7f7;
+                border-color: #d1d1d1;
+                box-shadow: none;
+                padding: 0 4px 0 5px;
+                border-radius: 15px;
+                position: relative;
+                margin-top: -1px;
+                display: block;
+                height: 20px;
+                width: 24px;
+                line-height: 1.3;
+                text-align: center;
+                user-select: none;
+                opacity: 0;
+                font-family: "Courier New";
+                font-size: 15px;
+                &:hover {
+                    background-color: #edfaf3;
+                    border-color: #b3cfc1;
+                    color: #199533;
+                }
+            }
+            span.menu-remove {
                 background-color: transparent;
                 border-color: transparent;
                 box-shadow: none;
@@ -445,7 +469,6 @@
                 &:hover {
                     background-color: #f9e7e7;
                     border: 1px solid #f1c0c0;
-                    color: red;
                 }
                 &:active {
                     background-color: #ffd1d1;
@@ -454,7 +477,10 @@
         }
 
         &:hover {
-            .menu-extra span.remove {
+            .menu-extra span.menu-remove {
+                opacity: 1;
+            }
+            .menu-extra span.menu-help {
                 opacity: 1;
             }
         }
