@@ -282,7 +282,7 @@ class w2base {
                 if (cl.startsWith('w2ui-')) remove.push(cl)
             })
         }
-        query(this.box).removeClass(remove)
+        query(this.box).removeClass(remove).removeAttr('name').html('')
         this.box = null
     }
 }

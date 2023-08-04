@@ -653,10 +653,7 @@ class w2toolbar extends w2base {
         if (edata.isCancelled === true) return
         // clean up
         if (query(this.box).find('.w2ui-scroll-wrapper  .w2ui-tb-right').length > 0) {
-            query(this.box)
-                .removeAttr('name')
-                .removeClass('w2ui-reset w2ui-toolbar')
-                .html('')
+            this.unmount()
         }
         query(this.box).html('')
         this.last.observeResize?.disconnect()

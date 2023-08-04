@@ -1966,10 +1966,7 @@ class w2form extends w2base {
         if (typeof this.toolbar === 'object' && this.toolbar.destroy) this.toolbar.destroy()
         if (typeof this.tabs === 'object' && this.tabs.destroy) this.tabs.destroy()
         if (query(this.box).find('#form_'+ this.name +'_tabs').length > 0) {
-            query(this.box)
-                .removeAttr('name')
-                .removeClass('w2ui-reset w2ui-form')
-                .html('')
+            this.unmount()
         }
         this.last.observeResize?.disconnect()
         delete w2ui[this.name]

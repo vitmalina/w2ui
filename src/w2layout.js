@@ -151,6 +151,11 @@ class w2layout extends w2base {
             query(this.box).find(pname).get(0).scrollTop = 0
             panelTop = query(current).css('top')
         }
+        // clean up previous content
+        if (typeof p.html.unmount == 'function') p.html.unmount()
+        current.addClass('w2ui-panel-content')
+        current.removeAttr('style') // styles could have added manually, but all necessary will be added by refresh
+
         if (p.html === '') {
             p.html = data
             this.refresh(panel)
@@ -1109,10 +1114,7 @@ class w2layout extends w2base {
         if (w2ui[this.name] == null) return false
         // clean up
         if (query(this.box).find('#layout_'+ this.name +'_panel_main').length > 0) {
-            query(this.box)
-                .removeAttr('name')
-                .removeClass('w2ui-layout')
-                .html('')
+            this.unmount()
         }
         this.last.observeResize?.disconnect()
         delete w2ui[this.name]

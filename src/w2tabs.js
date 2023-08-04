@@ -563,10 +563,7 @@ class w2tabs extends w2base {
         if (edata.isCancelled === true) return
         // clean up
         if (query(this.box).find('#tabs_'+ this.name + '_right').length > 0) {
-            query(this.box)
-                .removeAttr('name')
-                .removeClass('w2ui-reset w2ui-tabs')
-                .html('')
+            this.unmount()
         }
         this.last.observeResize?.disconnect()
         delete w2ui[this.name]

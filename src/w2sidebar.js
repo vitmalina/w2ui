@@ -1617,10 +1617,7 @@ class w2sidebar extends w2base {
         if (edata.isCancelled === true) return
         // clean up
         if (query(this.box).find('.w2ui-sidebar-body').length > 0) {
-            query(this.box)
-                .removeAttr('name')
-                .removeClass('w2ui-reset w2ui-sidebar')
-                .html('')
+            this.unmount()
         }
         this.last.observeResize?.disconnect()
         delete w2ui[this.name]

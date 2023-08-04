@@ -6023,10 +6023,7 @@ class w2grid extends w2base {
         // clean up
         if (typeof this.toolbar == 'object' && this.toolbar.destroy) this.toolbar.destroy()
         if (query(this.box).find(`#grid_${this.name}_body`).length > 0) {
-            query(this.box)
-                .removeAttr('name')
-                .removeClass('w2ui-reset w2ui-grid w2ui-inactive')
-                .html('')
+            this.unmount()
         }
         this.last.observeResize?.disconnect()
         delete w2ui[this.name]
