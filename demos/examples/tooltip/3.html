@@ -26,11 +26,11 @@
 </style>
 
 <div style="margin-top: 25px;">
-    <button class="w2ui-btn" onclick="showColor(this)">Color (2.0+)</button>
-    <button class="w2ui-btn" onclick="showDate(this, 'date')">Date (2.0+)</button>
-    <button class="w2ui-btn" onclick="showDate(this, 'time')">Time (2.0+)</button>
-    <button class="w2ui-btn" onclick="showDate(this, 'datetime')">Date & Time (2.0+)</button>
-    <button class="w2ui-btn" onclick="hideTooltip()">Hide Tooltip</button>
+    <button class="w2ui-btn action" data-value='{ "method": "color" }''>Color (2.0+)</button>
+    <button class="w2ui-btn action" data-value='{ "method": "date", "type": "date" }'>Date (2.0+)</button>
+    <button class="w2ui-btn action" data-value='{ "method": "date", "type": "time" }'>Time (2.0+)</button>
+    <button class="w2ui-btn action" data-value='{ "method": "date", "type": "datetime" }'>Date & Time (2.0+)</button>
+    <button class="w2ui-btn action" data-value='{ "method": "hide" }'>Hide Tooltip</button>
 </div>
 
 <div style="height: 50px"></div>
@@ -38,40 +38,41 @@
 <div style="width: 200px; float: left">
     Position:
     <div style="padding: 10px; margin-bottom: 20px; line-height: 2">
-        <label><input name="postion" type="radio" onclick="setPosition('left')"> &nbsp;left</label><br>
-        <label><input name="postion" type="radio" onclick="setPosition('right')"> &nbsp;right</label><br>
-        <label><input name="postion" type="radio" onclick="setPosition('top')" checked> &nbsp;top</label><br>
-        <label><input name="postion" type="radio" onclick="setPosition('bottom')"> &nbsp;bottom</label><br>
-        <label><input name="postion" type="radio" onclick="setPosition('top|bottom')"> &nbsp;top or bottom</label><br>
-        <label><input name="postion" type="radio" onclick="setPosition('right|left')"> &nbsp;right or left</label><br>
+        <label><input name="position" type="radio" value="left"> &nbsp;left</label><br>
+        <label><input name="position" type="radio" value="right"> &nbsp;right</label><br>
+        <label><input name="position" type="radio" value="top" checked> &nbsp;top</label><br>
+        <label><input name="position" type="radio" value="bottom"> &nbsp;bottom</label><br>
+        <label><input name="position" type="radio" value="top|bottom"> &nbsp;top or bottom</label><br>
+        <label><input name="position" type="radio" value="right|left"> &nbsp;right or left</label><br>
     </div>
 </div>
 <div style="width: 300px; float: left">
     Anchor Alignment (only for TOP/BOTTOM):<br>
     <div style="padding: 10px; margin-bottom: 20px; line-height: 2; float: left; width: 200px">
-        <label><input name="align" type="radio" onclick="setAlign('none')" checked> &nbsp;none</label><br>
-        <label><input name="align" type="radio" onclick="setAlign('left')"> &nbsp;left</label><br>
-        <label><input name="align" type="radio" onclick="setAlign('right')"> &nbsp;right</label><br>
+        <label><input name="align" type="radio" value="none" checked> &nbsp;none</label><br>
+        <label><input name="align" type="radio" value="left"> &nbsp;left</label><br>
+        <label><input name="align" type="radio" value="right"> &nbsp;right</label><br>
     </div>
 </div>
 <div style="clear: both"></div>
 
 <!--CODE-->
 <script type="module">
-import { w2tooltip, w2color, w2date, w2utils } from '__W2UI_PATH__'
+import { w2tooltip, w2color, w2date, w2utils, query } from '__W2UI_PATH__'
 
 let align = 'none';
 let position = 'top';
 
-window.setAlign = function(value) { align = value }
-window.setPosition = function(value) { position = value }
-
-window.showColor = function(el) {
-    w2color.show({
+query('input[name=position]').on('click', event => position = event.target.value )
+query('input[name=align]').on('click', event => align = event.target.value)
+query('button.action').on('click', event => {
+    let options = JSON.parse(query(event.target).attr('data-value'))
+    if (options.method == "color") {
+        w2color.show({
             align,
             position,
             name: 'demo-tooltip',
-            anchor: el,
+            anchor: event.target,
             onSelect(event) {
                 w2utils.notify(`Selected "${event.detail.color}" color`)
             }
@@ -91,13 +92,12 @@ window.showColor = function(el) {
         .select((event) => {
             console.log(`Color selected "${event.detail.color}"`)
         })
-}
-
-window.showDate = function(el, type) {
-    w2date.show({
+    }
+    if (options.method == "date") {
+        w2date.show({
             name: 'demo-tooltip',
-            anchor: el,
-            type,
+            anchor: event.target,
+            type: options.type,
             align,
             position,
             value         : '', // initial date (in w2utils.settings format)
@@ -121,8 +121,9 @@ window.showDate = function(el, type) {
         .select((event) => {
             w2utils.notify(`Date selected "${event.detail.date}"`)
         })
-}
-window.hideTooltip = function () {
-    w2tooltip.hide('demo-tooltip')
-}
+    }
+    if (options.method == 'hide') {
+        w2tooltip.hide('demo-tooltip')
+    }
+})
 </script>

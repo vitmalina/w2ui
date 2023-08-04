@@ -24,10 +24,10 @@
 </style>
 
 <div style="margin-top: 25px;">
-    <button class="w2ui-btn" onclick="showTooltip(this)">Dark Theme (default)</button>
-    <button class="w2ui-btn" onclick="showTooltip(this, { class: 'w2ui-light' } )">Light Theme</button>
-    <button class="w2ui-btn" onclick="showTooltip(this, { class: 'w2ui-white' } )">White Theme</button>
-    <button class="w2ui-btn" onclick="hideTooltip()">Hide Tooltip</button>
+    <button class="w2ui-btn action" data-value='{ "method": "show" }'>Dark Theme (default)</button>
+    <button class="w2ui-btn action" data-value='{ "method": "show", "class": "w2ui-light" }'>Light Theme</button>
+    <button class="w2ui-btn action" data-value='{ "method": "show", "class": "w2ui-white" }'>White Theme</button>
+    <button class="w2ui-btn action" data-value='{ "method": "hide" }'>Hide Tooltip</button>
 </div>
 
 <div style="height: 50px"></div>
@@ -35,45 +35,48 @@
 <div style="width: 200px; float: left">
     Position:
     <div style="padding: 10px; margin-bottom: 20px; line-height: 2">
-        <label><input name="postion" type="radio" onclick="setPosition('left')"> &nbsp;left</label><br>
-        <label><input name="postion" type="radio" onclick="setPosition('right')"> &nbsp;right</label><br>
-        <label><input name="postion" type="radio" onclick="setPosition('top')" checked> &nbsp;top</label><br>
-        <label><input name="postion" type="radio" onclick="setPosition('bottom')"> &nbsp;bottom</label><br>
-        <label><input name="postion" type="radio" onclick="setPosition('top|bottom')"> &nbsp;top or bottom</label><br>
-        <label><input name="postion" type="radio" onclick="setPosition('right|left')"> &nbsp;right or left</label><br>
+        <label><input name="position" type="radio" value="left"> &nbsp;left</label><br>
+        <label><input name="position" type="radio" value="right"> &nbsp;right</label><br>
+        <label><input name="position" type="radio" value="top" checked> &nbsp;top</label><br>
+        <label><input name="position" type="radio" value="bottom"> &nbsp;bottom</label><br>
+        <label><input name="position" type="radio" value="top|bottom"> &nbsp;top or bottom</label><br>
+        <label><input name="position" type="radio" value="right|left"> &nbsp;right or left</label><br>
     </div>
 </div>
 <div style="width: 300px; float: left">
     Anchor Alignment (only for TOP/BOTTOM):<br>
     <div style="padding: 10px; margin-bottom: 20px; line-height: 2; float: left; width: 200px">
-        <label><input name="align" type="radio" onclick="setAlign('none')" checked> &nbsp;none</label><br>
-        <label><input name="align" type="radio" onclick="setAlign('left')"> &nbsp;left</label><br>
-        <label><input name="align" type="radio" onclick="setAlign('right')"> &nbsp;right</label><br>
-        <label><input name="align" type="radio" onclick="setAlign('both')"> &nbsp;both</label><br>
+        <label><input name="align" type="radio" value="none" checked> &nbsp;none</label><br>
+        <label><input name="align" type="radio" value="left"> &nbsp;left</label><br>
+        <label><input name="align" type="radio" value="right"> &nbsp;right</label><br>
+        <label><input name="align" type="radio" value="both"> &nbsp;both</label><br>
     </div>
 </div>
 <div style="clear: both"></div>
 
 <!--CODE-->
 <script type="module">
-import { w2utils, w2tooltip } from '__W2UI_PATH__'
+import { w2utils, w2tooltip, query } from '__W2UI_PATH__'
 
 let align = 'none';
 let position = 'top';
 let message = '<div style="padding: 4px">The message for the tooltip can be short <br> or long and contain any HTML.</div>'
 
-window.setAlign = function (value) { align = value }
-window.setPosition = function (value) { position = value }
-window.showTooltip = function (el, options = {}) {
-    w2tooltip.show(w2utils.extend(options, {
-        align,
-        position,
-        name: 'demo-tooltip',
-        anchor: el,
-        html: message
-    }))
-}
-window.hideTooltip = function () {
-    w2tooltip.hide('demo-tooltip')
-}
+query('input[name=position]').on('click', event => position = event.target.value )
+query('input[name=align]').on('click', event => align = event.target.value)
+query('button.action').on('click', event => {
+    let options = JSON.parse(query(event.target).attr('data-value'))
+    if (options.method == "show") {
+       w2tooltip.show(w2utils.extend(options, {
+            align,
+            position,
+            name: 'demo-tooltip',
+            anchor: event.target,
+            html: message
+        }))
+    }
+    if (options.method == 'hide') {
+        w2tooltip.hide('demo-tooltip')
+    }
+})
 </script>
