@@ -464,8 +464,10 @@ class Tooltip {
         } else {
             query(overlay.anchor).data('tooltipName', names)
         }
-        // restore original CSS
-        overlay.anchor.style.cssText = overlay.tmp.originalCSS
+        // restore original CSS, only if anchor styles where extended
+        if (overlay.options.anchorStyle) {
+            overlay.anchor.style.cssText = overlay.tmp.originalCSS
+        }
         query(overlay.anchor)
             .off(`.${scope}`)
             .removeClass(overlay.options.anchorClass)
