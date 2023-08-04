@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (7/20/2023, 7:34:10 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (8/4/2023, 10:21:09 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -833,7 +833,7 @@ button.w2ui-btn:disabled {
 }
 .w2ui-colors .w2ui-tab-content.tab-1 .w2ui-color-row .w2ui-color.w2ui-no-color {
   border: 1px solid #efefef;
-  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAABlBMVEX/////TgCFoIUYAAAAGUlEQVR42uXHIQEAAACDsNO/NJ4Kn9uC8wsJkAARUrXAjwAAAABJRU5ErkJggg==) 15px 15px;
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAABlBMVEX/////TgCFoIUYAAAAGUlEQVR42uXHIQEAAACDsNO/NJ4Kn9uC8wsJkAARUrXAjwAAAABJRU5ErkJggg==) 16px 16px;
 }
 .w2ui-colors .w2ui-tab-content.tab-1 .w2ui-color-row .w2ui-color.w2ui-selected:before {
   content: '\2022';
@@ -2219,7 +2219,6 @@ textarea.w2ui-error {
   height: 26px;
   width: 26px;
   font-size: 16px;
-  color: #a4adb1;
   cursor: pointer;
   padding: 7px 2px 7px 2px;
   border-radius: 4px;
@@ -2228,11 +2227,15 @@ textarea.w2ui-error {
 .w2ui-grid .w2ui-grid-toolbar .w2ui-grid-search-input .w2ui-search-drop span.w2ui-icon-drop {
   position: relative;
   top: -2px;
+  color: #8d99a7;
 }
 .w2ui-grid .w2ui-grid-toolbar .w2ui-grid-search-input .w2ui-search-drop:hover,
 .w2ui-grid .w2ui-grid-toolbar .w2ui-grid-search-input .w2ui-search-drop.checked {
-  color: #fff;
   background-color: #56a1e2;
+}
+.w2ui-grid .w2ui-grid-toolbar .w2ui-grid-search-input .w2ui-search-drop:hover span.w2ui-icon-drop,
+.w2ui-grid .w2ui-grid-toolbar .w2ui-grid-search-input .w2ui-search-drop.checked span.w2ui-icon-drop {
+  color: #fff;
 }
 .w2ui-grid .w2ui-grid-toolbar .w2ui-grid-searches {
   display: flex;

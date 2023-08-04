@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (7/20/2023, 7:34:10 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (8/4/2023, 10:21:09 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -272,7 +272,7 @@ class w2base {
                 if (cl.startsWith('w2ui-')) remove.push(cl)
             })
         }
-        query(this.box).removeClass(remove)
+        query(this.box).removeClass(remove).removeAttr('name').html('')
         this.box = null
     }
 }
@@ -4330,8 +4330,10 @@ class Tooltip {
         } else {
             query(overlay.anchor).data('tooltipName', names)
         }
-        // restore original CSS
-        overlay.anchor.style.cssText = overlay.tmp.originalCSS
+        // restore original CSS, only if anchor styles where extended
+        if (overlay.options.anchorStyle) {
+            overlay.anchor.style.cssText = overlay.tmp.originalCSS
+        }
         query(overlay.anchor)
             .off(`.${scope}`)
             .removeClass(overlay.options.anchorClass)
@@ -4655,7 +4657,7 @@ class ColorTooltip extends Tooltip {
         // add remove transparent color
         if (options.transparent && this.palette[0][1] == '333333') {
             this.palette[0].splice(1, 1)
-            this.palette[0].push('')
+            this.palette[0].push('TRANSPARENT')
         }
         if (!options.transparent && this.palette[0][1] != '333333') {
             this.palette[0].splice(1, 0, '333333')
@@ -4695,13 +4697,16 @@ class ColorTooltip extends Tooltip {
             let overlay = event.detail.overlay
             let anchor  = overlay.anchor
             let color   = overlay.newColor ?? overlay.options.color ?? ''
-            if (['INPUT', 'TEXTAREA'].includes(anchor.tagName) && anchor.value != color) {
-                anchor.value = color
+            // color has been selected
+            if (color !== '') {
+                if (['INPUT', 'TEXTAREA'].includes(anchor.tagName) && anchor.value != color) {
+                    anchor.value = color
+                }
+                let edata = this.trigger('select', { color, target: overlay.name, overlay })
+                if (edata.isCancelled === true) return
+                // event after
+                edata.finish()
             }
-            let edata = this.trigger('select', { color, target: overlay.name, overlay })
-            if (edata.isCancelled === true) return
-            // event after
-            edata.finish()
         })
         ret.liveUpdate = (callback) => {
             overlay.on('liveUpdate.attach', (event) => { callback(event) })
@@ -4731,7 +4736,7 @@ class ColorTooltip extends Tooltip {
             query(overlay.anchor).val(color)
         }
         overlay.newColor = color
-        query(overlay.box).find('.w2ui-selected').removeClass('w2ui-selected')
+        query(overlay.box).find('.w2ui-color.w2ui-selected').removeClass('w2ui-selected')
         if (target) {
             query(target).addClass('w2ui-selected')
         }
@@ -4788,7 +4793,7 @@ class ColorTooltip extends Tooltip {
                 let border = ''
                 if (color === 'FFFFFF') border = '; border: 1px solid #efefef'
                 html += `
-                    <div class="w2ui-color w2ui-eaction ${color === '' ? 'w2ui-no-color' : ''} ${options.color == color ? 'w2ui-selected' : ''}"
+                    <div class="w2ui-color w2ui-eaction ${color === 'TRANSPARENT' ? 'w2ui-no-color' : ''} ${options.color == color ? 'w2ui-selected' : ''}"
                         style="background-color: #${color + border};" name="${color}" index="${i}:${j}"
                         data-mousedown="select|'${color}'|event" data-mouseup="hide|${name}">&nbsp;
                     </div>`
@@ -4834,7 +4839,7 @@ class ColorTooltip extends Tooltip {
         // color tabs on the bottom
         html += `
             <div class="w2ui-color-tabs">
-                <div class="w2ui-color-tab selected w2ui-eaction" data-click="tabClick|1|event|this"><span class="w2ui-icon w2ui-icon-colors"></span></div>
+                <div class="w2ui-color-tab w2ui-selected w2ui-eaction" data-click="tabClick|1|event|this"><span class="w2ui-icon w2ui-icon-colors"></span></div>
                 <div class="w2ui-color-tab w2ui-eaction" data-click="tabClick|2|event|this"><span class="w2ui-icon w2ui-icon-settings"></span></div>
                 <div style="padding: 5px; width: 100%; text-align: right;">
                     ${(typeof options.html == 'string' ? options.html : '')}
@@ -4847,7 +4852,8 @@ class ColorTooltip extends Tooltip {
         let initial // used for mouse events
         let self = this
         let options = overlay.options
-        let rgb = w2utils.parseColor(options.color || overlay.tmp.initColor)
+        let color = options.color || overlay.tmp.initColor
+        let rgb = w2utils.parseColor(color)
         if (rgb == null) {
             rgb = { r: 140, g: 150, b: 160, a: 1 }
         }
@@ -4855,7 +4861,7 @@ class ColorTooltip extends Tooltip {
         if (options.advanced === true) {
             this.tabClick(2, overlay.name)
         }
-        setColor(hsv, true, true)
+        setColor(hsv, true, color)
         // even for rgb, hsv inputs
         query(overlay.box)
             .off('.w2color')
@@ -4938,12 +4944,12 @@ class ColorTooltip extends Tooltip {
             })
             // if it is in pallette
             if (initial) {
-                let color = overlay.tmp?.initColor || newColor
+                let color = overlay.tmp.initColor || newColor
                 query(overlay.box).find('.color-original')
-                    .css('background-color', '#'+color)
-                query(overlay.box).find('.w2ui-colors .w2ui-selected')
+                    .css('background-color', '#' + color)
+                query(overlay.box).find('.w2ui-color.w2ui-selected')
                     .removeClass('w2ui-selected')
-                query(overlay.box).find(`.w2ui-colors [name="${color}"]`)
+                query(overlay.box).find(`.w2ui-colors [name="${color}"], .w2ui-colors [name="${initial}"]`) // color conversion might be slightly off
                     .addClass('w2ui-selected')
                 // if has transparent color, open advanced tab
                 if (newColor.length == 8) {
@@ -7138,10 +7144,7 @@ class w2toolbar extends w2base {
         if (edata.isCancelled === true) return
         // clean up
         if (query(this.box).find('.w2ui-scroll-wrapper  .w2ui-tb-right').length > 0) {
-            query(this.box)
-                .removeAttr('name')
-                .removeClass('w2ui-reset w2ui-toolbar')
-                .html('')
+            this.unmount()
         }
         query(this.box).html('')
         this.last.observeResize?.disconnect()
@@ -8958,10 +8961,7 @@ class w2sidebar extends w2base {
         if (edata.isCancelled === true) return
         // clean up
         if (query(this.box).find('.w2ui-sidebar-body').length > 0) {
-            query(this.box)
-                .removeAttr('name')
-                .removeClass('w2ui-reset w2ui-sidebar')
-                .html('')
+            this.unmount()
         }
         this.last.observeResize?.disconnect()
         delete w2ui[this.name]
@@ -9508,10 +9508,7 @@ class w2tabs extends w2base {
         if (edata.isCancelled === true) return
         // clean up
         if (query(this.box).find('#tabs_'+ this.name + '_right').length > 0) {
-            query(this.box)
-                .removeAttr('name')
-                .removeClass('w2ui-reset w2ui-tabs')
-                .html('')
+            this.unmount()
         }
         this.last.observeResize?.disconnect()
         delete w2ui[this.name]
@@ -9746,6 +9743,10 @@ class w2layout extends w2base {
             query(this.box).find(pname).get(0).scrollTop = 0
             panelTop = query(current).css('top')
         }
+        // clean up previous content
+        if (typeof p.html.unmount == 'function') p.html.unmount()
+        current.addClass('w2ui-panel-content')
+        current.removeAttr('style') // styles could have added manually, but all necessary will be added by refresh
         if (p.html === '') {
             p.html = data
             this.refresh(panel)
@@ -10667,10 +10668,7 @@ class w2layout extends w2base {
         if (w2ui[this.name] == null) return false
         // clean up
         if (query(this.box).find('#layout_'+ this.name +'_panel_main').length > 0) {
-            query(this.box)
-                .removeAttr('name')
-                .removeClass('w2ui-layout')
-                .html('')
+            this.unmount()
         }
         this.last.observeResize?.disconnect()
         delete w2ui[this.name]
@@ -16526,10 +16524,7 @@ class w2grid extends w2base {
         // clean up
         if (typeof this.toolbar == 'object' && this.toolbar.destroy) this.toolbar.destroy()
         if (query(this.box).find(`#grid_${this.name}_body`).length > 0) {
-            query(this.box)
-                .removeAttr('name')
-                .removeClass('w2ui-reset w2ui-grid w2ui-inactive')
-                .html('')
+            this.unmount()
         }
         this.last.observeResize?.disconnect()
         delete w2ui[this.name]
@@ -20981,10 +20976,7 @@ class w2form extends w2base {
         if (typeof this.toolbar === 'object' && this.toolbar.destroy) this.toolbar.destroy()
         if (typeof this.tabs === 'object' && this.tabs.destroy) this.tabs.destroy()
         if (query(this.box).find('#form_'+ this.name +'_tabs').length > 0) {
-            query(this.box)
-                .removeAttr('name')
-                .removeClass('w2ui-reset w2ui-form')
-                .html('')
+            this.unmount()
         }
         this.last.observeResize?.disconnect()
         delete w2ui[this.name]
