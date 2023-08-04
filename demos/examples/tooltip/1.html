@@ -23,15 +23,13 @@
     }
 </style>
 
-<div style="position: absolute; margin-left: 250px; margin-top: 25px;">
-    <button class="w2ui-btn" onclick="showTooltip()">Dark Theme (default)</button>
-    <button class="w2ui-btn" onclick="showTooltip({ class: 'w2ui-light' } )">Light Theme</button>
-    <button class="w2ui-btn" onclick="showTooltip({ class: 'w2ui-white' } )">White Theme</button>
+<div style="margin-top: 25px;">
+    <button class="w2ui-btn" onclick="showTooltip(this)">Dark Theme (default)</button>
+    <button class="w2ui-btn" onclick="showTooltip(this, { class: 'w2ui-light' } )">Light Theme</button>
+    <button class="w2ui-btn" onclick="showTooltip(this, { class: 'w2ui-white' } )">White Theme</button>
     <button class="w2ui-btn" onclick="hideTooltip()">Hide Tooltip</button>
 </div>
 
-<div style="height: 20px"></div>
-<div id="some-div" class="custom">Tooltip Anchor</div>
 <div style="height: 50px"></div>
 
 <div style="width: 200px; float: left">
@@ -66,12 +64,12 @@ let message = '<div style="padding: 4px">The message for the tooltip can be shor
 
 window.setAlign = function (value) { align = value }
 window.setPosition = function (value) { position = value }
-window.showTooltip = function (options = {}) {
+window.showTooltip = function (el, options = {}) {
     w2tooltip.show(w2utils.extend(options, {
         align,
         position,
         name: 'demo-tooltip',
-        anchor: document.querySelector('#some-div'),
+        anchor: el,
         html: message
     }))
 }

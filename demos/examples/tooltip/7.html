@@ -1,0 +1,226 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Advanced Controls</h1>
+        In 2.0 tooltip were completely rewritten and much improved. Now they use DOM observers instead of timers to keep track
+        of its content to adjust size and position. <br>It is also easier to extend them as Tooltip is now a class.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<style>
+#custom {
+    float: left;
+    width: 400px;
+    height: 428px;
+    padding: 10px;
+    margin-top: 34px;
+    margin-left: 10px;
+}
+
+#form {
+    float: left;
+    width: 400px;
+    height: 480px;
+    margin-left: 10px;
+}
+
+#drag-me {
+    position: absolute;
+    top: 320px;
+    left: 770px;
+    z-index: 1000;
+    display: inline-block;
+    border: 1px solid #dedede;
+    border-radius: 4px;
+    padding: 20px;
+    background-color: #f6f5ff;
+    color: #777;
+    cursor: move;
+    white-space: nowrap;
+}
+</style>
+
+<div id="form"> </div>
+<div id="custom"></div>
+
+<div style="clear: both"></div>
+
+<!--CODE-->
+<script type="module">
+import { query, w2tooltip, w2form } from '__W2UI_PATH__'
+
+// execute on document.ready
+let form = new w2form({
+    name: 'tooltip-form',
+    box: '#form',
+    // focus: -1,
+    style: 'border: 0; background-color: transparent',
+    fields: {
+        "Tooltip Properties": {
+            type: 'group',
+            style: 'background-color: #fcfcfc',
+            span: 4,
+            fields: {
+                html: {
+                    type: 'textarea',
+                    label: 'HTML',
+                    attr: 'style="width: 100%; height: 80px; resize: none"',
+                },
+                arrowSize: {
+                    type: 'int',
+                    label: 'Arrow Size',
+                    options: { min: 0, max: 40, arrow: false },
+                    attr: 'style="width: 60px"',
+                },
+                padding: {
+                    type: 'int',
+                    label: 'Padding',
+                    options: { min: 0, max: 100, arrow: false },
+                    attr: 'style="width: 60px"',
+                },
+                color: {
+                    type: 'color',
+                    label: 'Color',
+                    attr: 'style="width: 120px"',
+                },
+                "bg-color": {
+                    type: 'color',
+                    label: 'BG Color',
+                    attr: 'style="width: 120px"',
+                },
+                "border-size": {
+                    type: 'int',
+                    label: 'Border',
+                    options: { min: 0, max: 20, arrow: false },
+                    attr: 'style="width: 60px"',
+                    text: '%border-style% %border-color%'
+                },
+                "border-style": {
+                    type: 'list',
+                    label: '',
+                    attr: 'style="width: 70px"',
+                    options: { items: ['none', 'solid', 'dotted', 'dashed'] },
+                    anchor: '%border-style%'
+                },
+                "border-color": {
+                    type: 'color',
+                    label: '',
+                    attr: 'style="width: 90px"',
+                    anchor: '%border-color%'
+                },
+                position: {
+                    type: 'list',
+                    label: 'Position',
+                    attr: 'style="width: 120px"',
+                    options: {
+                        items: ['top|bottom', 'bottom|top', 'left|right', 'right|left', 'left', 'right', 'top', 'bottom']
+                    }
+                },
+                alignment: {
+                    type: 'list',
+                    label: 'Alignment',
+                    attr: 'style="width: 120px"',
+                    options: { items: ['none', 'left', 'right', 'both'] }
+                },
+                theme: {
+                    type: 'list',
+                    label: 'Theme',
+                    attr: 'style="width: 120px"',
+                    options: { items: ['w2ui-light', 'w2ui-dark', 'w2ui-white'] }
+                },
+            }
+        }
+    },
+    record: {
+        html: 'Tooltip html text<br>\n'+
+              'Can also be multiline',
+        arrowSize: 12,
+        padding: 10,
+        // position: 'right|left',
+        position: 'bottom|top',
+        alignment: 'none',
+        theme: 'w2ui-light',
+        "border-size": 1,
+        "border-style": 'solid',
+        "border-color": 'ccc',
+        'color': '',
+        'bg-color': ''
+    },
+    onInput(event) {
+        let fld = event.detail.field
+        let val = event.detail.value.current
+        if (fld.name == 'theme') {
+            // reset colors, as it would interfere with the theme
+            this.setValue('color', '')
+            this.setValue('bg-color', '')
+            this.refresh('color', 'bg-color')
+        }
+        event.done(() => { updateTooltip() })
+    }
+})
+// insert draggable element
+query(document.body).prepend('<span id="drag-me">Drag me to the corners</span>')
+updateTooltip()
+dragElement(query('#drag-me').get(0))
+
+function updateTooltip() {
+    let rec = form.record
+    let style = `padding: ${rec.padding}px; color: #${rec['color']??''}; ${rec['bg-color'] ? `background-color: #${rec['bg-color']}` : ''};
+        border: ${rec['border-size']}px ${rec['border-style'].id} #${rec['border-color']}`
+    // show tooltip
+    w2tooltip.show({
+        anchor: query('#drag-me')[0],
+        html: rec.html,
+        class: rec.theme.id,
+        arrowSize: parseInt(rec.arrowSize),
+        style,
+        position: rec.position.id,
+        align: rec.alignment.id
+    })
+}
+
+// make a div draggable
+function dragElement(elmnt) {
+  var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+  if (document.getElementById(elmnt.id)) {
+    // if present, the header is where you move the DIV from:
+    document.getElementById(elmnt.id).onmousedown = dragMouseDown;
+  } else {
+    // otherwise, move the DIV from anywhere inside the DIV:
+    elmnt.onmousedown = dragMouseDown;
+  }
+
+  function dragMouseDown(e) {
+    e = e || window.event;
+    e.preventDefault();
+    // get the mouse cursor position at startup:
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    document.onmouseup = closeDragElement;
+    // call a function whenever the cursor moves:
+    document.onmousemove = elementDrag;
+  }
+
+  function elementDrag(e) {
+    e = e || window.event;
+    e.preventDefault();
+    // calculate the new cursor position:
+    pos1 = pos3 - e.clientX;
+    pos2 = pos4 - e.clientY;
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    // set the element's new position:
+    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+    updateTooltip()
+  }
+
+  function closeDragElement() {
+    // stop moving when mouse button is released:
+    document.onmouseup = null;
+    document.onmousemove = null;
+  }
+}
+</script>

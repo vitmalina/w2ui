@@ -25,15 +25,14 @@
     }
 </style>
 
-<div style="position: absolute; margin-left: 250px; margin-top: 25px;">
-    <button class="w2ui-btn" onclick="showDate('date')">Date (2.0+)</button>
-    <button class="w2ui-btn" onclick="showDate('time')">Time (2.0+)</button>
-    <button class="w2ui-btn" onclick="showDate('datetime')">Date & Time (2.0+)</button>
-    <button class="w2ui-btn" onclick="showColor()">Color (2.0+)</button>
+<div style="margin-top: 25px;">
+    <button class="w2ui-btn" onclick="showColor(this)">Color (2.0+)</button>
+    <button class="w2ui-btn" onclick="showDate(this, 'date')">Date (2.0+)</button>
+    <button class="w2ui-btn" onclick="showDate(this, 'time')">Time (2.0+)</button>
+    <button class="w2ui-btn" onclick="showDate(this, 'datetime')">Date & Time (2.0+)</button>
+    <button class="w2ui-btn" onclick="hideTooltip()">Hide Tooltip</button>
 </div>
 
-<div style="height: 20px"></div>
-<div id="some-div" class="custom">Tooltip Anchor</div>
 <div style="height: 50px"></div>
 
 <div style="width: 200px; float: left">
@@ -41,8 +40,8 @@
     <div style="padding: 10px; margin-bottom: 20px; line-height: 2">
         <label><input name="postion" type="radio" onclick="setPosition('left')"> &nbsp;left</label><br>
         <label><input name="postion" type="radio" onclick="setPosition('right')"> &nbsp;right</label><br>
-        <label><input name="postion" type="radio" onclick="setPosition('top')"> &nbsp;top</label><br>
-        <label><input name="postion" type="radio" onclick="setPosition('bottom')" checked> &nbsp;bottom</label><br>
+        <label><input name="postion" type="radio" onclick="setPosition('top')" checked> &nbsp;top</label><br>
+        <label><input name="postion" type="radio" onclick="setPosition('bottom')"> &nbsp;bottom</label><br>
         <label><input name="postion" type="radio" onclick="setPosition('top|bottom')"> &nbsp;top or bottom</label><br>
         <label><input name="postion" type="radio" onclick="setPosition('right|left')"> &nbsp;right or left</label><br>
     </div>
@@ -62,17 +61,17 @@
 import { w2tooltip, w2color, w2date, w2utils } from '__W2UI_PATH__'
 
 let align = 'none';
-let position = 'bottom';
+let position = 'top';
 
 window.setAlign = function(value) { align = value }
 window.setPosition = function(value) { position = value }
 
-window.showColor = function() {
+window.showColor = function(el) {
     w2color.show({
             align,
             position,
             name: 'demo-tooltip',
-            anchor: document.querySelector('#some-div'),
+            anchor: el,
             onSelect(event) {
                 w2utils.notify(`Selected "${event.detail.color}" color`)
             }
@@ -94,10 +93,10 @@ window.showColor = function() {
         })
 }
 
-window.showDate = function(type) {
+window.showDate = function(el, type) {
     w2date.show({
             name: 'demo-tooltip',
-            anchor: document.querySelector('#some-div'),
+            anchor: el,
             type,
             align,
             position,
@@ -122,5 +121,8 @@ window.showDate = function(type) {
         .select((event) => {
             w2utils.notify(`Date selected "${event.detail.date}"`)
         })
+}
+window.hideTooltip = function () {
+    w2tooltip.hide('demo-tooltip')
 }
 </script>

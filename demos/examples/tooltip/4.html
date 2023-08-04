@@ -24,16 +24,14 @@
         background-color: #f8f8f5;
     }
 </style>
-<div style="position: absolute; margin-left: 250px; margin-top: 25px;">
-    <button class="w2ui-btn" onclick="showMenu()">Show Menu</button>
-    <button class="w2ui-btn" onclick="showMenu({ class: 'w2ui-dark' })">Dark Theme</button>
-    <button class="w2ui-btn" onclick="showMenu2()">Radio Menu</button>
-    <button class="w2ui-btn" onclick="showMenu3()">Check Menu</button>
-    <button class="w2ui-btn" onclick="showMenu4()">Groups of Radio</button>
+<div style=" margin-top: 25px;">
+    <button class="w2ui-btn" onclick="showMenu(this)">Show Menu</button>
+    <button class="w2ui-btn" onclick="showMenu(this, { class: 'w2ui-dark' })">Dark Theme</button>
+    <button class="w2ui-btn" onclick="showMenu2(this)">Radio Menu</button>
+    <button class="w2ui-btn" onclick="showMenu3(this)">Check Menu</button>
+    <button class="w2ui-btn" onclick="showMenu4(this)">Groups of Radio</button>
 </div>
 
-<div style="height: 20px"></div>
-<div id="some-div" class="custom">Tooltip Anchor</div>
 <div style="height: 50px"></div>
 
 <div style="width: 200px; float: left">
@@ -41,8 +39,8 @@
     <div style="padding: 10px; margin-bottom: 20px; line-height: 2">
         <label><input name="postion" type="radio" onclick="setPosition('left')"> &nbsp;left</label><br>
         <label><input name="postion" type="radio" onclick="setPosition('right')"> &nbsp;right</label><br>
-        <label><input name="postion" type="radio" onclick="setPosition('top')"> &nbsp;top</label><br>
-        <label><input name="postion" type="radio" onclick="setPosition('bottom')" checked> &nbsp;bottom</label><br>
+        <label><input name="postion" type="radio" onclick="setPosition('top')" checked> &nbsp;top</label><br>
+        <label><input name="postion" type="radio" onclick="setPosition('bottom')"> &nbsp;bottom</label><br>
         <label><input name="postion" type="radio" onclick="setPosition('top|bottom')"> &nbsp;top or bottom</label><br>
         <label><input name="postion" type="radio" onclick="setPosition('right|left')"> &nbsp;right or left</label><br>
     </div>
@@ -63,16 +61,16 @@
 import { query, w2menu, w2utils } from '__W2UI_PATH__'
 
 let align = 'left';
-let position = 'bottom'
+let position = 'top'
 
 window.setAlign = function(value) { align = value }
 window.setPosition = function(value) { position = value }
 
-window.showMenu = function(options = {}) {
+window.showMenu = function(el, options = {}) {
     w2menu.hide('menu-overlay') // hide if previously opened
     w2menu.show(w2utils.extend({
         name: 'menu-overlay',
-        anchor: query('#some-div')[0],
+        anchor: el,
         align,
         position,
         hideOn: ['doc-click', 'select', 'blur'],
@@ -96,12 +94,12 @@ window.showMenu = function(options = {}) {
     });
 }
 
-window.showMenu2 = function() {
+window.showMenu2 = function(el) {
     w2menu.hide('menu-overlay') // hide if previously opened
     w2menu.show({
         type: 'radio',
         name: 'menu-overlay',
-        anchor: query('#some-div')[0],
+        anchor: el,
         align,
         position,
         hideOn: ['doc-click', 'select', 'blur'],
@@ -121,12 +119,12 @@ window.showMenu2 = function() {
     });
 }
 
-window.showMenu3 = function() {
+window.showMenu3 = function(el) {
     w2menu.hide('menu-overlay') // hide if previously opened
     w2menu.show({
         type: 'check',
         name: 'menu-overlay',
-        anchor: query('#some-div')[0],
+        anchor: el,
         align,
         position,
         hideOn: ['doc-click', 'select', 'blur'],
@@ -151,12 +149,12 @@ window.showMenu3 = function() {
     });
 }
 
-window.showMenu4 = function() {
+window.showMenu4 = function(el) {
     w2menu.hide('menu-overlay') // hide if previously opened
     w2menu.show({
         type: 'check',
         name: 'menu-overlay',
-        anchor: query('#some-div')[0],
+        anchor: el,
         align,
         position,
         hideOn: ['doc-click', 'select', 'blur'],
