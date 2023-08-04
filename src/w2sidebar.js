@@ -1177,6 +1177,25 @@ class w2sidebar extends w2base {
                     }
                 }, 1)
             })
+        /**
+         * FlatHTML is always present and in .refresh() it is just refreshed. However topHTML and buttomHTML should be here
+         * because it should never be refreshed, as it could create recursive refresh loop
+         */
+        let flatHTML = `<div class="w2ui-flat w2ui-flat-${(this.flat ? 'right' : 'left')}" ${this.flatButton == false ? 'style="display: none"' : ''}></div>`
+        if (this.topHTML !== '' || flatHTML !== '') {
+            query(this.box).find('.w2ui-sidebar-top').html(this.topHTML + flatHTML)
+            query(this.box).find('.w2ui-sidebar-body')
+                .css('top', query(this.box).find('.w2ui-sidebar-top').get(0)?.clientHeight + 'px')
+            query(this.box).find('.w2ui-flat')
+                .off('click')
+                .on('click', event => { this.goFlat() })
+        }
+        if (this.bottomHTML !== '') {
+            query(this.box).find('.w2ui-sidebar-bottom').html(this.bottomHTML)
+            query(this.box).find('.w2ui-sidebar-body')
+                .css('bottom', query(this.box).find('.w2ui-sidebar-bottom').get(0)?.clientHeight + 'px')
+        }
+
         // observe div resize
         this.last.observeResize = new ResizeObserver(() => { this.resize() })
         this.last.observeResize.observe(this.box)
@@ -1268,23 +1287,13 @@ class w2sidebar extends w2base {
             fullRefresh: (id != null ? false : true)
         })
         if (edata.isCancelled === true) return
-        // adjust top and bottom
-        let flatHTML = ''
         if (this.flatButton == true) {
-            flatHTML = `<div class="w2ui-flat w2ui-flat-${(this.flat ? 'right' : 'left')}"></div>`
-        }
-        if (id == null && (this.topHTML !== '' || flatHTML !== '')) {
-            query(this.box).find('.w2ui-sidebar-top').html(this.topHTML + flatHTML)
-            query(this.box).find('.w2ui-sidebar-body')
-                .css('top', query(this.box).find('.w2ui-sidebar-top').get(0)?.clientHeight + 'px')
-            query(this.box).find('.w2ui-flat')
-                .off('click')
-                .on('click', event => { this.goFlat() })
-        }
-        if (id != null && this.bottomHTML !== '') {
-            query(this.box).find('.w2ui-sidebar-bottom').html(this.bottomHTML)
-            query(this.box).find('.w2ui-sidebar-body')
-                .css('bottom', query(this.box).find('.w2ui-sidebar-bottom').get(0)?.clientHeight + 'px')
+            query(this.box).find('.w2ui-sidebar-top .w2ui-flat').show()
+                .removeClass('w2ui-flat-left w2ui-flat-right')
+                .addClass(` w2ui-flat-${(this.flat ? 'right' : 'left')}`)
+
+        } else {
+            query(this.box).find('.w2ui-sidebar-top .w2ui-flat').hide()
         }
         // default action
         query(this.box).find(':scope > div').removeClass('w2ui-sidebar-flat').addClass(this.flat ? 'w2ui-sidebar-flat' : '').css({
