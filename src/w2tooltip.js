@@ -1294,6 +1294,10 @@ class MenuTooltip extends Tooltip {
                 w2utils.bindEvents(actions, this)
                 this.applyFilter(overlay.name, null, search)
                     .then(data => {
+                        if (!Tooltip.active[overlay.name].displayed) {
+                        // if toolitp is not visible, do not proceed as it would make it visible
+                        return
+                        }
                         overlay.tmp.searchCount = data.count
                         overlay.tmp.search = data.search
                         if (options.prefilter) {

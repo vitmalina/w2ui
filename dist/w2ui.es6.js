@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (8/4/2023, 3:41:46 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (8/4/2023, 5:04:27 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -5127,6 +5127,10 @@ class MenuTooltip extends Tooltip {
                 w2utils.bindEvents(actions, this)
                 this.applyFilter(overlay.name, null, search)
                     .then(data => {
+                        if (!Tooltip.active[overlay.name].displayed) {
+                        // if toolitp is not visible, do not proceed as it would make it visible
+                        return
+                        }
                         overlay.tmp.searchCount = data.count
                         overlay.tmp.search = data.search
                         if (options.prefilter) {
@@ -6854,7 +6858,7 @@ class w2toolbar extends w2base {
                             // need a closure to capture id variable
                             let self = this
                             return function () {
-                                self.get(id).checked = false
+                                self.set(id, { checked: false })
                             }
                         }
                         let el = query(this.box).find('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id))
