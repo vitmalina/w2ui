@@ -777,7 +777,7 @@ class ColorTooltip extends Tooltip {
             position    : 'top|bottom',
             class       : 'w2ui-white',
             color       : '',
-            liveUpdate  : true,
+            updateInput : true,
             arrowSize   : 12,
             autoResize  : false,
             anchorClass : 'w2ui-focus',
@@ -848,7 +848,7 @@ class ColorTooltip extends Tooltip {
             let color   = overlay.newColor ?? overlay.options.color ?? ''
             // color has been selected
             if (color !== '') {
-                if (['INPUT', 'TEXTAREA'].includes(anchor.tagName) && anchor.value != color) {
+                if (['INPUT', 'TEXTAREA'].includes(anchor.tagName) && anchor.value != color && overlay.options.updateInput) {
                     anchor.value = color
                 }
                 let edata = this.trigger('select', { color, target: overlay.name, overlay })
@@ -882,7 +882,7 @@ class ColorTooltip extends Tooltip {
         let edata = this.trigger('liveUpdate', { color, target: name, overlay, param: arguments[1] })
         if (edata.isCancelled === true) return
         // if anchor is input - live update
-        if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName) && overlay.options.liveUpdate) {
+        if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName) && overlay.options.updateInput) {
             query(overlay.anchor).val(color)
         }
         overlay.newColor = color
