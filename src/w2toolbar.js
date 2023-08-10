@@ -70,8 +70,32 @@ class w2toolbar extends w2base {
             onRefresh: null
         }
         this.last = {
-            badge: {}
+            badge: {},
+            pendingRefresh: {} // what should be refreshed with a debounce
         }
+        /**
+         * This _refresh function is needed for speed. It will store what should be refreshed in this.last.refesh
+         * obect and then call _refreshDebounced(), which will do it withing 15 ms. However, if new items are added
+         * they will not cause multiple unnecessary refreshes
+         */
+        this._refresh = ({ effected, resize, refreshTooltip }) => {
+            let options = this.last.pendingRefresh
+            options.ids ??= []
+            options.ids.push(...effected)
+            Object.assign(options, { resize, refreshTooltip })
+            this._refreshDebounced()
+        }
+        this._refreshDebounced = w2utils.debounce(() => {
+            let options = this.last.pendingRefresh
+            // new Set will make array unique
+            new Set(options.ids).forEach(id => {
+                this.refresh(id)
+                if (options.hideTooltip) this.tooltipHide(id)
+            })
+            if (options.resize) this.resize()
+            // once refresh is complete, then clear refresh object
+            this.last.pendingRefresh = {}
+        }, 15)
         // mix in options, w/o items
         let items = options.items
         delete options.items
@@ -234,7 +258,7 @@ class w2toolbar extends w2base {
             it.hidden = false
             effected.push(String(item).split(':')[0])
         })
-        setTimeout(() => { effected.forEach(it => { this.refresh(it); this.resize() }) }, 15) // needs timeout
+        this._refresh({ effected, resize: true }) // debounced, needed for speed
         return effected
     }
 
@@ -246,7 +270,7 @@ class w2toolbar extends w2base {
             it.hidden = true
             effected.push(String(item).split(':')[0])
         })
-        setTimeout(() => { effected.forEach(it => { this.refresh(it); this.tooltipHide(it); this.resize() }) }, 15) // needs timeout
+        this._refresh({ effected, hideTooltip: true, resize: true }) // debounced, needed for speed
         return effected
     }
 
@@ -258,7 +282,7 @@ class w2toolbar extends w2base {
             it.disabled = false
             effected.push(String(item).split(':')[0])
         })
-        setTimeout(() => { effected.forEach(it => { this.refresh(it) }) }, 15) // needs timeout
+        this._refresh({ effected }) // debounced, needed for speed
         return effected
     }
 
@@ -270,7 +294,7 @@ class w2toolbar extends w2base {
             it.disabled = true
             effected.push(String(item).split(':')[0])
         })
-        setTimeout(() => { effected.forEach(it => { this.refresh(it); this.tooltipHide(it) }) }, 15) // needs timeout
+        this._refresh({ effected, hideTooltip: true }) // debounced, needed for speed
         return effected
     }
 
@@ -282,7 +306,7 @@ class w2toolbar extends w2base {
             it.checked = true
             effected.push(String(item).split(':')[0])
         })
-        setTimeout(() => { effected.forEach(it => { this.refresh(it) }) }, 15) // needs timeout
+        this._refresh({ effected }) // debounced, needed for speed
         return effected
     }
 
@@ -298,7 +322,7 @@ class w2toolbar extends w2base {
             it.checked = false
             effected.push(String(item).split(':')[0])
         })
-        setTimeout(() => { effected.forEach(it => { this.refresh(it) }) }, 15) // needs timeout
+        this._refresh({ effected }) // debounced, needed for speed
         return effected
     }
 
