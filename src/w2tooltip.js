@@ -132,12 +132,19 @@ class Tooltip {
             overlay.prevOptions = overlay.options
             overlay.options = options // do not merge or extend, otherwiser menu items get merged too
             // overlay.options = w2utils.extend({}, overlay.options, options)
-            overlay.anchor  = anchor // as HTML elements are not copied
+            overlay.anchor = anchor // as HTML elements are not copied
             if (overlay.prevOptions.html != overlay.options.html || overlay.prevOptions.class != overlay.options.class
                     || overlay.prevOptions.style != overlay.options.style) {
                 overlay.needsUpdate = true
             }
             options = overlay.options // it was recreated
+            // clear all previous overlay events
+            Object.keys(overlay).forEach(key => {
+                let val = overlay[key]
+                if (key.startsWith('on') && typeof val == 'function') {
+                    delete overlay[key]
+                }
+            })
         } else {
             overlay = new w2base()
             Object.assign(overlay, {
@@ -1015,7 +1022,7 @@ class ColorTooltip extends Tooltip {
         if (options.advanced === true) {
             this.tabClick(2, overlay.name)
         }
-        setColor(hsv, true, color)
+        setColor(hsv, true, color ?? '') // should not be null or undefined
 
         // even for rgb, hsv inputs
         query(overlay.box)
@@ -1101,7 +1108,7 @@ class ColorTooltip extends Tooltip {
                 }
             })
             // if it is in pallette
-            if (initial) {
+            if (initial != null) {
                 let color = overlay.tmp.initColor || newColor
                 query(overlay.box).find('.color-original')
                     .css('background-color', '#' + color)

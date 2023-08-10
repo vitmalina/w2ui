@@ -19,7 +19,14 @@ new w2toolbar({
     name: 'toolbar',
     items: [
         { id: 'item1', type: 'color' },
-        { id: 'item3', type: 'text-color', transparent: false }
+        { id: 'item3', type: 'text-color',
+            overlay: {
+                transparent: false,
+                onLiveUpdate(event) {
+                    console.log(event.detail.color)
+                }
+            }
+        }
     ],
     onClick(event) {
         event.done(() => {
