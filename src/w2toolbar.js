@@ -20,6 +20,9 @@
  *  - item.items can be a function
  *  - item.icon_style - style for the icon
  *  - item.icon - can be a function
+ *  - item.type = 'label', item.type = 'input'
+ *  - item.placeholder
+ *  - item.spinner: { style, min, max, step, precision, suffix }
  */
 
 import { w2base } from './w2base.js'
@@ -37,6 +40,7 @@ class w2toolbar extends w2base {
         this.right         = '' // HTML text on the right of toolbar
         this.tooltip       = 'top|left'// can be top, bottom, left, right
         this.onClick       = null
+        this.onChange      = null
         this.onMouseDown   = null
         this.onMouseUp     = null
         this.onMouseEnter  = null // mouse enter the button event
@@ -47,7 +51,7 @@ class w2toolbar extends w2base {
         this.onDestroy     = null
         this.item_template = {
             id: null, // command to be sent to all event handlers
-            type: 'button', // button, check, radio, drop, menu, menu-radio, menu-check, break, html, spacer
+            type: 'button', // button, check, radio, drop, menu, menu-radio, menu-check, break, html, label, input spacer
             text: null,
             html: '',
             tooltip: null,  // w2toolbar.tooltip should be
@@ -121,7 +125,7 @@ class w2toolbar extends w2base {
                 item = arr[idx] = { id: item, text: item }
             }
             // checks
-            let valid = ['button', 'check', 'radio', 'drop', 'menu', 'menu-radio', 'menu-check', 'color', 'text-color', 'html',
+            let valid = ['button', 'check', 'radio', 'drop', 'menu', 'menu-radio', 'menu-check', 'color', 'text-color', 'html', 'label', 'input',
                 'break', 'spacer', 'new-line']
             if (!valid.includes(String(item.type))) {
                 console.log('ERROR: The parameter "type" should be one of the following:', valid, `, but ${item.type} is supplied.`, item)
@@ -610,17 +614,18 @@ class w2toolbar extends w2base {
             } else {
                 $next.after(html)
             }
-            w2utils.bindEvents(query(this.box).find(selector), this)
+            w2utils.bindEvents(query(this.box).find(`${selector}, ${selector} .w2ui-eaction`), this)
         } else {
             // refresh
             query(this.box).find(selector).replace(query.html(html))
-            let newBtn = query(this.box).find(selector).get(0)
+            let newBtn = query(this.box).find(selector)
             w2utils.bindEvents(newBtn, this)
+            w2utils.bindEvents(newBtn.find('.w2ui-eaction'), this)
             // update overlay's anchor if changed
             let overlays = w2tooltip.get(true)
             Object.keys(overlays).forEach(key => {
                 if (overlays[key].anchor == btn.get(0)) {
-                    overlays[key].anchor = newBtn
+                    overlays[key].anchor = newBtn.get(0)
                 }
             })
         }
@@ -742,12 +747,13 @@ class w2toolbar extends w2base {
             case 'button':
             case 'check':
             case 'radio':
+            case 'label':
             case 'drop': {
                 let arrow = (item.arrow === true
                     || (item.arrow !== false && ['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].includes(item.type)))
                 html = `
-                    <div id="tb_${this.name}_item_${item.id}" style="${(item.hidden ? 'display: none' : '')}"
-                        class="${classes.join(' ')} ${(item.class ? item.class : '')}"
+                    <div id="tb_${this.name}_item_${item.id}" class="${classes.join(' ')} ${(item.class ? item.class : '')}"
+                        style="${(item.hidden ? 'display: none' : '')} ${item.type == 'label' ? (item.style ?? '') : ''}"
                         ${!item.disabled
                             ? `data-click='["click","${item.id}"]'
                                data-mouseenter='["mouseAction", "event", "this", "Enter", "${item.id}"]'
@@ -758,7 +764,7 @@ class w2toolbar extends w2base {
                     >
                         ${ icon }
                         ${ (text != '' && text != null) || item.count != null || arrow
-                            ? `<div class="w2ui-tb-text" style="${(item.style ?? '')}; ${!text ? 'padding-left: 0; margin-left: 23px;' : ''}">
+                            ? `<div class="w2ui-tb-text" style="${item.type != 'label' ? (item.style ?? '') : ''}; ${!text ? 'padding-left: 0; margin-left: 23px;' : ''}">
                                     ${ w2utils.lang(text) }
                                     ${ item.count != null
                                         ? w2utils.stripSpaces(`
@@ -779,28 +785,128 @@ class w2toolbar extends w2base {
                 `
                 break
             }
-
-            case 'break':
+            case 'break': {
                 html = `<div id="tb_${this.name}_item_${item.id}" class="w2ui-tb-break"
                             style="${(item.hidden ? 'display: none' : '')}; ${(item.style ? item.style : '')}">
                             &#160;
                         </div>`
                 break
-
-            case 'spacer':
+            }
+            case 'spacer': {
                 html = `<div id="tb_${this.name}_item_${item.id}" class="w2ui-tb-spacer"
                             style="${(item.hidden ? 'display: none' : '')}; ${(item.style ? item.style : '')}">
                         </div>`
                 break
-
-            case 'html':
+            }
+            case 'html': {
                 html = `<div id="tb_${this.name}_item_${item.id}" class="w2ui-tb-html ${classes.join(' ')}"
                             style="${(item.hidden ? 'display: none' : '')}; ${(item.style ? item.style : '')}">
                             ${(typeof item.html == 'function' ? item.html.call(this, item) : item.html)}
                         </div>`
                 break
+            }
+            case 'input': {
+                let ph = item.placeholder
+                let val = item.value
+                // round to step
+                if (val != null && item.spinner) {
+                    let step = item.spinner?.step ?? 1
+                    let prec = item.spinner.precision ?? String(step).split('.')[1]?.length ?? 0
+                    val = val.toFixed(prec)
+                }
+                html = `<div id="tb_${this.name}_item_${item.id}" class="w2ui-tb-input w2ui-eaction ${classes.join(' ')}"
+                            style="${(item.hidden ? 'display: none' : '')}; ${(item.style ? item.style : '')}"
+                        >
+                            <span class="w2ui-input-label">${item.text ?? ''}</span>
+                            ${item.spinner
+                                ? `<span class="w2ui-spinner-dec w2ui-eaction" data-click='["spinner", "${item.id}", "dec", "event"]'> – </span>`
+                                : ''}
+                            <input class="w2ui-toolbar-input w2ui-eaction ${item.spinner ? 'w2ui-has-spinner' : ''}"
+                                ${ph ? `placeholder="${ph}"` : ''} style="${item.spinner?.style ?? ''}" value="${val ?? ''}${item.spinner?.suffix ?? ''}"
+                                data-change='["change", "${item.id}", "this"]'
+                                data-keydown='["spinner", "${item.id}", "key", "event"]'
+                                data-mouseenter='["mouseAction", "event", "this", "Enter", "${item.id}"]'
+                                data-mouseleave='["mouseAction", "event", "this", "Leave", "${item.id}"]'
+                            >
+                            ${item.spinner
+                                ? `<span class="w2ui-spinner-inc w2ui-eaction" data-click='["spinner", "${item.id}", "inc", "event"]'> + </span>`
+                                : ''}
+                        </div>`
+                break
+            }
         }
         return html
+    }
+
+    spinner(id, action, event) {
+        let it = this.get(id)
+        let inc = 0
+        switch (action) {
+            case 'inc': {
+                inc = (it.spinner?.step ?? 1)
+                break
+            }
+            case 'dec': {
+                inc = -(it.spinner?.step ?? 1)
+                break
+            }
+            case 'key': {
+                if (it.spinner) {
+                    switch(event.key) {
+                        case 'ArrowUp': {
+                            inc = (it.spinner?.step ?? 1) * (event.shiftKey || event.metaKey ? 10 : 1)
+                            event.preventDefault()
+                            break
+                        }
+                        case 'ArrowDown': {
+                            inc = -(it.spinner?.step ?? 1) * (event.shiftKey || event.metaKey ? 10 : 1)
+                            event.preventDefault()
+                            break
+                        }
+                    }
+                }
+                break
+            }
+        }
+        if (inc !== 0) {
+            this.change(id, (it.value ?? 0) + inc)
+        }
+    }
+
+    change(id, value) {
+        let it = this.get(id)
+        let input = query(this.box).find('#tb_'+ this.name +'_item_'+ w2utils.escapeId(id)).find('input.w2ui-toolbar-input')
+        if (value instanceof HTMLInputElement) {
+            value = value.value
+        }
+        if (value == null) value = input.val()
+        if (it.spinner) {
+            value = parseFloat(value)
+        }
+        // min/max
+        if (it.spinner?.min != null && it.spinner.min > value) {
+            value = it.spinner.min
+        }
+        if (it.spinner?.max != null && it.spinner.max < value) {
+            value = it.spinner.max
+        }
+        // round to step
+        if (it.spinner) {
+            if (isNaN(value)) value = it.spinner.min ?? 0
+            let step = it.spinner?.step ?? 1
+            let prec = it.spinner.precision ?? String(step).split('.')[1]?.length ?? 0
+            value = value.toFixed(prec)
+        }
+
+        // event beofre
+        let edata = this.trigger('change', { target: id, id, value, item: it })
+        if (edata.isCancelled) {
+            return
+        }
+        it.value = it.spinner ? parseFloat(value) : value
+        input.val(value + (it.spinner?.suffix ?? ''))
+        // event after
+        edata.finish()
     }
 
     tooltipShow(id) {
@@ -934,18 +1040,26 @@ class w2toolbar extends w2base {
         if (edata.isCancelled === true || btn.disabled || btn.hidden) return
         switch (action) {
             case 'Enter':
-                query(target).addClass('over')
+                if (!['label', 'input'].includes(btn.type)) {
+                    query(target).addClass('over')
+                }
                 this.tooltipShow(id)
                 break
             case 'Leave':
-                query(target).removeClass('over down')
+                if (!['label', 'input'].includes(btn.type)) {
+                    query(target).removeClass('over down')
+                }
                 this.tooltipHide(id)
                 break
             case 'Down':
-                query(target).addClass('down')
+                if (!['label', 'input'].includes(btn.type)) {
+                    query(target).addClass('down')
+                }
                 break
             case 'Up':
-                query(target).removeClass('down')
+                if (!['label', 'input'].includes(btn.type)) {
+                    query(target).removeClass('down')
+                }
                 break
         }
         edata.finish()

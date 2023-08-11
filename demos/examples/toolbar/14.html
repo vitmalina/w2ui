@@ -1,0 +1,84 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Label & Input</h1>
+        Two more toolbar item types have been added. Those are label and input.
+        <div style="height: 10px"></div>
+        Label is just like a button, but does not have hover efffect. It is fully clicable and supports all other features, such as icons, badges and tooltips.
+        <div style="height: 10px"></div>
+        Input is an input control that will generate change event when user changes value of the input. If it is a spinner user can change it
+        by clicking +/- buttons next to it.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="toolbar"></div>
+<div style="height: 30px"></div>
+
+<button class="w2ui-btn" id="set1">Set Label</button>
+<button class="w2ui-btn" id="set2">Update Style</button>
+<button class="w2ui-btn" id="set3">Clear Style</button>
+<span style="color: gray">|</span>
+<button class="w2ui-btn" id="set4">Enter Name</button>
+<button class="w2ui-btn" id="set5">Clear Name</button>
+<div style="height: 20px"></div>
+
+<!--CODE-->
+<script type="module">
+import { w2ui, w2toolbar, w2utils, query } from '__W2UI_PATH__'
+
+let toolbar = new w2toolbar({
+    box: '#toolbar',
+    name: 'toolbar',
+    tooltip: 'top',
+    items: [
+        { type: 'label', id: 'item1', text: 'Static Text', icon: 'w2ui-icon-colors', tooltip: 'Still can have tooltips' },
+        { type: 'break' },
+        { type: 'input', id: 'name', placeholder: 'Enter Name', tooltip: 'Input to', style: 'width: 100px' },
+        { type: 'break' },
+        { type: 'input', id: 'size', text: 'Size', tooltip: 'Font Size', value: 12,
+            spinner: {
+                style: 'width: 110px',
+                min: 0,
+                max: 100,
+                step: 1,
+                precision: 2,
+                // suffix: 'px'
+            }
+        },
+        { type: 'break' },
+        { type: 'input', id: 'spacing', text: 'Spacing', tooltip: 'Line Spacing', value: 1,
+            spinner: {
+                style: 'text-align: center; width: 85px',
+                min: 0.1,
+                max: 10,
+                step: .1
+            }
+        }
+    ],
+    onClick(event) {
+        w2utils.notify(`Label "${event.detail.item.text}" clicked`)
+    },
+    onChange(event) {
+        w2utils.notify(`Input "${event.detail.item.id}" changed to "${event.detail.value}"`)
+    }
+})
+
+query('#set1').on('click', event => {
+    toolbar.set('item1', { text: 'Label Changed' })
+})
+
+query('#set2').on('click', event => {
+    toolbar.set('item1', { style: 'background-color: lightgreen; border-radius: 0px' })
+})
+query('#set3').on('click', event => {
+    toolbar.set('item1', { style: '' })
+})
+query('#set4').on('click', event => {
+    toolbar.set('name', { value: 'Tim Keller' })
+})
+query('#set5').on('click', event => {
+    toolbar.set('name', { value: '' })
+})
+</script>
