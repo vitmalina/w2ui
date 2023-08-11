@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (8/9/2023, 8:36:47 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (8/10/2023, 5:46:29 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -3835,6 +3835,57 @@ textarea.w2ui-error {
 }
 .w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-html {
   white-space: nowrap;
+}
+.w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-input {
+  padding: 1px;
+}
+.w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-input .w2ui-input-label {
+  color: #474a51;
+}
+.w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-input input:not([type=button]):not([type=submit]):not([type=checkbox]):not([type=radio]) {
+  width: 100%;
+  height: 26px;
+  padding: 5px;
+}
+.w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-input input:not([type=button]):not([type=submit]):not([type=checkbox]):not([type=radio]):focus {
+  outline-color: #549eff;
+}
+.w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-input input:not([type=button]):not([type=submit]):not([type=checkbox]):not([type=radio]).w2ui-has-spinner {
+  width: 95px;
+  padding: 5px 30px;
+}
+.w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-input .w2ui-spinner-dec,
+.w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-input .w2ui-spinner-inc {
+  position: absolute;
+  padding-top: 2px;
+  margin: 2px;
+  background-color: #f9fafa;
+  width: 22px;
+  height: 22px;
+  font-size: 16px;
+  text-align: center;
+  color: #888;
+}
+.w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-input .w2ui-spinner-dec:hover,
+.w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-input .w2ui-spinner-inc:hover {
+  background-color: #e4e4e4;
+  color: #222;
+}
+.w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-input .w2ui-spinner-dec:active,
+.w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-input .w2ui-spinner-inc:active {
+  background-color: #d4d4d4;
+  color: #000;
+}
+.w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-input .w2ui-spinner-dec {
+  border-right: 1px solid #e0e0e0;
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+}
+.w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-input .w2ui-spinner-inc {
+  margin-left: -24px;
+  border-left: 1px solid #e0e0e0;
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
 }
 .w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-spacer {
   width: 100%;
