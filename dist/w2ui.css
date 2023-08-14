@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (8/10/2023, 5:46:29 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (8/14/2023, 3:24:57 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -91,7 +91,6 @@
   font-size: 12px;
 }
 .w2ui-reset * {
-  color: initial;
   line-height: 100%;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -3705,7 +3704,7 @@ textarea.w2ui-error {
   overflow: hidden;
   position: relative;
   min-height: 28px;
-  padding: 2px;
+  padding: 0;
   margin: 0;
 }
 .w2ui-toolbar .disabled {
@@ -3721,7 +3720,6 @@ textarea.w2ui-error {
 .w2ui-toolbar .w2ui-tb-line:nth-child(3),
 .w2ui-toolbar .w2ui-tb-line:nth-child(4) {
   border-top: 1px solid #e7e7e7;
-  padding-top: 4px;
   margin: 0;
 }
 .w2ui-toolbar .w2ui-scroll-wrapper {
@@ -3730,7 +3728,7 @@ textarea.w2ui-error {
   flex-wrap: nowrap;
   justify-content: flex-start;
   align-content: flex-start;
-  padding: 0;
+  padding: 2px;
 }
 .w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-button {
   position: relative;

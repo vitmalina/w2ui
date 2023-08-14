@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (8/10/2023, 5:46:29 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (8/14/2023, 3:24:57 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -2699,6 +2699,23 @@ class Utils {
             return null
         }
         return color
+    }
+    colorContrast(color1, color2) {
+        let lum1 = calcLumens(color1)
+        let lum2 = calcLumens(color2)
+        let ratio = (Math.max(lum1, lum2) + 0.05) / (Math.min(lum1, lum2) + 0.05)
+        return ratio.toFixed(2);
+        function calcLumens(color) {
+            let { r, g, b } = w2utils.parseColor(color) ?? { r: 0, g: 0, b: 0 }
+            let gamma = 2.2
+            let normR = r / 255
+            let normG = g / 255
+            let normB = b / 255
+            let sR = (normR <= 0.03928) ? normR / 12.92 : Math.pow((normR + 0.055) / 1.055, gamma)
+            let sG = (normG <= 0.03928) ? normG / 12.92 : Math.pow((normG + 0.055) / 1.055, gamma)
+            let sB = (normB <= 0.03928) ? normB / 12.92 : Math.pow((normB + 0.055) / 1.055, gamma)
+            return 0.2126 * sR + 0.7152 * sG + 0.0722 * sB
+        }
     }
     // h=0..360, s=0..100, v=0..100
     hsv2rgb(h, s, v, a) {
@@ -6558,6 +6575,7 @@ let w2date    = new DateTooltip()
  *  - item.type = 'label', item.type = 'input'
  *  - item.placeholder
  *  - item.spinner: { style, min, max, step, precision, suffix }
+ *  - item.backColor
  */
 
 class w2toolbar extends w2base {
@@ -6590,14 +6608,15 @@ class w2toolbar extends w2base {
             disabled: false,
             checked: false, // used for radio buttons
             icon: null,
-            route: null,    // if not null, it is route to go
-            arrow: null,    // arrow down for drop/menu types
-            style: null,    // extra css style for caption
-            group: null,    // used for radio buttons
-            items: null,    // for type menu* it is an array of items in the menu
-            selected: null, // used for menu-check, menu-radio
-            color: null,    // color value - used in color pickers
-            overlay: {      // additional options for overlay
+            route: null,     // if not null, it is route to go
+            arrow: null,     // arrow down for drop/menu types
+            style: null,     // extra css style for caption
+            group: null,     // used for radio buttons
+            items: null,     // for type menu* it is an array of items in the menu
+            selected: null,  // used for menu-check, menu-radio
+            color: null,     // color value - used in color pickers
+            backColor: null, // background color value for color pickter
+            overlay: {       // additional options for overlay
                 anchorClass: ''
             },
             onClick: null,
@@ -6653,7 +6672,7 @@ class w2toolbar extends w2base {
             }
             // checks
             let valid = ['button', 'check', 'radio', 'drop', 'menu', 'menu-radio', 'menu-check', 'color', 'text-color', 'html', 'label', 'input',
-                'break', 'spacer', 'new-line']
+                'group', 'break', 'spacer', 'new-line']
             if (!valid.includes(String(item.type))) {
                 console.log('ERROR: The parameter "type" should be one of the following:', valid, `, but ${item.type} is supplied.`, item)
                 return
@@ -6726,15 +6745,24 @@ class w2toolbar extends w2base {
         this.refresh(String(id).split(':')[0])
         return true
     }
-    get(id, returnIndex) {
+    get(id, returnIndex, items) {
         if (arguments.length === 0) {
             let all = []
-            for (let i1 = 0; i1 < this.items.length; i1++) if (this.items[i1].id != null) all.push(this.items[i1].id)
+            for (let i1 = 0; i1 < this.items.length; i1++) {
+                let it = this.items[i1]
+                if (it.id != null) all.push(it.id)
+                if (it.type == 'group') {
+                    for (let i2 = 0; i2 < it.items.length; i2++) {
+                        if (it.items[i2].id != null) all.push(it.items[i2].id)
+                    }
+                }
+            }
             return all
         }
         let tmp = String(id).split(':')
-        for (let i2 = 0; i2 < this.items.length; i2++) {
-            let it = this.items[i2]
+        if (items == null) items = this.items
+        for (let i1 = 0; i1 < items.length; i1++) {
+            let it = items[i1]
             // find a menu item
             if (['menu', 'menu-radio', 'menu-check'].includes(it.type) && tmp.length == 2 && it.id == tmp[0]) {
                 let subItems = it.items
@@ -6753,7 +6781,10 @@ class w2toolbar extends w2base {
                     }
                 }
             } else if (it.id == tmp[0]) {
-                if (returnIndex == true) return i2; else return it
+                if (returnIndex == true) return i1; else return it
+            } else if (it.type == 'group') {
+                let sub = this.get(id, returnIndex, it.items)
+                if (sub != null) return sub
             }
         }
         return null
@@ -6781,8 +6812,12 @@ class w2toolbar extends w2base {
         Array.from(arguments).forEach(item => {
             let it = this.get(item)
             if (!it) return
+            // since group can have style, it should still be shown
             it.hidden = false
             effected.push(String(item).split(':')[0])
+            if (it.type == 'group') {
+                it.items.forEach(itm => this.show(itm.id))
+            }
         })
         this._refresh({ effected, resize: true }) // debounced, needed for speed
         return effected
@@ -6792,8 +6827,12 @@ class w2toolbar extends w2base {
         Array.from(arguments).forEach(item => {
             let it = this.get(item)
             if (!it) return
+            // since group can have style, it should still be hidden
             it.hidden = true
             effected.push(String(item).split(':')[0])
+            if (it.type == 'group') {
+                it.items.forEach(itm => this.hide(itm.id))
+            }
         })
         this._refresh({ effected, hideTooltip: true, resize: true }) // debounced, needed for speed
         return effected
@@ -6803,8 +6842,12 @@ class w2toolbar extends w2base {
         Array.from(arguments).forEach(item => {
             let it = this.get(item)
             if (!it) return
-            it.disabled = false
-            effected.push(String(item).split(':')[0])
+            if (it.type == 'group') {
+                it.items.forEach(itm => this.enable(itm.id))
+            } else {
+                it.disabled = false
+                effected.push(String(item).split(':')[0])
+            }
         })
         this._refresh({ effected }) // debounced, needed for speed
         return effected
@@ -6814,8 +6857,12 @@ class w2toolbar extends w2base {
         Array.from(arguments).forEach(item => {
             let it = this.get(item)
             if (!it) return
-            it.disabled = true
-            effected.push(String(item).split(':')[0])
+            if (it.type == 'group') {
+                it.items.forEach(itm => this.disable(itm.id))
+            } else {
+                it.disabled = true
+                effected.push(String(item).split(':')[0])
+            }
         })
         this._refresh({ effected, hideTooltip: true }) // debounced, needed for speed
         return effected
@@ -6825,8 +6872,12 @@ class w2toolbar extends w2base {
         Array.from(arguments).forEach(item => {
             let it = this.get(item)
             if (!it || String(item).indexOf(':') != -1) return
-            it.checked = true
-            effected.push(String(item).split(':')[0])
+            if (it.type == 'group') {
+                it.items.forEach(itm => this.check(itm.id))
+            } else {
+                it.checked = true
+                effected.push(String(item).split(':')[0])
+            }
         })
         this._refresh({ effected }) // debounced, needed for speed
         return effected
@@ -6840,8 +6891,12 @@ class w2toolbar extends w2base {
             if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].includes(it.type) && it.checked) {
                 w2tooltip.hide(this.name + '-drop')
             }
-            it.checked = false
-            effected.push(String(item).split(':')[0])
+            if (it.type == 'group') {
+                it.items.forEach(itm => this.uncheck(itm.id))
+            } else {
+                it.checked = false
+                effected.push(String(item).split(':')[0])
+            }
         })
         this._refresh({ effected }) // debounced, needed for speed
         return effected
@@ -6872,6 +6927,16 @@ class w2toolbar extends w2base {
             if (it.type == 'radio') {
                 for (let i = 0; i < this.items.length; i++) {
                     let itt = this.items[i]
+                    if (itt.type == 'group') {
+                        for (let i1 = 0; i1 < itt.items.length; i1++) {
+                            let itt1 = itt.items[i1]
+                            if (itt1 == null || itt1.id == it.id || itt1.type !== 'radio') continue
+                            if (itt1.group == it.group && itt1.checked) {
+                                itt1.checked = false
+                                this.refresh(itt1.id)
+                            }
+                        }
+                    }
                     if (itt == null || itt.id == it.id || itt.type !== 'radio') continue
                     if (itt.group == it.group && itt.checked) {
                         itt.checked = false
@@ -7069,6 +7134,7 @@ class w2toolbar extends w2base {
         if (query(this.box).length > 0) {
             query(this.box)[0].style.cssText += this.style
         }
+        // overflow buttons
         w2utils.bindEvents(query(this.box).find('.w2ui-tb-line .w2ui-eaction'), this)
         // observe div resize
         this.last.observeResize = new ResizeObserver(() => { this.resize() })
@@ -7219,7 +7285,7 @@ class w2toolbar extends w2base {
             }
             icon = `<div class="w2ui-tb-icon">${icon}</div>`
         }
-        let classes = ['w2ui-tb-button']
+        let classes = ['w2ui-tb-button', 'w2ui-eaction']
         if (item.checked) classes.push('checked')
         if (item.disabled) classes.push('disabled')
         if (item.hidden) classes.push('hidden')
@@ -7236,9 +7302,21 @@ class w2toolbar extends w2base {
                            ${(item.text ? `<div style="margin-left: 17px;">${w2utils.lang(item.text)}</div>` : '')}`
                 }
                 if (item.type == 'text-color') {
-                    text = '<span style="color: '+ (item.color != null ? item.color : '#444') +';">'+
-                                (item.text ? w2utils.lang(item.text) : '<b>Aa</b>') +
-                           '</span>'
+                    let color = (item.color != null ? item.color : '#444')
+                    let bcolor = item.backColor
+                    if (item.backColor === true) {
+                        bcolor = '#fff'
+                        if (w2utils.colorContrast('#fff', color) < 2) {
+                            bcolor = '#555'
+                        }
+                    }
+                    text = `<span style="color: ${color}">${item.text
+                        ? w2utils.lang(item.text)
+                        : (item.backColor
+                            ? `<b style="background-color: ${bcolor ?? 'transparent'}; padding: 2px 5px; border-radius: 3px;">Ab</b>`
+                            : '<b>Ab</b>'
+                        )
+                    }</span>`
                 }
             case 'menu':
             case 'menu-check':
@@ -7308,7 +7386,7 @@ class w2toolbar extends w2base {
                 let ph = item.placeholder
                 let val = item.value
                 // round to step
-                if (val != null && item.spinner) {
+                if (val != null && String(val).trim() !== '' && item.spinner) {
                     let step = item.spinner?.step ?? 1
                     let prec = item.spinner.precision ?? String(step).split('.')[1]?.length ?? 0
                     val = val.toFixed(prec)
@@ -7333,6 +7411,18 @@ class w2toolbar extends w2base {
                         </div>`
                 break
             }
+            case 'group': {
+                html = `<div id="tb_${this.name}_item_${item.id}" class="w2ui-tb-group"
+                    style="display: flex; ${(item.hidden ? 'display: none' : '')}; ${(item.style ? item.style : '')}">`
+                if (Array.isArray(item.items)) {
+                    item.items.forEach(it => {
+                        html += this.getItemHTML(it)
+                    })
+                } else {
+                    console.log('ERROR: toolbar group is empty')
+                }
+                html += '</div>'
+            }
         }
         return html
     }
@@ -7350,14 +7440,17 @@ class w2toolbar extends w2base {
             }
             case 'key': {
                 if (it.spinner) {
+                    let mult = 1
+                    if (event.shiftKey || event.metaKey) mult = 10
+                    if (event.altKey) mult = 0.1
                     switch(event.key) {
                         case 'ArrowUp': {
-                            inc = (it.spinner?.step ?? 1) * (event.shiftKey || event.metaKey ? 10 : 1)
+                            inc = (it.spinner?.step ?? 1) * mult
                             event.preventDefault()
                             break
                         }
                         case 'ArrowDown': {
-                            inc = -(it.spinner?.step ?? 1) * (event.shiftKey || event.metaKey ? 10 : 1)
+                            inc = -(it.spinner?.step ?? 1) * mult
                             event.preventDefault()
                             break
                         }
