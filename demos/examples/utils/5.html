@@ -13,7 +13,8 @@
 <div style="float: left; width: 130px;">Parse Color</div><div id="color1" style="margin-left: 130px;">...</div>
 <div style="float: left; width: 130px;">RGB -> HSV</div> <div id="color2" style="margin-left: 130px;">...</div>
 <div style="float: left; width: 130px;">HSV -> RGB</div> <div id="color3" style="margin-left: 130px;">...</div>
-<br><br>
+<div style="float: left; width: 130px;">Contast (v.2+)</div> <div id="color4" style="margin-left: 130px;">...</div>
+<br>
 
 <!--CODE-->
 <script type="module">
@@ -28,10 +29,12 @@ window.update = function() {
         query('#color1').html(JSON.stringify(parsed))
         query('#color2').html(JSON.stringify(w2utils.rgb2hsv(parsed)))
         query('#color3').html(JSON.stringify(w2utils.hsv2rgb(w2utils.rgb2hsv(parsed))))
+        query('#color4').html(w2utils.colorContrast(val, '#fff') + ' : 1 <span style="color: gray"> - against #FFF</span>')
     } else {
         query('#color1').html('...')
         query('#color2').html('...')
         query('#color3').html('...')
+        query('#color4').html('...')
     }
 }
 </script>

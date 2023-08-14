@@ -23,6 +23,7 @@
  *  - item.type = 'label', item.type = 'input'
  *  - item.placeholder
  *  - item.spinner: { style, min, max, step, precision, suffix }
+ *  - item.backColor
  */
 
 import { w2base } from './w2base.js'
@@ -60,14 +61,15 @@ class w2toolbar extends w2base {
             disabled: false,
             checked: false, // used for radio buttons
             icon: null,
-            route: null,    // if not null, it is route to go
-            arrow: null,    // arrow down for drop/menu types
-            style: null,    // extra css style for caption
-            group: null,    // used for radio buttons
-            items: null,    // for type menu* it is an array of items in the menu
-            selected: null, // used for menu-check, menu-radio
-            color: null,    // color value - used in color pickers
-            overlay: {      // additional options for overlay
+            route: null,     // if not null, it is route to go
+            arrow: null,     // arrow down for drop/menu types
+            style: null,     // extra css style for caption
+            group: null,     // used for radio buttons
+            items: null,     // for type menu* it is an array of items in the menu
+            selected: null,  // used for menu-check, menu-radio
+            color: null,     // color value - used in color pickers
+            backColor: null, // background color value for color pickter
+            overlay: {       // additional options for overlay
                 anchorClass: ''
             },
             onClick: null,
@@ -737,9 +739,21 @@ class w2toolbar extends w2base {
                            ${(item.text ? `<div style="margin-left: 17px;">${w2utils.lang(item.text)}</div>` : '')}`
                 }
                 if (item.type == 'text-color') {
-                    text = '<span style="color: '+ (item.color != null ? item.color : '#444') +';">'+
-                                (item.text ? w2utils.lang(item.text) : '<b>Aa</b>') +
-                           '</span>'
+                    let color = (item.color != null ? item.color : '#444')
+                    let bcolor = item.backColor
+                    if (item.backColor === true) {
+                        bcolor = '#fff'
+                        if (w2utils.colorContrast('#fff', color) < 2) {
+                            bcolor = '#555'
+                        }
+                    }
+                    text = `<span style="color: ${color}">${item.text
+                        ? w2utils.lang(item.text)
+                        : (item.backColor
+                            ? `<b style="background-color: ${bcolor ?? 'transparent'}; padding: 2px 5px; border-radius: 3px;">Ab</b>`
+                            : '<b>Ab</b>'
+                        )
+                    }</span>`
                 }
             case 'menu':
             case 'menu-check':
@@ -809,7 +823,7 @@ class w2toolbar extends w2base {
                 let ph = item.placeholder
                 let val = item.value
                 // round to step
-                if (val != null && item.spinner) {
+                if (val != null && String(val).trim() !== '' && item.spinner) {
                     let step = item.spinner?.step ?? 1
                     let prec = item.spinner.precision ?? String(step).split('.')[1]?.length ?? 0
                     val = val.toFixed(prec)
@@ -852,14 +866,17 @@ class w2toolbar extends w2base {
             }
             case 'key': {
                 if (it.spinner) {
+                    let mult = 1
+                    if (event.shiftKey || event.metaKey) mult = 10
+                    if (event.altKey) mult = 0.1
                     switch(event.key) {
                         case 'ArrowUp': {
-                            inc = (it.spinner?.step ?? 1) * (event.shiftKey || event.metaKey ? 10 : 1)
+                            inc = (it.spinner?.step ?? 1) * mult
                             event.preventDefault()
                             break
                         }
                         case 'ArrowDown': {
-                            inc = -(it.spinner?.step ?? 1) * (event.shiftKey || event.metaKey ? 10 : 1)
+                            inc = -(it.spinner?.step ?? 1) * mult
                             event.preventDefault()
                             break
                         }

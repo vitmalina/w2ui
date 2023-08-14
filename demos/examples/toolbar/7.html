@@ -2,6 +2,9 @@
     <div id="example_title">
         <h1>Color Pickers</h1>
         There are two more button types. They are "color" and "text-color".
+        <br>
+        Starting with v2, you can also user background-color for "text-color". If backColor is set to true, then it will display back color
+        based on contruct ratio, or you can provide your own color you want to display.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
@@ -12,26 +15,42 @@
 
 <!--CODE-->
 <script type="module">
-import { w2toolbar } from '__W2UI_PATH__'
+import { w2toolbar, w2utils } from '__W2UI_PATH__'
+
+window.w2utils = w2utils
 
 new w2toolbar({
     box: '#toolbar',
     name: 'toolbar',
     items: [
-        { id: 'item1', type: 'color' },
-        { id: 'item3', type: 'text-color',
+        { id: 'color', type: 'color' },
+        { id: 'text-color', type: 'text-color',
             overlay: {
                 transparent: false,
                 onLiveUpdate(event) {
                     console.log(event.detail.color)
                 }
             }
-        }
+        },
+        { type: 'break' },
+        { id: 'color2', type: 'color', icon: 'fa fa-paint-brush' },
+        { id: 'text-color-2', text: 'Custom Text', icon: 'fa fa-font', type: 'text-color',
+            overlay: {
+                transparent: false,
+                onLiveUpdate(event) {
+                    console.log(event.detail.color)
+                }
+            }
+        },
+        { type: 'break' },
+        { id: 'color3', type: 'text-color', backColor: true },
+        { id: 'color4', type: 'text-color', backColor: 'transparent' },
+
     ],
     onClick(event) {
         event.done(() => {
             if (event.detail.color) {
-                console.log(event.detail.item.type, ':', event.detail.item.color);
+                w2utils.notify(event.detail.item.type + ': ' + event.detail.item.color);
             }
         })
     }
