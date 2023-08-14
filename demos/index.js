@@ -235,7 +235,7 @@ query(async function () {
                         { id: 'toolbar/12', text: 'Badge Control', icon: 'fa fa-hand-o-up' },
                         { id: 'toolbar/13', text: 'Events', icon: 'fa fa-hand-o-up' },
                         { id: 'toolbar/14', text: 'Label & Input', icon: 'fa fa-hand-o-up' },
-                        // { id: 'toolbar/15', text: 'Button Groups', icon: 'fa fa-hand-o-up' },
+                        { id: 'toolbar/15', text: 'Button Groups', icon: 'fa fa-hand-o-up' },
                     ]
                 },
                 { id: 'sidebar', text: 'Sidebar Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
