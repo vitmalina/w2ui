@@ -29,24 +29,40 @@ let toolbar = new w2toolbar({
     items: [
         { type: 'button', id: 'item1', text: 'Button', icon: 'w2ui-icon-colors' },
         { type: 'break', id: 'break1' },
-        { type: 'group', id: 'group1', style: 'margin: -1px 3px 0px 3px; border: #9bb5ff; margin: -1px 3px 0px 3px; border-radius: 4px; border-width: 1px 2px; border-style: solid;',
+        { type: 'group', id: 'group1', style: 'margin: -2px 3px; padding: 1px; border-radius: 4px; border: #9bb5ff; border-width: 1px 2px; border-style: solid;',
             items: [
                 { type: 'button', id: 'item2', text: 'Button 1', icon: 'fa fa-star' },
-                { type: 'button', id: 'item3', text: 'Button 2', icon: 'fa fa-star' }
+                { type: 'button', id: 'item3', text: 'Button 2', icon: 'fa fa-star' },
+                { type: 'menu-radio', id: 'item4', icon: 'fa fa-star',
+                    text(item) {
+                        let el = item.get(item.selected);
+                        return 'Radio: ' + el.text;
+                    },
+                    overlay: { position: 'bottom|top' },
+                    selected: 'id3',
+                    items: [
+                        { id: 'id1', text: 'Item 1', icon: 'fa fa-camera' },
+                        { id: 'id2', text: 'Item 2', icon: 'fa fa-picture-o' },
+                        { id: 'id3', text: 'Item 3', icon: 'fa fa-glass', count: 12 }
+                    ]
+                },
             ]
         },
         { type: 'break', id: 'break2' },
         { type: 'group', id: 'group2',
             items: [
-                { type: 'radio', id: 'item4', group: '1', text: 'Radio 1', icon: 'w2ui-icon-info', checked: true },
-                { type: 'radio', id: 'item5', group: '1', text: 'Radio 2', icon: 'w2ui-icon-paste' },
+                { type: 'radio', id: 'item5', group: '1', text: 'Radio 1', icon: 'w2ui-icon-info', checked: true },
+                { type: 'radio', id: 'item6', group: '1', text: 'Radio 2', icon: 'w2ui-icon-paste' },
             ]
         },
         { type: 'spacer', id: 'spance1' },
         { type: 'button', id: 'item6', text: 'Button', icon: 'w2ui-icon-cross' }
     ],
     onClick(event) {
-        w2utils.notify(`Label "${event.detail.item.text}" clicked`)
+        let text = event.detail.item.text
+        let sub = event.detail.subItem
+        if (typeof text == 'function') text = text(event.detail.item)
+        w2utils.notify(`Label "${text}${sub ? ':' + sub.text : ''}" clicked`)
     },
     onChange(event) {
         w2utils.notify(`Input "${event.detail.item.id}" changed to "${event.detail.value}"`)
