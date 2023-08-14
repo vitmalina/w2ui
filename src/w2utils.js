@@ -1822,6 +1822,25 @@ class Utils {
         return color
     }
 
+    colorContrast(color1, color2) {
+        let lum1 = calcLumens(color1)
+        let lum2 = calcLumens(color2)
+        let ratio = (Math.max(lum1, lum2) + 0.05) / (Math.min(lum1, lum2) + 0.05)
+        return ratio.toFixed(2);
+
+        function calcLumens(color) {
+            let { r, g, b } = w2utils.parseColor(color) ?? { r: 0, g: 0, b: 0 }
+            let gamma = 2.2
+            let normR = r / 255
+            let normG = g / 255
+            let normB = b / 255
+            let sR = (normR <= 0.03928) ? normR / 12.92 : Math.pow((normR + 0.055) / 1.055, gamma)
+            let sG = (normG <= 0.03928) ? normG / 12.92 : Math.pow((normG + 0.055) / 1.055, gamma)
+            let sB = (normB <= 0.03928) ? normB / 12.92 : Math.pow((normB + 0.055) / 1.055, gamma)
+            return 0.2126 * sR + 0.7152 * sG + 0.0722 * sB
+        }
+    }
+
     // h=0..360, s=0..100, v=0..100
     hsv2rgb(h, s, v, a) {
         let r, g, b, i, f, p, q, t
