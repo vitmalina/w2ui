@@ -1,9 +1,8 @@
-/* mQuery 0.7 (nightly) (10/10/2022, 11:30:36 AM), vitmalina@gmail.com */
+/* mQuery 0.7 (nightly) (8/15/2023, 11:44:12 AM), vitmalina@gmail.com */
 class Query {
-    static version = 0.7
-    constructor(selector, context, previous) {
+    static version = 0.8
+    constructor(selector, context) {
         this.context = context ?? document
-        this.previous = previous ?? null
         let nodes = []
         if (Array.isArray(selector)) {
             nodes = selector
@@ -120,7 +119,7 @@ class Query {
             throw new Error(`Incorrect argument for "${method}(html)". It expects one string argument.`)
         }
         if (method == 'replaceWith') {
-            self = new Query(nodes, this.context, this) // must return a new collection
+            self = new Query(nodes, this.context) // must return a new collection
         }
         return self
     }
@@ -150,7 +149,7 @@ class Query {
         if (index < 0) index = this.length + index
         let nodes = [this[index]]
         if (nodes[0] == null) nodes = []
-        return new Query(nodes, this.context, this) // must return a new collection
+        return new Query(nodes, this.context) // must return a new collection
     }
     then(fun) {
         let ret = fun(this)
@@ -164,7 +163,7 @@ class Query {
                 nodes.push(...nn)
             }
         })
-        return new Query(nodes, this.context, this) // must return a new collection
+        return new Query(nodes, this.context) // must return a new collection
     }
     filter(selector) {
         let nodes = []
@@ -176,7 +175,7 @@ class Query {
                 nodes.push(node)
             }
         })
-        return new Query(nodes, this.context, this) // must return a new collection
+        return new Query(nodes, this.context) // must return a new collection
     }
     next() {
         let nodes = []
@@ -184,7 +183,7 @@ class Query {
             let nn = node.nextElementSibling
             if (nn) { nodes.push(nn) }
         })
-        return new Query(nodes, this.context, this) // must return a new collection
+        return new Query(nodes, this.context) // must return a new collection
     }
     prev() {
         let nodes = []
@@ -192,7 +191,7 @@ class Query {
             let nn = node.previousElementSibling
             if (nn) { nodes.push(nn)}
         })
-        return new Query(nodes, this.context, this) // must return a new collection
+        return new Query(nodes, this.context) // must return a new collection
     }
     shadow(selector) {
         let nodes = []
@@ -200,7 +199,7 @@ class Query {
             // select shadow root if available
             if (node.shadowRoot) nodes.push(node.shadowRoot)
         })
-        let col = new Query(nodes, this.context, this)
+        let col = new Query(nodes, this.context)
         return selector ? col.find(selector) : col
     }
     closest(selector) {
@@ -211,7 +210,7 @@ class Query {
                 nodes.push(nn)
             }
         })
-        return new Query(nodes, this.context, this) // must return a new collection
+        return new Query(nodes, this.context) // must return a new collection
     }
     host(all) {
         let nodes = []
@@ -231,7 +230,7 @@ class Query {
         this.each(node => {
             fun(node)
         })
-        return new Query(nodes, this.context, this) // must return a new collection
+        return new Query(nodes, this.context) // must return a new collection
     }
     parent(selector) {
         return this.parents(selector, true)
@@ -249,12 +248,12 @@ class Query {
         this.each(node => {
             if (node.parentNode) add(node.parentNode)
         })
-        let col = new Query(nodes, this.context, this)
+        let col = new Query(nodes, this.context)
         return selector ? col.filter(selector) : col
     }
     add(more) {
         let nodes = more instanceof Query ? more.nodes : (Array.isArray(more) ? more : [more])
-        return new Query(this.nodes.concat(nodes), this.context, this) // must return a new collection
+        return new Query(this.nodes.concat(nodes), this.context) // must return a new collection
     }
     each(func) {
         this.nodes.forEach((node, ind) => { func(node, ind, this) })

@@ -625,6 +625,7 @@ class w2grid extends w2base {
         if (!url) {
             this.localSort(false, true)
             this.localSearch()
+            this.total = this.records.length
         }
         this.refresh()
         return removed
@@ -5835,7 +5836,7 @@ class w2grid extends w2base {
             }
             let newSel = []
             let ind = (event.target.tagName.toUpperCase() == 'TR' ? query(event.target).attr('index') : query(event.target).parents('tr').attr('index'))
-            let recid = obj.records[ind].recid
+            let recid = obj.records[ind]?.recid
             if (recid == null) {
                 // select by dragging columns
                 if (obj.selectType == 'row') return
@@ -7430,6 +7431,9 @@ class w2grid extends w2base {
         if (buffered > this.vs_start) this.last.vscroll.show_extra = this.vs_extra; else this.last.vscroll.show_extra = this.vs_start
         let records = query(this.box).find(`#grid_${this.name}_records`)
         let limit   = Math.floor((records.get(0)?.clientHeight || 0) / this.recordHeight) + this.last.vscroll.show_extra + 1
+        if (limit < this.vs_start) {
+            limit = this.vs_start
+        }
         if (!this.fixedBody || limit > buffered) limit = buffered
         // always need first record for resizing purposes
         let rec_html = this.getRecordHTML(-1, 0)
