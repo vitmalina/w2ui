@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (8/14/2023, 3:24:57 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (8/15/2023, 12:00:18 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -272,7 +272,11 @@ class w2base {
                 if (cl.startsWith('w2ui-')) remove.push(cl)
             })
         }
-        query(this.box).removeClass(remove).removeAttr('name').html('')
+        query(this.box)
+            .off() // removes all events attached to this box previously
+            .removeClass(remove)
+            .removeAttr('name')
+            .html('')
         this.box = null
     }
 }
@@ -403,12 +407,11 @@ const w2locale = {
         'Your remote data source record count has changed, reloading from the first record.': '---'
     }
 }
-/* mQuery 0.7 (nightly) (10/10/2022, 11:30:36 AM), vitmalina@gmail.com */
+/* mQuery 0.7 (nightly) (8/15/2023, 11:44:12 AM), vitmalina@gmail.com */
 class Query {
-    static version = 0.7
-    constructor(selector, context, previous) {
+    static version = 0.8
+    constructor(selector, context) {
         this.context = context ?? document
-        this.previous = previous ?? null
         let nodes = []
         if (Array.isArray(selector)) {
             nodes = selector
@@ -525,7 +528,7 @@ class Query {
             throw new Error(`Incorrect argument for "${method}(html)". It expects one string argument.`)
         }
         if (method == 'replaceWith') {
-            self = new Query(nodes, this.context, this) // must return a new collection
+            self = new Query(nodes, this.context) // must return a new collection
         }
         return self
     }
@@ -555,7 +558,7 @@ class Query {
         if (index < 0) index = this.length + index
         let nodes = [this[index]]
         if (nodes[0] == null) nodes = []
-        return new Query(nodes, this.context, this) // must return a new collection
+        return new Query(nodes, this.context) // must return a new collection
     }
     then(fun) {
         let ret = fun(this)
@@ -569,7 +572,7 @@ class Query {
                 nodes.push(...nn)
             }
         })
-        return new Query(nodes, this.context, this) // must return a new collection
+        return new Query(nodes, this.context) // must return a new collection
     }
     filter(selector) {
         let nodes = []
@@ -581,7 +584,7 @@ class Query {
                 nodes.push(node)
             }
         })
-        return new Query(nodes, this.context, this) // must return a new collection
+        return new Query(nodes, this.context) // must return a new collection
     }
     next() {
         let nodes = []
@@ -589,7 +592,7 @@ class Query {
             let nn = node.nextElementSibling
             if (nn) { nodes.push(nn) }
         })
-        return new Query(nodes, this.context, this) // must return a new collection
+        return new Query(nodes, this.context) // must return a new collection
     }
     prev() {
         let nodes = []
@@ -597,7 +600,7 @@ class Query {
             let nn = node.previousElementSibling
             if (nn) { nodes.push(nn)}
         })
-        return new Query(nodes, this.context, this) // must return a new collection
+        return new Query(nodes, this.context) // must return a new collection
     }
     shadow(selector) {
         let nodes = []
@@ -605,7 +608,7 @@ class Query {
             // select shadow root if available
             if (node.shadowRoot) nodes.push(node.shadowRoot)
         })
-        let col = new Query(nodes, this.context, this)
+        let col = new Query(nodes, this.context)
         return selector ? col.find(selector) : col
     }
     closest(selector) {
@@ -616,7 +619,7 @@ class Query {
                 nodes.push(nn)
             }
         })
-        return new Query(nodes, this.context, this) // must return a new collection
+        return new Query(nodes, this.context) // must return a new collection
     }
     host(all) {
         let nodes = []
@@ -636,7 +639,7 @@ class Query {
         this.each(node => {
             fun(node)
         })
-        return new Query(nodes, this.context, this) // must return a new collection
+        return new Query(nodes, this.context) // must return a new collection
     }
     parent(selector) {
         return this.parents(selector, true)
@@ -654,12 +657,12 @@ class Query {
         this.each(node => {
             if (node.parentNode) add(node.parentNode)
         })
-        let col = new Query(nodes, this.context, this)
+        let col = new Query(nodes, this.context)
         return selector ? col.filter(selector) : col
     }
     add(more) {
         let nodes = more instanceof Query ? more.nodes : (Array.isArray(more) ? more : [more])
-        return new Query(this.nodes.concat(nodes), this.context, this) // must return a new collection
+        return new Query(this.nodes.concat(nodes), this.context) // must return a new collection
     }
     each(func) {
         this.nodes.forEach((node, ind) => { func(node, ind, this) })
@@ -7087,13 +7090,7 @@ class w2toolbar extends w2base {
         if (edata.isCancelled === true) return
         // defaul action
         if (box != null) {
-            // clean previous box
-            if (query(this.box).find('.w2ui-scroll-wrapper .w2ui-tb-right').length > 0) {
-                query(this.box)
-                    .removeAttr('name')
-                    .removeClass('w2ui-reset w2ui-toolbar')
-                    .html('')
-            }
+            this.unmount() // clean previous control
             this.box = box
         }
         if (!this.box) return
@@ -8716,13 +8713,7 @@ class w2sidebar extends w2base {
         if (edata.isCancelled === true) return
         // default action
         if (box != null) {
-            // clean previous box
-            if (query(this.box).find('.w2ui-sidebar-body').length > 0) {
-                query(this.box)
-                    .removeAttr('name')
-                    .removeClass('w2ui-reset w2ui-sidebar')
-                    .html('')
-            }
+            this.unmount() // clean previous control
             this.box = box
         }
         if (!this.box) return
@@ -9594,13 +9585,7 @@ class w2tabs extends w2base {
         if (edata.isCancelled === true) return
         // default action
         if (box != null) {
-            // clean previous box
-            if (query(this.box).find('#tabs_'+ this.name + '_right').length > 0) {
-                query(this.box)
-                    .removeAttr('name')
-                    .removeClass('w2ui-reset w2ui-tabs')
-                    .html('')
-            }
+            this.unmount() // clean previous control
             this.box = box
         }
         if (!this.box) return false
@@ -10261,13 +10246,7 @@ class w2layout extends w2base {
         if (edata.isCancelled === true) return
         // default action
         if (box != null) {
-            // clean previous box
-            if (query(this.box).find('#layout_'+ this.name +'_panel_main').length > 0) {
-                query(this.box)
-                    .removeAttr('name')
-                    .removeClass('w2ui-layout')
-                    .html('')
-            }
+            this.unmount() // clean previous control
             this.box = box
         }
         if (!this.box) return false
@@ -11550,6 +11529,7 @@ class w2grid extends w2base {
         if (!url) {
             this.localSort(false, true)
             this.localSearch()
+            this.total = this.records.length
         }
         this.refresh()
         return removed
@@ -16272,13 +16252,7 @@ class w2grid extends w2base {
         if (edata.isCancelled === true) return
         // default action
         if (box != null) {
-            // clean previous box
-            if (query(this.box).find(`#grid_${this.name}_body`).length > 0) {
-                query(this.box)
-                    .removeAttr('name')
-                    .removeClass('w2ui-reset w2ui-grid w2ui-inactive')
-                    .html('')
-            }
+            this.unmount() // clean previous control
             this.box = box
         }
         if (!this.box) return
@@ -16596,7 +16570,7 @@ class w2grid extends w2base {
             }
             let newSel = []
             let ind = (event.target.tagName.toUpperCase() == 'TR' ? query(event.target).attr('index') : query(event.target).parents('tr').attr('index'))
-            let recid = obj.records[ind].recid
+            let recid = obj.records[ind]?.recid
             if (recid == null) {
                 // select by dragging columns
                 if (obj.selectType == 'row') return
@@ -18121,6 +18095,9 @@ class w2grid extends w2base {
         if (buffered > this.vs_start) this.last.vscroll.show_extra = this.vs_extra; else this.last.vscroll.show_extra = this.vs_start
         let records = query(this.box).find(`#grid_${this.name}_records`)
         let limit   = Math.floor((records.get(0)?.clientHeight || 0) / this.recordHeight) + this.last.vscroll.show_extra + 1
+        if (limit < this.vs_start) {
+            limit = this.vs_start
+        }
         if (!this.fixedBody || limit > buffered) limit = buffered
         // always need first record for resizing purposes
         let rec_html = this.getRecordHTML(-1, 0)
@@ -21113,12 +21090,7 @@ class w2form extends w2base {
         if (edata.isCancelled === true) return
         // default action
         if (box != null) {
-            // clean previous box
-            if (query(this.box).find('#form_'+ this.name +'_form').length > 0) {
-                query(this.box).removeAttr('name')
-                    .removeClass('w2ui-reset w2ui-form')
-                    .html('')
-            }
+            this.unmount() // clean previous control
             this.box = box
         }
         if (!this.isGenerated && !this.formHTML) return
@@ -21307,7 +21279,7 @@ class w2field extends w2base {
             return
         }
         if (el._w2field) {
-            el._w2field.reset()
+            el._w2field.reset() // will remove all previous events
         } else {
             el._w2field = this
         }
@@ -21981,7 +21953,7 @@ class w2field extends w2base {
         // remove events and (data)
         query(this.el)
             .val(this.clean(query(this.el).val()))
-            .removeClass('w2field')
+            .removeClass('w2field w2ui-input')
             .removeData('selected selectedIndex')
             .off('.w2field') // remove only events added by w2field
         // remove helpers
