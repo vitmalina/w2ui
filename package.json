@@ -11,7 +11,9 @@
   "main": "dist/w2ui.js",
   "style": "dist/w2ui.css",
   "scripts": {
-    "start": "open http://localhost:3500; python3 -m http.server 3500",
+    "start": "run-script-os",
+    "start:win32": "start http://localhost:3500 & python3 -m http.server 3500",
+    "start:nix": "open http://localhost:3500; python3 -m http.server 3500",
     "test": "eslint src demos --ext js"
   },
   "devDependencies": {
@@ -28,6 +30,7 @@
     "gulp-less": "^4.0.1",
     "gulp-rename": "^2.0.0",
     "gulp-replace": "^1.0.0",
-    "gulp-uglify": "^3.0.2"
+    "gulp-uglify": "^3.0.2",
+    "run-script-os": "^1.1.6"
   }
 }
