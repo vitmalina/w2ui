@@ -79,7 +79,7 @@ class w2field extends w2base {
             return
         }
         if (el._w2field) {
-            el._w2field.reset()
+            el._w2field.reset() // will remove all previous events
         } else {
             el._w2field = this
         }
@@ -768,7 +768,7 @@ class w2field extends w2base {
         // remove events and (data)
         query(this.el)
             .val(this.clean(query(this.el).val()))
-            .removeClass('w2field')
+            .removeClass('w2field w2ui-input')
             .removeData('selected selectedIndex')
             .off('.w2field') // remove only events added by w2field
         // remove helpers
