@@ -2911,6 +2911,7 @@ class w2grid extends w2base {
     }
 
     requestComplete(data, action, callBack, resolve, reject) {
+        if(typeof(data)!='object') return;
         let error = data.error ?? false
         if (data.error == null && data.status === 'error') error = true
         this.last.fetch.response = (Date.now() - this.last.fetch.start) / 1000
