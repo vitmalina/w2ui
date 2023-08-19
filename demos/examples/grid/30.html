@@ -8,14 +8,23 @@
 </div>
 
 <!--CODE-->
-<div id="grid" style="width: 850px; height: 350px;"></div>
-<br><br>
-<b>Event Log</b>
-<div style="height: 5px"></div>
-<div id="preview" style="height: 200px; width: 300px; overflow-y: auto; border: 1px solid #efefef; padding: 5px; padding-bottom: 15px;"></div>
+<div style="margin-left: 870px; position: absolute">
+    <b style="color: gray; padding-bottom: 4px; display: inline-block;">&nbsp;Events Log</b>
+    <div style="height: 5px"></div>
+    <div id="preview" style="height: 320px; width: 300px; overflow-y: auto; border: 1px solid #e2e2e2; border-radius: 4px; padding: 5px; padding-bottom: 15px;"></div>
 
-<div style="height: 5px"></div>
-<button class="w2ui-btn" onclick="clearLog()">Clear Log</button>
+    <div style="height: 10px"></div>
+    <button class="w2ui-btn action" action="clearLog">Clear Log</button>
+</div>
+
+<div id="grid" style="width: 850px; height: 350px;"></div>
+<div style="height: 15px"></div>
+
+<button class="w2ui-btn action" action="unmount">Unmount</button>
+<button class="w2ui-btn action" action="render">Render</button>
+<button class="w2ui-btn action" action="refresh">Refresh</button>
+<button class="w2ui-btn action" action="destroy">Destroy</button>
+<div style="height: 15px"></div>
 
 <!--CODE-->
 <script type="module">
@@ -23,7 +32,6 @@ import { w2grid, w2utils, query } from '__W2UI_PATH__'
 
 let grid = new w2grid({
     name: 'grid',
-    box: query('#grid')[0],
     header: 'List of Names',
     url: 'data/list.json',
     method: 'GET', // need this to avoid 412 error on Safari
@@ -67,7 +75,31 @@ grid.on('*', (event) => {
     query('#preview').prop('scrollTop', 100_000)
 })
 
-window.clearLog = function () {
-    query('#preview').html('')
-}
+grid.render(query('#grid')[0])
+
+query('#example_view .action').on('click', event => {
+    let action = query(event.target).attr('action')
+    switch (action) {
+        case 'clearLog': {
+            query('#preview').html('')
+            break
+        }
+        case 'render': {
+            grid.render(query('#grid')[0])
+            break
+        }
+        case 'destroy': {
+            grid.destroy()
+            break
+        }
+        case 'refresh': {
+            grid.refresh()
+            break
+        }
+        case 'unmount': {
+            grid.unmount()
+            break
+        }
+    }
+})
 </script>

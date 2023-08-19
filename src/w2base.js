@@ -275,6 +275,10 @@ class w2base {
      * release the box to be used for other widgets
      */
     unmount() {
+        let edata = this.trigger('unmount', { target: this.name })
+        if (edata.isCancelled) {
+            return
+        }
         let remove = []
         // find classes that start with "w2ui-*"
         if (this.box instanceof HTMLElement) {
@@ -288,6 +292,8 @@ class w2base {
             .removeAttr('name')
             .html('')
         this.box = null
+        // event after
+        edata.finish()
     }
 }
 export { w2event, w2base }
