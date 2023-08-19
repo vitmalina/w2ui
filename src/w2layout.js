@@ -154,7 +154,8 @@ class w2layout extends w2base {
         // clean up previous content
         if (typeof p.html.unmount == 'function') p.html.unmount()
         current.addClass('w2ui-panel-content')
-        current.removeAttr('style') // styles could have added manually, but all necessary will be added by refresh
+        current.removeAttr('style') // styles could have added manually, but all necessary will be added by resizeBoxes
+        this.resizeBoxes(panel)
 
         if (p.html === '') {
             p.html = data
@@ -720,7 +721,7 @@ class w2layout extends w2base {
             // if there are tabs and/or toolbar - render it
             let tmp = query(self.box).find(pname +'> .w2ui-panel-tabs')
             if (p.show.tabs) {
-                if (tmp.find('[name='+ p.tabs.name +']').length === 0 && p.tabs != null) {
+                if (tmp.attr('name') != p.tabs.name && p.tabs != null) {
                     p.tabs.render(tmp.get(0))
                 } else {
                     p.tabs.refresh()
@@ -730,7 +731,7 @@ class w2layout extends w2base {
             }
             tmp = query(self.box).find(pname +'> .w2ui-panel-toolbar')
             if (p.show.toolbar) {
-                if (tmp.find('[name='+ p.toolbar.name +']').length === 0 && p.toolbar != null) {
+                if (tmp.attr('name') != p.toolbar.name && p.toolbar != null) {
                     p.toolbar.render(tmp.get(0))
                 } else {
                     p.toolbar.refresh()
@@ -1076,10 +1077,20 @@ class w2layout extends w2base {
             query(this.box).find('#layout_'+ this.name +'_resizer_preview').hide()
         }
 
+        // resizes boxes for header, tabs, toolbar inside the panel
+        this.resizeBoxes()
+
+        edata.finish()
+        return Date.now() - time
+    }
+
+    resizeBoxes(panel) {
+        let panels = w2panels
+        if (!panel && typeof panel == 'string') panels = [panel]
         // display tabs and toolbar if needed
-        for (let p1 = 0; p1 < w2panels.length; p1++) {
-            let pan = this.get(w2panels[p1])
-            let tmp2 = '#layout_'+ this.name +'_panel_'+ w2panels[p1] +' > .w2ui-panel-'
+        panels.forEach((pname, ind) => {
+            let pan = this.get(w2panels[ind])
+            let tmp2 = '#layout_'+ this.name +'_panel_'+ pname +' > .w2ui-panel-'
             let tabHeight = 0
             if (pan) {
                 if (pan.title) {
@@ -1095,10 +1106,12 @@ class w2layout extends w2base {
                     tabHeight += w2utils.getSize(el, 'height')
                 }
             }
-            query(this.box).find(tmp2 + 'content').css({ display: 'block' }).css({ top: tabHeight + 'px' })
-        }
-        edata.finish()
-        return Date.now() - time
+            query(this.box).find(tmp2 + 'content')
+                .css({
+                    display: 'block',
+                    top: tabHeight + 'px'
+                })
+        })
     }
 
     destroy() {
