@@ -5298,7 +5298,7 @@ class w2grid extends w2base {
             '<div id="grid_'+ this.name +'_columns" class="w2ui-grid-columns">'+
             '    <table><tbody>'+ colHTML[1] +'</tbody></table>'+
             '</div>'+
-            `<div class="w2ui-intersection-marker" style="display: none; height: ${this.recordHeight-5}px">
+            `<div class="w2ui-intersection-marker" style="display: none; height: ${this.recordHeight - 5}px">
                <div class="top-marker"></div>
                <div class="bottom-marker"></div>
             </div>`
@@ -6223,16 +6223,20 @@ class w2grid extends w2base {
             if (query(event.target).closest('td').length == 0) {
                 return
             }
-            // if mouse over invalid column
-            let rect1 = query(self.box).find('.w2ui-grid-body').get(0).getBoundingClientRect()
-            let rect2 = query(event.target).closest('td').get(0).getBoundingClientRect()
-            query(self.box).find('.w2ui-intersection-marker')
-                .show()
-                .css({
-                    left: (rect2.left - rect1.left) + 'px'
-                })
             let td = query(event.target).closest('td')
-            dragData.targetPos = td.hasClass('w2ui-head-last') ? self.columns.length : parseInt(td.attr('col'))
+            let newPos = td.hasClass('w2ui-head-last') ? self.columns.length : parseInt(td.attr('col'))
+            if (dragData.targetPos != newPos) {
+                // if mouse over invalid column
+                let rect1 = query(self.box).find('.w2ui-grid-body').get(0).getBoundingClientRect()
+                let rect2 = query(event.target).closest('td').get(0).getBoundingClientRect()
+                query(self.box).find('.w2ui-intersection-marker')
+                    .show()
+                    .css({
+                        left: (rect2.left - rect1.left) + 'px',
+                        height:rect2.height + 'px'
+                    })
+                dragData.targetPos = newPos
+            }
             return
         }
 
