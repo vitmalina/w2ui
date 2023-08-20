@@ -16,13 +16,21 @@
 <div id="toolbar"></div>
 <div style="height: 30px"></div>
 
-<button class="w2ui-btn" id="set1">Set Label</button>
-<button class="w2ui-btn" id="set2">Update Style</button>
-<button class="w2ui-btn" id="set3">Clear Style</button>
+<button class="w2ui-btn action" action="set1">Set Label</button>
+<button class="w2ui-btn action" action="set2">Update Style</button>
+<button class="w2ui-btn action" action="set3">Clear Style</button>
 <span style="color: gray">|</span>
-<button class="w2ui-btn" id="set4">Enter Name</button>
-<button class="w2ui-btn" id="set5">Clear Name</button>
+<button class="w2ui-btn action" action="set4">Enter Name</button>
+<button class="w2ui-btn action" action="set5">Clear Name</button>
 <div style="height: 20px"></div>
+
+<style>
+.w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-button.custom {
+    .w2ui-tb-icon > span {
+        color: white;
+    }
+}
+</style>
 
 <!--CODE-->
 <script type="module">
@@ -65,20 +73,33 @@ let toolbar = new w2toolbar({
     }
 })
 
-query('#set1').on('click', event => {
-    toolbar.set('item1', { text: 'Label Changed' })
-})
-
-query('#set2').on('click', event => {
-    toolbar.set('item1', { style: 'background-color: lightgreen; border-radius: 0px' })
-})
-query('#set3').on('click', event => {
-    toolbar.set('item1', { style: '' })
-})
-query('#set4').on('click', event => {
-    toolbar.set('name', { value: 'Tim Keller' })
-})
-query('#set5').on('click', event => {
-    toolbar.set('name', { value: '' })
-})
+query('#example_view .action')
+    .on('click', event => {
+        let action = query(event.target).attr('action')
+        switch (action) {
+            case 'set1': {
+                toolbar.set('item1', { text: 'Label Changed' })
+                break
+            }
+            case 'set2': {
+                toolbar.set('item1', {
+                    class: 'custom', // setting class allows to ovewrite styles for specific item's component
+                    style: 'background-color: lightgreen; border-radius: 0px; color: red !important;'
+                })
+                break
+            }
+            case 'set3': {
+                toolbar.set('item1', { style: '', class: '' })
+                break
+            }
+            case 'set4': {
+                toolbar.set('name', { value: 'Tim Keller' })
+                break
+            }
+            case 'set5': {
+                toolbar.set('name', { value: '' })
+                break
+            }
+        }
+    })
 </script>
