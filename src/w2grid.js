@@ -47,6 +47,7 @@
  *  - grid.show.columnReorder -> grid.reorderRows
  *  - updagte docs search.label (not search.text)
  *  - added columnAutoSize - which resizes column based on text in it
+ *  - added grid.replace()
  */
 
 import { w2base } from './w2base.js'
@@ -524,7 +525,8 @@ class w2grid extends w2base {
         return recs
     }
 
-    set(recid, record, noRefresh) { // does not delete existing, but overrides on top of it
+    // does not delete existing, but overrides on top of it
+    set(recid, record, noRefresh) {
         if ((typeof recid == 'object') && (recid !== null)) {
             noRefresh = record
             record    = recid
@@ -539,7 +541,7 @@ class w2grid extends w2base {
         } else { // find record to update
             let ind = this.get(recid, true)
             if (ind == null) return false
-            let isSummary = (this.records[ind] && this.records[ind].recid == recid ? false : true)
+            let isSummary = (this.records[ind]?.recid == recid ? false : true)
             if (isSummary) {
                 w2utils.extend(this.summary[ind], record)
             } else {
@@ -547,6 +549,20 @@ class w2grid extends w2base {
             }
             if (noRefresh !== true) this.refreshRow(recid, ind) // refresh only that record
         }
+        return true
+    }
+
+    // replaces existing record
+    replace(recid, record, noRefresh) {
+        let ind = this.get(recid, true)
+        if (ind == null) return false
+        let isSummary = (this.records[ind]?.recid == recid ? false : true)
+        if (isSummary) {
+            this.summary[ind] = record
+        } else {
+            this.records[ind] = record
+        }
+        if (noRefresh !== true) this.refreshRow(recid, ind) // refresh only that record
         return true
     }
 
