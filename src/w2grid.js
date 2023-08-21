@@ -7699,7 +7699,7 @@ class w2grid extends w2base {
         let first = parseInt(tr1.next().attr('line'))
         let last  = parseInt(tr2.prev().attr('line'))
         let tmp, tmp1, tmp2, rec_start, rec_html
-        if (first < start || first == 1 || this.last.vscroll.pull_refresh) { // scroll down
+        if (first <= start || first == 1 || this.last.vscroll.pull_refresh) { // scroll down
             if (end <= last + this.last.vscroll.show_extra - 2 && end != this.total) return
             this.last.vscroll.pull_refresh = false
             // remove from top
