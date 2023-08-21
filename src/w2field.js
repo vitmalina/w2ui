@@ -1189,8 +1189,8 @@ class w2field extends w2base {
             this.refresh()
         }
         if (this.type == 'combo') {
-            if (![9, 16].includes(event.keyCode) && this.options.openOnFocus !== true) {
-                // do not show when receives focus on tab or shift + tab
+            if (![9, 16, 27].includes(event.keyCode) && this.options.openOnFocus !== true) {
+                // do not show when receives focus on tab or shift + tab or on esc
                 this.updateOverlay()
             }
             // if arrows are clicked, it will show overlay
