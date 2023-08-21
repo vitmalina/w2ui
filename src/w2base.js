@@ -272,9 +272,9 @@ class w2base {
 
     /**
      * This method renders component into the box. It is overwritten in descendents and in this base
-     * component it is an empty funciton.
+     * component it is empty.
      */
-    rebder(box) {
+    render(box) {
         // intentionally left blank
     }
 
