@@ -271,6 +271,14 @@ class w2base {
     }
 
     /**
+     * This method renders component into the box. It is overwritten in descendents and in this base
+     * component it is an empty funciton.
+     */
+    rebder(box) {
+        // intentionally left blank
+    }
+
+    /**
      * Removes all classes that start with w2ui-* and sets box to null. It is needed so that control will
      * release the box to be used for other widgets
      */

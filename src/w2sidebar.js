@@ -1622,10 +1622,14 @@ class w2sidebar extends w2base {
         if (query(this.box).find('.w2ui-sidebar-body').length > 0) {
             this.unmount()
         }
-        this.last.observeResize?.disconnect()
         delete w2ui[this.name]
         // event after
         edata.finish()
+    }
+
+    unmount() {
+        super.unmount()
+        this.last.observeResize?.disconnect()
     }
 
     lock(msg, showSpinner) {

@@ -724,14 +724,17 @@ class w2toolbar extends w2base {
         let edata = this.trigger('destroy', { target: this.name })
         if (edata.isCancelled === true) return
         // clean up
-        if (query(this.box).find('.w2ui-scroll-wrapper  .w2ui-tb-right').length > 0) {
+        if (query(this.box).find('.w2ui-scroll-wrapper').length > 0) {
             this.unmount()
         }
-        query(this.box).html('')
-        this.last.observeResize?.disconnect()
         delete w2ui[this.name]
         // event after
         edata.finish()
+    }
+
+    unmount() {
+        super.unmount()
+        this.last.observeResize?.disconnect()
     }
 
     // ========================================

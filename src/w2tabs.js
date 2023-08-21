@@ -559,10 +559,14 @@ class w2tabs extends w2base {
         if (query(this.box).find('#tabs_'+ this.name + '_right').length > 0) {
             this.unmount()
         }
-        this.last.observeResize?.disconnect()
         delete w2ui[this.name]
         // event after
         edata.finish()
+    }
+
+    unmount() {
+        super.unmount()
+        this.last.observeResize?.disconnect()
     }
 
     // ===================================================

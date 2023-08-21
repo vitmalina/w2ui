@@ -78,7 +78,7 @@ query('#example_view .action')
         let action = query(event.target).attr('action')
         switch (action) {
             case 'set1': {
-                toolbar.set('item1', { text: 'Label Changed' })
+                toolbar.set('item1', { text: 'Changed ' + String(Date.now()).substr(-5) })
                 break
             }
             case 'set2': {
