@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (8/15/2023, 12:00:18 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (8/20/2023, 6:36:48 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -261,10 +261,21 @@ class w2base {
         return edata
     }
     /**
+     * This method renders component into the box. It is overwritten in descendents and in this base
+     * component it is an empty funciton.
+     */
+    rebder(box) {
+        // intentionally left blank
+    }
+    /**
      * Removes all classes that start with w2ui-* and sets box to null. It is needed so that control will
      * release the box to be used for other widgets
      */
     unmount() {
+        let edata = this.trigger('unmount', { target: this.name })
+        if (edata.isCancelled) {
+            return
+        }
         let remove = []
         // find classes that start with "w2ui-*"
         if (this.box instanceof HTMLElement) {
@@ -278,6 +289,8 @@ class w2base {
             .removeAttr('name')
             .html('')
         this.box = null
+        // event after
+        edata.finish()
     }
 }
 /**
@@ -7246,14 +7259,16 @@ class w2toolbar extends w2base {
         let edata = this.trigger('destroy', { target: this.name })
         if (edata.isCancelled === true) return
         // clean up
-        if (query(this.box).find('.w2ui-scroll-wrapper  .w2ui-tb-right').length > 0) {
+        if (query(this.box).find('.w2ui-scroll-wrapper').length > 0) {
             this.unmount()
         }
-        query(this.box).html('')
-        this.last.observeResize?.disconnect()
         delete w2ui[this.name]
         // event after
         edata.finish()
+    }
+    unmount() {
+        super.unmount()
+        this.last.observeResize?.disconnect()
     }
     // ========================================
     // --- Internal Functions
@@ -9203,10 +9218,13 @@ class w2sidebar extends w2base {
         if (query(this.box).find('.w2ui-sidebar-body').length > 0) {
             this.unmount()
         }
-        this.last.observeResize?.disconnect()
         delete w2ui[this.name]
         // event after
         edata.finish()
+    }
+    unmount() {
+        super.unmount()
+        this.last.observeResize?.disconnect()
     }
     lock(msg, showSpinner) {
         let args = Array.from(arguments)
@@ -9744,10 +9762,13 @@ class w2tabs extends w2base {
         if (query(this.box).find('#tabs_'+ this.name + '_right').length > 0) {
             this.unmount()
         }
-        this.last.observeResize?.disconnect()
         delete w2ui[this.name]
         // event after
         edata.finish()
+    }
+    unmount() {
+        super.unmount()
+        this.last.observeResize?.disconnect()
     }
     // ===================================================
     // -- Internal Event Handlers
@@ -9980,7 +10001,8 @@ class w2layout extends w2base {
         // clean up previous content
         if (typeof p.html.unmount == 'function') p.html.unmount()
         current.addClass('w2ui-panel-content')
-        current.removeAttr('style') // styles could have added manually, but all necessary will be added by refresh
+        current.removeAttr('style') // styles could have added manually, but all necessary will be added by resizeBoxes
+        this.resizeBoxes(panel)
         if (p.html === '') {
             p.html = data
             this.refresh(panel)
@@ -10462,6 +10484,35 @@ class w2layout extends w2base {
             edata.finish()
         }
     }
+    unmount() {
+        super.unmount()
+        this.panels.forEach(panel => {
+            panel.tabs?.unmount?.()
+            panel.toolbar?.unmount?.()
+        })
+        this.last.observeResize?.disconnect()
+    }
+    destroy() {
+        // event before
+        let edata = this.trigger('destroy', { target: this.name })
+        if (edata.isCancelled === true) return
+        if (w2ui[this.name] == null) return false
+        // clean up
+        this.panels.forEach(panel => {
+            panel.tabs?.destroy?.()
+            panel.toolbar?.destroy?.()
+        })
+        if (query(this.box).find('#layout_'+ this.name +'_panel_main').length > 0) {
+            this.unmount()
+        }
+        delete w2ui[this.name]
+        // event after
+        edata.finish()
+        if (this.last.events && this.last.events.resize) {
+            query(window).off('resize', this.last.events.resize)
+        }
+        return true
+    }
     refresh(panel) {
         let self = this
         // if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
@@ -10513,7 +10564,7 @@ class w2layout extends w2base {
             // if there are tabs and/or toolbar - render it
             let tmp = query(self.box).find(pname +'> .w2ui-panel-tabs')
             if (p.show.tabs) {
-                if (tmp.find('[name='+ p.tabs.name +']').length === 0 && p.tabs != null) {
+                if (tmp.attr('name') != p.tabs.name && p.tabs != null) {
                     p.tabs.render(tmp.get(0))
                 } else {
                     p.tabs.refresh()
@@ -10523,7 +10574,7 @@ class w2layout extends w2base {
             }
             tmp = query(self.box).find(pname +'> .w2ui-panel-toolbar')
             if (p.show.toolbar) {
-                if (tmp.find('[name='+ p.toolbar.name +']').length === 0 && p.toolbar != null) {
+                if (tmp.attr('name') != p.toolbar.name && p.toolbar != null) {
                     p.toolbar.render(tmp.get(0))
                 } else {
                     p.toolbar.refresh()
@@ -10865,10 +10916,18 @@ class w2layout extends w2base {
             query(this.box).find('#layout_'+ this.name +'_panel_preview').hide()
             query(this.box).find('#layout_'+ this.name +'_resizer_preview').hide()
         }
+        // resizes boxes for header, tabs, toolbar inside the panel
+        this.resizeBoxes()
+        edata.finish()
+        return Date.now() - time
+    }
+    resizeBoxes(panel) {
+        let panels = w2panels
+        if (!panel && typeof panel == 'string') panels = [panel]
         // display tabs and toolbar if needed
-        for (let p1 = 0; p1 < w2panels.length; p1++) {
-            let pan = this.get(w2panels[p1])
-            let tmp2 = '#layout_'+ this.name +'_panel_'+ w2panels[p1] +' > .w2ui-panel-'
+        panels.forEach((pname, ind) => {
+            let pan = this.get(w2panels[ind])
+            let tmp2 = '#layout_'+ this.name +'_panel_'+ pname +' > .w2ui-panel-'
             let tabHeight = 0
             if (pan) {
                 if (pan.title) {
@@ -10884,28 +10943,12 @@ class w2layout extends w2base {
                     tabHeight += w2utils.getSize(el, 'height')
                 }
             }
-            query(this.box).find(tmp2 + 'content').css({ display: 'block' }).css({ top: tabHeight + 'px' })
-        }
-        edata.finish()
-        return Date.now() - time
-    }
-    destroy() {
-        // event before
-        let edata = this.trigger('destroy', { target: this.name })
-        if (edata.isCancelled === true) return
-        if (w2ui[this.name] == null) return false
-        // clean up
-        if (query(this.box).find('#layout_'+ this.name +'_panel_main').length > 0) {
-            this.unmount()
-        }
-        this.last.observeResize?.disconnect()
-        delete w2ui[this.name]
-        // event after
-        edata.finish()
-        if (this.last.events && this.last.events.resize) {
-            query(window).off('resize', this.last.events.resize)
-        }
-        return true
+            query(this.box).find(tmp2 + 'content')
+                .css({
+                    display: 'block',
+                    top: tabHeight + 'px'
+                })
+        })
     }
     lock(panel, msg, showSpinner) {
         if (w2panels.indexOf(panel) == -1) {
@@ -10974,6 +11017,7 @@ class w2layout extends w2base {
  *  - grid.show.columnReorder -> grid.reorderRows
  *  - updagte docs search.label (not search.text)
  *  - added columnAutoSize - which resizes column based on text in it
+ *  - added grid.replace()
  */
 
 class w2grid extends w2base {
@@ -11431,7 +11475,8 @@ class w2grid extends w2base {
         }
         return recs
     }
-    set(recid, record, noRefresh) { // does not delete existing, but overrides on top of it
+    // does not delete existing, but overrides on top of it
+    set(recid, record, noRefresh) {
         if ((typeof recid == 'object') && (recid !== null)) {
             noRefresh = record
             record    = recid
@@ -11446,7 +11491,7 @@ class w2grid extends w2base {
         } else { // find record to update
             let ind = this.get(recid, true)
             if (ind == null) return false
-            let isSummary = (this.records[ind] && this.records[ind].recid == recid ? false : true)
+            let isSummary = (this.records[ind]?.recid == recid ? false : true)
             if (isSummary) {
                 w2utils.extend(this.summary[ind], record)
             } else {
@@ -11454,6 +11499,19 @@ class w2grid extends w2base {
             }
             if (noRefresh !== true) this.refreshRow(recid, ind) // refresh only that record
         }
+        return true
+    }
+    // replaces existing record
+    replace(recid, record, noRefresh) {
+        let ind = this.get(recid, true)
+        if (ind == null) return false
+        let isSummary = (this.records[ind]?.recid == recid ? false : true)
+        if (isSummary) {
+            this.summary[ind] = record
+        } else {
+            this.records[ind] = record
+        }
+        if (noRefresh !== true) this.refreshRow(recid, ind) // refresh only that record
         return true
     }
     get(recid, returnIndex) {
@@ -16029,7 +16087,7 @@ class w2grid extends w2base {
             '<div id="grid_'+ this.name +'_columns" class="w2ui-grid-columns">'+
             '    <table><tbody>'+ colHTML[1] +'</tbody></table>'+
             '</div>'+
-            `<div class="w2ui-intersection-marker" style="display: none; height: ${this.recordHeight-5}px">
+            `<div class="w2ui-intersection-marker" style="display: none; height: ${this.recordHeight - 5}px">
                <div class="top-marker"></div>
                <div class="bottom-marker"></div>
             </div>`
@@ -16376,7 +16434,10 @@ class w2grid extends w2base {
         // event after
         edata.finish()
         // observe div resize
-        this.last.observeResize = new ResizeObserver(() => { this.resize() })
+        this.last.observeResize = new ResizeObserver(() => {
+            this.resize()
+            this.scroll()
+        })
         this.last.observeResize.observe(this.box)
         return Date.now() - time
         function mouseStart(event) {
@@ -16738,18 +16799,20 @@ class w2grid extends w2base {
             delete obj.last.move
         }
     }
+    unmount() {
+        super.unmount()
+        this.toolbar?.unmount()
+        this.last.observeResize?.disconnect()
+    }
     destroy() {
         // event before
         let edata = this.trigger('destroy', { target: this.name })
         if (edata.isCancelled === true) return
-        // remove all events
-        query(this.box).off()
         // clean up
-        if (typeof this.toolbar == 'object' && this.toolbar.destroy) this.toolbar.destroy()
+        this.toolbar?.destroy?.()
         if (query(this.box).find(`#grid_${this.name}_body`).length > 0) {
             this.unmount()
         }
-        this.last.observeResize?.disconnect()
         delete w2ui[this.name]
         // event after
         edata.finish()
@@ -16912,16 +16975,20 @@ class w2grid extends w2base {
             if (query(event.target).closest('td').length == 0) {
                 return
             }
-            // if mouse over invalid column
-            let rect1 = query(self.box).find('.w2ui-grid-body').get(0).getBoundingClientRect()
-            let rect2 = query(event.target).closest('td').get(0).getBoundingClientRect()
-            query(self.box).find('.w2ui-intersection-marker')
-                .show()
-                .css({
-                    left: (rect2.left - rect1.left) + 'px'
-                })
             let td = query(event.target).closest('td')
-            dragData.targetPos = td.hasClass('w2ui-head-last') ? self.columns.length : parseInt(td.attr('col'))
+            let newPos = td.hasClass('w2ui-head-last') ? self.columns.length : parseInt(td.attr('col'))
+            if (dragData.targetPos != newPos) {
+                // if mouse over invalid column
+                let rect1 = query(self.box).find('.w2ui-grid-body').get(0).getBoundingClientRect()
+                let rect2 = query(event.target).closest('td').get(0).getBoundingClientRect()
+                query(self.box).find('.w2ui-intersection-marker')
+                    .show()
+                    .css({
+                        left: (rect2.left - rect1.left) + 'px',
+                        height:rect2.height + 'px'
+                    })
+                dragData.targetPos = newPos
+            }
             return
         }
         function trackGhost(cursorX, cursorY){
@@ -21159,6 +21226,27 @@ class w2form extends w2base {
         }
         return Date.now() - time
     }
+    unmount() {
+        super.unmount()
+        this.tabs?.unmount?.()
+        this.toolbar?.unmount?.()
+        this.last.observeResize?.disconnect()
+    }
+    destroy() {
+        // event before
+        let edata = this.trigger('destroy', { target: this.name })
+        if (edata.isCancelled === true) return
+        // clean up
+        this.tabs?.destroy?.()
+        this.toolbar?.destroy?.()
+        if (query(this.box).find('#form_'+ this.name +'_tabs').length > 0) {
+            this.unmount()
+        }
+        this.last.observeResize?.disconnect()
+        delete w2ui[this.name]
+        // event after
+        edata.finish()
+    }
     setFocus(focus) {
         if (typeof focus === 'undefined'){
             // no argument - use form's focus property
@@ -21188,21 +21276,6 @@ class w2form extends w2base {
             $input.get(0).focus()
         }
         return $input
-    }
-    destroy() {
-        // event before
-        let edata = this.trigger('destroy', { target: this.name })
-        if (edata.isCancelled === true) return
-        // clean up
-        if (typeof this.toolbar === 'object' && this.toolbar.destroy) this.toolbar.destroy()
-        if (typeof this.tabs === 'object' && this.tabs.destroy) this.tabs.destroy()
-        if (query(this.box).find('#form_'+ this.name +'_tabs').length > 0) {
-            this.unmount()
-        }
-        this.last.observeResize?.disconnect()
-        delete w2ui[this.name]
-        // event after
-        edata.finish()
     }
 }
 /**
@@ -22364,8 +22437,8 @@ class w2field extends w2base {
             this.refresh()
         }
         if (this.type == 'combo') {
-            if (![9, 16].includes(event.keyCode) && this.options.openOnFocus !== true) {
-                // do not show when receives focus on tab or shift + tab
+            if (![9, 16, 27].includes(event.keyCode) && this.options.openOnFocus !== true) {
+                // do not show when receives focus on tab or shift + tab or on esc
                 this.updateOverlay()
             }
             // if arrows are clicked, it will show overlay

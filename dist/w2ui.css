@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (8/15/2023, 12:00:18 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (8/20/2023, 6:36:48 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -3738,6 +3738,7 @@ textarea.w2ui-error {
   padding: 2px;
   border: 1px solid transparent;
   border-radius: 4px;
+  color: black;
   background-color: transparent;
   white-space: nowrap;
   margin: 0 1px;
@@ -3757,7 +3758,6 @@ textarea.w2ui-error {
 }
 .w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-button .w2ui-tb-text {
   margin-left: 20px;
-  color: black;
   padding: 5px ;
 }
 .w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-button .w2ui-tb-text .w2ui-tb-color-box {
