@@ -26,6 +26,7 @@
  *  - remove form.multiplart
  *  - this.method - for saving only
  *  - added field.html.class
+ *  - setValue(..., noRefresh)
  */
 
 import { w2base } from './w2base.js'
@@ -318,7 +319,7 @@ class w2form extends w2base {
         }
     }
 
-    setValue(field, value) {
+    setValue(field, value, noRefresh) {
         // will not refresh the form!
         if (value === '' || value == null
                 || (Array.isArray(value) && value.length === 0)
@@ -335,14 +336,14 @@ class w2form extends w2base {
                         rec[fld] = value
                     }
                 })
-                this.setFieldValue(field, value)
+                if (!noRefresh) this.setFieldValue(field, value)
                 return true
             } catch (event) {
                 return false
             }
         } else {
             this.record[field] = value
-            this.setFieldValue(field, value)
+            if (!noRefresh) this.setFieldValue(field, value)
             return true
         }
     }
@@ -473,7 +474,7 @@ class w2form extends w2base {
                 }
                 // if item is found in field.options, update it in the this.records
                 if (item != value) {
-                    this.setValue(field.name, item)
+                    this.setValue(field.name, item, true)
                 }
                 if (field.type == 'list') {
                     field.w2field.selected = item
@@ -501,7 +502,7 @@ class w2form extends w2base {
                     }
                 })
                 if (updated) {
-                    this.setValue(field.name, items)
+                    this.setValue(field.name, items, true)
                 }
                 field.w2field.selected = items
                 field.w2field.refresh()
@@ -511,11 +512,11 @@ class w2form extends w2base {
             case 'array': {
                 // init map
                 if (field.type == 'map' && (value == null || !w2utils.isPlainObject(value))) {
-                    this.setValue(field.field, {})
+                    this.setValue(field.field, {}, true)
                     value = this.getValue(field.field)
                 }
                 if (field.type == 'array' && (value == null || !Array.isArray(value))) {
-                    this.setValue(field.field, [])
+                    this.setValue(field.field, [], true)
                     value = this.getValue(field.field)
                 }
                 let container = query(field.el).parent().find('.w2ui-map-container')
@@ -1682,12 +1683,12 @@ class w2form extends w2base {
                         let html = `
                             <div class="w2ui-map-field" style="margin-bottom: 5px" data-index="${cnt}">
                             ${field.type == 'map'
-                                ? `<input type="text" ${field.html.key.attr + attr} class="w2ui-input ${field.html.class ?? ''} w2ui-map key">
+                                ? `<input type="text" ${(field.html.key.attr ?? '') + attr} class="w2ui-input ${field.html.class ?? ''} w2ui-map key">
                                     ${field.html.key.text || ''}
                                 `
                                 : ''
                             }
-                            <input type="text" ${field.html.value.attr + attr} class="w2ui-input ${field.html.class ?? ''} w2ui-map value">
+                            <input type="text" ${(field.html.value.attr ?? '') + attr} class="w2ui-input ${field.html.class ?? ''} w2ui-map value">
                                 ${field.html.value.text || ''}
                             </div>`
                         div.append(html)
