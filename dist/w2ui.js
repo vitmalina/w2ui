@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (8/20/2023, 6:36:48 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (8/25/2023, 11:36:53 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -262,9 +262,9 @@ class w2base {
     }
     /**
      * This method renders component into the box. It is overwritten in descendents and in this base
-     * component it is an empty funciton.
+     * component it is empty.
      */
-    rebder(box) {
+    render(box) {
         // intentionally left blank
     }
     /**
@@ -9992,7 +9992,7 @@ class w2layout extends w2base {
             return promise
         }
         let pname = '#layout_'+ this.name + '_panel_'+ p.type
-        let current = query(this.box).find(pname + '> .w2ui-panel-content')
+        let current = query(this.box).find(pname + '> [data-role="panel-content"]')
         let panelTop = 0
         if (current.length > 0) {
             query(this.box).find(pname).get(0).scrollTop = 0
@@ -10012,9 +10012,9 @@ class w2layout extends w2base {
                 if (transition != null && transition !== '') {
                     // apply transition
                     query(this.box).addClass('animating')
-                    let div1 = query(this.box).find(pname + '> .w2ui-panel-content')
-                    div1.after('<div class="w2ui-panel-content new-panel" style="'+ div1[0].style.cssText +'"></div>')
-                    let div2 = query(this.box).find(pname + '> .w2ui-panel-content.new-panel')
+                    let div1 = query(this.box).find(pname + '> [data-role="panel-content"]')
+                    div1.after('<div class="w2ui-panel-content new-panel" data-role="panel-content" style="'+ div1[0].style.cssText +'"></div>')
+                    let div2 = query(this.box).find(pname + '> [data-role="panel-content"].new-panel')
                     div1.css('top', panelTop)
                     div2.css('top', panelTop)
                     if (typeof data == 'object') {
@@ -10028,7 +10028,7 @@ class w2layout extends w2base {
                         div2.removeClass('new-panel')
                         div2.css('overflow', p.overflow)
                         // make sure only one content left
-                        query(query(this.box).find(pname + '> .w2ui-panel-content').get(1)).remove()
+                        query(query(this.box).find(pname + '> [data-role="panel-content"]').get(1)).remove()
                         query(this.box).removeClass('animating')
                         this.refresh(panel)
                     })
@@ -10197,7 +10197,7 @@ class w2layout extends w2base {
         return null
     }
     el(panel) {
-        let el = query(this.box).find('#layout_'+ this.name +'_panel_'+ panel +'> .w2ui-panel-content')
+        let el = query(this.box).find('#layout_'+ this.name +'_panel_'+ panel +'> [data-role="panel-content"]')
         if (el.length != 1) return null
         return el[0]
     }
@@ -10205,14 +10205,14 @@ class w2layout extends w2base {
         let pan = this.get(panel)
         if (!pan) return
         pan.show.toolbar = false
-        query(this.box).find('#layout_'+ this.name +'_panel_'+ panel +'> .w2ui-panel-toolbar').hide()
+        query(this.box).find(`#layout_${this.name}_panel_${panel} > [data-role="panel-toolbar"]`).hide()
         this.resize()
     }
     showToolbar(panel) {
         let pan = this.get(panel)
         if (!pan) return
         pan.show.toolbar = true
-        query(this.box).find('#layout_'+ this.name +'_panel_'+ panel +'> .w2ui-panel-toolbar').show()
+        query(this.box).find(`#layout_${this.name}_panel_${panel} > [data-role="panel-toolbar"]`).show()
         this.resize()
     }
     toggleToolbar(panel) {
@@ -10224,9 +10224,9 @@ class w2layout extends w2base {
         if (typeof toolbar == 'string' && w2ui[toolbar] != null) toolbar = w2ui[toolbar]
         let pan = this.get(panel)
         pan.toolbar = toolbar
-        let tmp = query(this.box).find(panel +'> .w2ui-panel-toolbar')
+        let tmp = query(this.box).find(panel +'> [data-role="panel-toolbar"]')
         if (pan.toolbar != null) {
-            if (tmp.find('[name='+ pan.toolbar.name +']').length === 0) {
+            if (tmp.attr('name') != pan.toolbar.name) {
                 pan.toolbar.render(tmp.get(0))
             } else if (pan.toolbar != null) {
                 pan.toolbar.refresh()
@@ -10243,14 +10243,14 @@ class w2layout extends w2base {
         let pan = this.get(panel)
         if (!pan) return
         pan.show.tabs = false
-        query(this.box).find('#layout_'+ this.name +'_panel_'+ panel +'> .w2ui-panel-tabs').hide()
+        query(this.box).find('#layout_'+ this.name +'_panel_'+ panel +'> [data-role="panel-tabs"]').hide()
         this.resize()
     }
     showTabs(panel) {
         let pan = this.get(panel)
         if (!pan) return
         pan.show.tabs = true
-        query(this.box).find('#layout_'+ this.name +'_panel_'+ panel +'> .w2ui-panel-tabs').show()
+        query(this.box).find('#layout_'+ this.name +'_panel_'+ panel +'> [data-role="panel-tabs"]').show()
         this.resize()
     }
     toggleTabs(panel) {
@@ -10284,9 +10284,9 @@ class w2layout extends w2base {
         for (let p1 = 0; p1 < w2panels.length; p1++) {
             let html = '<div id="layout_'+ this.name + '_panel_'+ w2panels[p1] +'" class="w2ui-panel">'+
                         '    <div class="w2ui-panel-title"></div>'+
-                        '    <div class="w2ui-panel-tabs"></div>'+
-                        '    <div class="w2ui-panel-toolbar"></div>'+
-                        '    <div class="w2ui-panel-content"></div>'+
+                        '    <div class="w2ui-panel-tabs" data-role="panel-tabs"></div>'+
+                        '    <div class="w2ui-panel-toolbar" data-role="panel-toolbar"></div>'+
+                        '    <div class="w2ui-panel-content" data-role="panel-content"></div>'+
                         '</div>'+
                         '<div id="layout_'+ this.name + '_resizer_'+ w2panels[p1] +'" class="w2ui-resizer"></div>'
             query(this.box).find(':scope > div').append(html)
@@ -10536,11 +10536,11 @@ class w2layout extends w2base {
             }
             // insert content
             if (typeof p.html == 'object' && typeof p.html.render === 'function') {
-                p.html.box = query(self.box).find(pname +'> .w2ui-panel-content')[0]
+                p.html.box = query(self.box).find(pname +'> [data-role="panel-content"]')[0]
                 setTimeout(() => {
                     // need to remove unnecessary classes
-                    if (query(self.box).find(pname +'> .w2ui-panel-content').length > 0) {
-                        query(self.box).find(pname +'> .w2ui-panel-content')
+                    if (query(self.box).find(pname +'> [data-role="panel-content"]').length > 0) {
+                        query(self.box).find(pname +'> [data-role="panel-content"]')
                             .removeClass()
                             .removeAttr('name')
                             .addClass('w2ui-panel-content')
@@ -10552,8 +10552,8 @@ class w2layout extends w2base {
                 }, 1)
             } else {
                 // need to remove unnecessary classes
-                if (query(self.box).find(pname +'> .w2ui-panel-content').length > 0) {
-                    query(self.box).find(pname +'> .w2ui-panel-content')
+                if (query(self.box).find(pname +'> [data-role="panel-content"]').length > 0) {
+                    query(self.box).find(pname +'> [data-role="panel-content"]')
                         .removeClass()
                         .removeAttr('name')
                         .addClass('w2ui-panel-content')
@@ -10562,25 +10562,27 @@ class w2layout extends w2base {
                 }
             }
             // if there are tabs and/or toolbar - render it
-            let tmp = query(self.box).find(pname +'> .w2ui-panel-tabs')
+            let tmp = query(self.box).find(pname +'> [data-role="panel-tabs"]')
             if (p.show.tabs) {
                 if (tmp.attr('name') != p.tabs.name && p.tabs != null) {
                     p.tabs.render(tmp.get(0))
                 } else {
                     p.tabs.refresh()
                 }
+                tmp.addClass('w2ui-panel-tabs')
             } else {
-                tmp.html('').removeClass('w2ui-tabs').hide()
+                tmp.html('').removeAttr('name').removeClass('w2ui-tabs').hide()
             }
-            tmp = query(self.box).find(pname +'> .w2ui-panel-toolbar')
+            tmp = query(self.box).find(pname +'> [data-role="panel-toolbar"]')
             if (p.show.toolbar) {
                 if (tmp.attr('name') != p.toolbar.name && p.toolbar != null) {
                     p.toolbar.render(tmp.get(0))
                 } else {
                     p.toolbar.refresh()
                 }
+                tmp.addClass('w2ui-panel-toolbar')
             } else {
-                tmp.html('').removeClass('w2ui-toolbar').hide()
+                tmp.html('').removeAttr('name').removeClass('w2ui-toolbar').hide()
             }
             // show title
             tmp = query(self.box).find(pname +'> .w2ui-panel-title')
@@ -10927,26 +10929,26 @@ class w2layout extends w2base {
         // display tabs and toolbar if needed
         panels.forEach((pname, ind) => {
             let pan = this.get(w2panels[ind])
-            let tmp2 = '#layout_'+ this.name +'_panel_'+ pname +' > .w2ui-panel-'
-            let tabHeight = 0
+            let tmp2 = `#layout_${this.name}_panel_${pname} > `
+            let topHeight = 0
             if (pan) {
                 if (pan.title) {
-                    let el = query(this.box).find(tmp2 + 'title').css({ top: tabHeight + 'px', display: 'block' })
-                    tabHeight += w2utils.getSize(el, 'height')
+                    let el = query(this.box).find(tmp2 + '.w2ui-panel-title').css({ top: topHeight + 'px', display: 'block' })
+                    topHeight += w2utils.getSize(el, 'height')
                 }
                 if (pan.show.tabs) {
-                    let el = query(this.box).find(tmp2 + 'tabs').css({ top: tabHeight + 'px', display: 'block' })
-                    tabHeight += w2utils.getSize(el, 'height')
+                    let el = query(this.box).find(tmp2 + '[data-role="panel-tabs"]').css({ top: topHeight + 'px', display: 'block' })
+                    topHeight += w2utils.getSize(el, 'height')
                 }
                 if (pan.show.toolbar) {
-                    let el = query(this.box).find(tmp2 + 'toolbar').css({ top: tabHeight + 'px', display: 'block' })
-                    tabHeight += w2utils.getSize(el, 'height')
+                    let el = query(this.box).find(tmp2 + '[data-role="panel-toolbar"]').css({ top: topHeight + 'px', display: 'block' })
+                    topHeight += w2utils.getSize(el, 'height')
                 }
             }
-            query(this.box).find(tmp2 + 'content')
+            query(this.box).find(tmp2 + '[data-role="panel-content"]')
                 .css({
                     display: 'block',
-                    top: tabHeight + 'px'
+                    top: topHeight + 'px'
                 })
         })
     }
@@ -18402,7 +18404,7 @@ class w2grid extends w2base {
         let first = parseInt(tr1.next().attr('line'))
         let last  = parseInt(tr2.prev().attr('line'))
         let tmp, tmp1, tmp2, rec_start, rec_html
-        if (first < start || first == 1 || this.last.vscroll.pull_refresh) { // scroll down
+        if (first <= start || first == 1 || this.last.vscroll.pull_refresh) { // scroll down
             if (end <= last + this.last.vscroll.show_extra - 2 && end != this.total) return
             this.last.vscroll.pull_refresh = false
             // remove from top
@@ -19389,6 +19391,7 @@ class w2grid extends w2base {
  *  - remove form.multiplart
  *  - this.method - for saving only
  *  - added field.html.class
+ *  - setValue(..., noRefresh)
  */
 
 class w2form extends w2base {
@@ -19663,7 +19666,7 @@ class w2form extends w2base {
             return this.record[field]
         }
     }
-    setValue(field, value) {
+    setValue(field, value, noRefresh) {
         // will not refresh the form!
         if (value === '' || value == null
                 || (Array.isArray(value) && value.length === 0)
@@ -19680,14 +19683,14 @@ class w2form extends w2base {
                         rec[fld] = value
                     }
                 })
-                this.setFieldValue(field, value)
+                if (!noRefresh) this.setFieldValue(field, value)
                 return true
             } catch (event) {
                 return false
             }
         } else {
             this.record[field] = value
-            this.setFieldValue(field, value)
+            if (!noRefresh) this.setFieldValue(field, value)
             return true
         }
     }
@@ -19815,7 +19818,7 @@ class w2form extends w2base {
                 }
                 // if item is found in field.options, update it in the this.records
                 if (item != value) {
-                    this.setValue(field.name, item)
+                    this.setValue(field.name, item, true)
                 }
                 if (field.type == 'list') {
                     field.w2field.selected = item
@@ -19843,7 +19846,7 @@ class w2form extends w2base {
                     }
                 })
                 if (updated) {
-                    this.setValue(field.name, items)
+                    this.setValue(field.name, items, true)
                 }
                 field.w2field.selected = items
                 field.w2field.refresh()
@@ -19853,11 +19856,11 @@ class w2form extends w2base {
             case 'array': {
                 // init map
                 if (field.type == 'map' && (value == null || !w2utils.isPlainObject(value))) {
-                    this.setValue(field.field, {})
+                    this.setValue(field.field, {}, true)
                     value = this.getValue(field.field)
                 }
                 if (field.type == 'array' && (value == null || !Array.isArray(value))) {
-                    this.setValue(field.field, [])
+                    this.setValue(field.field, [], true)
                     value = this.getValue(field.field)
                 }
                 let container = query(field.el).parent().find('.w2ui-map-container')
@@ -20989,12 +20992,12 @@ class w2form extends w2base {
                         let html = `
                             <div class="w2ui-map-field" style="margin-bottom: 5px" data-index="${cnt}">
                             ${field.type == 'map'
-                                ? `<input type="text" ${field.html.key.attr + attr} class="w2ui-input ${field.html.class ?? ''} w2ui-map key">
+                                ? `<input type="text" ${(field.html.key.attr ?? '') + attr} class="w2ui-input ${field.html.class ?? ''} w2ui-map key">
                                     ${field.html.key.text || ''}
                                 `
                                 : ''
                             }
-                            <input type="text" ${field.html.value.attr + attr} class="w2ui-input ${field.html.class ?? ''} w2ui-map value">
+                            <input type="text" ${(field.html.value.attr ?? '') + attr} class="w2ui-input ${field.html.class ?? ''} w2ui-map value">
                                 ${field.html.value.text || ''}
                             </div>`
                         div.append(html)
