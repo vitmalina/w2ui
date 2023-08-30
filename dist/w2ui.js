@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (8/25/2023, 11:36:53 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (8/29/2023, 6:36:15 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -967,7 +967,11 @@ class Query {
         return this.html('')
     }
     html(html) {
-        return this.prop('innerHTML', html)
+        if (html instanceof HTMLElement) {
+            return this.empty().append(html)
+        } else {
+            return this.prop('innerHTML', html)
+        }
     }
     text(text) {
         return this.prop('textContent', text)
@@ -4149,14 +4153,21 @@ class Tooltip {
                 options.anchor = name
             }
             let ret = this.attach(options)
+            ret.overlay.tmp.hidden = false
             query(ret.overlay.anchor)
                 .off('.autoShow-' + ret.overlay.name)
                 .off('.autoHide-' + ret.overlay.name)
-            // need a timer, so that events would be preperty set
+            /**
+             * Need a timer, so that events in the 'return ret` would be preperty set as it is using chaning mechanism
+             * to set listeners: w2tooltip.show({}).then(...).show(...). Since it could be hidden before timer kick in
+             * to show it, need the check in the timeout.
+             */
             setTimeout(() => {
-                this.show(ret.overlay.name)
-                if (this.initControls) {
-                    this.initControls(ret.overlay)
+                if (!ret.overlay.tmp.hidden) {
+                    this.show(ret.overlay.name)
+                    if (this.initControls) {
+                        this.initControls(ret.overlay)
+                    }
                 }
             }, 1)
             return ret
@@ -4332,6 +4343,7 @@ class Tooltip {
             name = name.replace(/[\s\.#]/g, '_')
             overlay = Tooltip.active[name]
         }
+        if (overlay?.tmp) overlay.tmp.hidden = true // it could be hidden before it is actually shown
         if (!overlay || !overlay.box) return
         // event before
         let edata = this.trigger('hide', { target: name, overlay })
