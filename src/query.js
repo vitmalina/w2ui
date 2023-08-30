@@ -545,7 +545,11 @@ class Query {
         return this.html('')
     }
     html(html) {
-        return this.prop('innerHTML', html)
+        if (html instanceof HTMLElement) {
+            return this.empty().append(html)
+        } else {
+            return this.prop('innerHTML', html)
+        }
     }
     text(text) {
         return this.prop('textContent', text)
