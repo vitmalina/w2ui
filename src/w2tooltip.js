@@ -245,14 +245,23 @@ class Tooltip {
                 options.anchor = name
             }
             let ret = this.attach(options)
+            ret.overlay.tmp.hidden = false
+
             query(ret.overlay.anchor)
                 .off('.autoShow-' + ret.overlay.name)
                 .off('.autoHide-' + ret.overlay.name)
-            // need a timer, so that events would be preperty set
+
+            /**
+             * Need a timer, so that events in the 'return ret` would be preperty set as it is using chaning mechanism
+             * to set listeners: w2tooltip.show({}).then(...).show(...). Since it could be hidden before timer kick in
+             * to show it, need the check in the timeout.
+             */
             setTimeout(() => {
-                this.show(ret.overlay.name)
-                if (this.initControls) {
-                    this.initControls(ret.overlay)
+                if (!ret.overlay.tmp.hidden) {
+                    this.show(ret.overlay.name)
+                    if (this.initControls) {
+                        this.initControls(ret.overlay)
+                    }
                 }
             }, 1)
             return ret
@@ -431,6 +440,7 @@ class Tooltip {
             name = name.replace(/[\s\.#]/g, '_')
             overlay = Tooltip.active[name]
         }
+        if (overlay?.tmp) overlay.tmp.hidden = true // it could be hidden before it is actually shown
         if (!overlay || !overlay.box) return
 
         // event before
