@@ -361,7 +361,10 @@ class w2form extends w2base {
 
         // clean extra chars
         if (['int', 'float', 'percent', 'money', 'currency'].includes(field.type)) {
-            current = field.w2field.clean(current)
+            // for float values allow "0." input as valid, otherwise it is nto possible to enter .
+            if (field.type == 'int' || current[current.length -1] != '.') {
+                current = field.w2field.clean(current)
+            }
         }
         // radio list
         if (['radio'].includes(field.type)) {
