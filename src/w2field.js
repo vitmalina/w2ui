@@ -137,9 +137,11 @@ class w2field extends w2base {
                 break
             }
             case 'color': {
+                let size = parseInt(getComputedStyle(this.el)['font-size']) || 12
                 defaults     = {
                     prefix      : '#',
-                    suffix      : `<div style="width: ${(parseInt(getComputedStyle(this.el)['font-size'])) || 12}px">&#160;</div>`,
+                    suffix      : `<div style="width: ${size}px; height: ${size}px; margin-top: -2px;
+                                    position: relative; top: 50%; transform: translateY(-50%);">&#160;</div>`,
                     arrow       : false,
                     advanced    : null, // open advanced by default
                     transparent : true
@@ -1403,15 +1405,17 @@ class w2field extends w2base {
                 'font-family'    : styles['font-family'],
                 'font-size'      : styles['font-size'],
                 'height'         : this.el.clientHeight + 'px',
-                'padding-top'    : styles['padding-top'],
-                'padding-bottom' : styles['padding-bottom'],
+                'padding-top'    : parseInt(styles['padding-top'], 10) + 1 + 'px',
+                'padding-bottom' : parseInt(styles['padding-bottom'], 10) - 1 + 'px',
                 'padding-left'   : this.tmp['old-padding-left'],
                 'padding-right'  : 0,
-                'margin-top'     : (parseInt(styles['margin-top'], 10) + 2) + 'px',
-                'margin-bottom'  : (parseInt(styles['margin-bottom'], 10) + 1) + 'px',
+                'margin-top'     : (parseInt(styles['margin-top'], 10)) + 'px',
+                'margin-bottom'  : (parseInt(styles['margin-bottom'], 10)) + 'px',
                 'margin-left'    : styles['margin-left'],
                 'margin-right'   : 0,
                 'z-index'        : 1,
+                'display'        : 'flex',
+                'align-items'    : 'center'
             })
         // only if visible
         query(this.el).css('padding-left', helper.clientWidth + 'px !important')

@@ -8,7 +8,11 @@
 </div>
 
 <!--CODE-->
-<input id="color" style="width: 150px;">
+<input id="color" style="width: 100px">
+<div style="height: 20px"></div>
+<input id="color2" style="font-size: 20px; width: 140px">
+<div style="height: 20px"></div>
+<input id="color3" style="font-size: 25px; width: 160px; height: 60px">
 <div style="height: 20px"></div>
 
 <style>
@@ -25,4 +29,7 @@
 import { w2field, query } from '__W2UI_PATH__'
 
 new w2field('color', { el: query('#color')[0] })
+new w2field('color', { el: query('#color2')[0] })
+new w2field('color', { el: query('#color3')[0] })
+
 </script>
