@@ -563,7 +563,7 @@ class Tooltip {
         if (overlay.anchor == document.body) {
             // context menu
             let evt = options.originalEvent
-            while(evt.originalEvent) { evt = evt.originalEvent }
+            while (evt.originalEvent) { evt = evt.originalEvent }
             let { x, y, width, height } = evt
             anchor = { left: x - 2, top: y - 4, width, height, arrow: 'none' }
         }
@@ -1312,8 +1312,8 @@ class MenuTooltip extends Tooltip {
                 this.applyFilter(overlay.name, null, search)
                     .then(data => {
                         if (!Tooltip.active[overlay.name].displayed) {
-                        // if toolitp is not visible, do not proceed as it would make it visible
-                        return
+                            // if toolitp is not visible, do not proceed as it would make it visible
+                            return
                         }
                         overlay.tmp.searchCount = data.count
                         overlay.tmp.search = data.search
@@ -1547,7 +1547,7 @@ class MenuTooltip extends Tooltip {
                 }
                 // for backward compatibility
                 if (mitem.removable == null && mitem.remove != null) {
-                    mitem.rmovable = mitem.remove
+                    mitem.removable = mitem.remove
                 }
                 // render only if non-empty
                 if (mitem.type !== 'break' && txt != null && txt !== '' && String(txt).substr(0, 2) != '--') {
@@ -1807,7 +1807,7 @@ class MenuTooltip extends Tooltip {
                         if (search) item.expanded = true
                         item.hidden = false
                     }
-                    })
+                })
             }
             if (item.hidden !== true) count++
         })
