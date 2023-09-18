@@ -141,7 +141,7 @@ class Utils {
             },
 
             'toggle'(value, params) {
-                return (value ? 'Yes' : '')
+                return (value ? w2utils.lang('Yes') : '')
             },
 
             'password'(value, params) {
@@ -1826,7 +1826,7 @@ class Utils {
         let lum1 = calcLumens(color1)
         let lum2 = calcLumens(color2)
         let ratio = (Math.max(lum1, lum2) + 0.05) / (Math.min(lum1, lum2) + 0.05)
-        return ratio.toFixed(2);
+        return ratio.toFixed(2)
 
         function calcLumens(color) {
             let { r, g, b } = w2utils.parseColor(color) ?? { r: 0, g: 0, b: 0 }
