@@ -1547,7 +1547,7 @@ class MenuTooltip extends Tooltip {
                 }
                 // for backward compatibility
                 if (mitem.removable == null && mitem.remove != null) {
-                    mitem.rmovable = mitem.remove
+                    mitem.removable = mitem.remove
                 }
                 // render only if non-empty
                 if (mitem.type !== 'break' && txt != null && txt !== '' && String(txt).substr(0, 2) != '--') {
