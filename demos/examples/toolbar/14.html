@@ -34,7 +34,7 @@
 
 <!--CODE-->
 <script type="module">
-import { w2ui, w2toolbar, w2utils, query } from '__W2UI_PATH__'
+import { w2ui, w2toolbar, w2utils, query, w2date } from '__W2UI_PATH__'
 
 let toolbar = new w2toolbar({
     box: '#toolbar',
@@ -63,6 +63,10 @@ let toolbar = new w2toolbar({
                 max: 10,
                 step: .1
             }
+        },
+        { type: 'break' },
+        { type: 'input', id: 'date', text: 'Date', value: '', placeholder: 'Enter Date',
+            style: 'width: 100px' // see onRender, where it attaches date tooltip
         }
     ],
     onClick(event) {
@@ -70,6 +74,25 @@ let toolbar = new w2toolbar({
     },
     onChange(event) {
         w2utils.notify(`Input "${event.detail.item.id}" changed to "${event.detail.value}"`)
+    },
+    async onRender(event) {
+        await event.complete
+        // find input where to attach date control
+        let input = query(this.box)
+            .find(`#tb_${this.name}_item_${w2utils.escapeId('date')}`)
+            .find('input')
+            .get(0)
+        // regular date control, an be any other tooltip based control
+        w2date.attach({
+                name: 'date-tooltip',
+                anchor: input,
+                type: 'date',
+            })
+            .select((event) => {
+                // need to trigger change event
+                query(input).change()
+                console.log(event.detail.date)
+            })
     }
 })
 
