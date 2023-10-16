@@ -2527,14 +2527,21 @@ class DateTooltip extends Tooltip {
         DT = new Date(DT.getTime() + dayLengthMil * 0.5)
         let weekday = DT.getDay()
         if (w2utils.settings.weekStarts == 'M') weekDay--
+		let DaySat=6;
+        let DaySun=0;	        
         if (weekday > 0) {
             DT = new Date(DT.getTime() - (weekDay * dayLengthMil))
+        } else {
+		   DaySat=DaySat+weekDay;
+           DaySun=DaySun+weekDay;	
+		   if (DaySat<0) DaySat = 6+DaySat+1;
+		   if (DaySun<0) DaySun = 6+DaySun+1;            
         }
         for (let ci = 0; ci < 42; ci++) {
             let className = []
             let dt = `${DT.getFullYear()}/${DT.getMonth()+1}/${DT.getDate()}`
-            if (DT.getDay() === 6) className.push('w2ui-saturday')
-            if (DT.getDay() === 0) className.push('w2ui-sunday')
+            if (DT.getDay() === DaySat) className.push('w2ui-saturday')
+            if (DT.getDay() === DaySun) className.push('w2ui-sunday')
             if (DT.getMonth() + 1 !== month) className.push('outside')
             if (dt == this.today) className.push('w2ui-today')
 
