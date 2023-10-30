@@ -625,7 +625,12 @@ class w2sidebar extends w2base {
         let obj = this
         let nd  = this.get(id)
         if (nd == null) return
-        if (nd.disabled || nd.group) return // should click event if already selected
+        if (nd.disabled || nd.group) {
+            // even if disabled, it should still emit click event
+            let edata = obj.trigger('click', { target: id, originalEvent: event, node: nd, object: nd })
+            edata.finish()
+            return
+        }
         // select new one
         let newNode = query(obj.box).find('#node_'+ w2utils.escapeId(id))
         newNode.addClass('w2ui-selected').find('.w2ui-icon').addClass('w2ui-icon-selected')
