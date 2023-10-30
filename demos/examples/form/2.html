@@ -34,16 +34,26 @@ let form = new w2form({
                 attr: 'style="width: 300px"'
             }
         },
+        { field: 'color',  type: 'color', required: true,
+            html: {
+                label: 'Favorite Color',
+                attr: 'style="width: 120px"'
+            },
+            options: {
+                transparent: false
+            }
+        },
         { field: 'comments', type: 'textarea',
             html: {
                 label: 'Comments',
                 attr: 'style="width: 300px; height: 60px"'
-            }
+            },
         }
     ],
     record: {
         first_name: 'John',
-        last_name: 'Doe'
+        last_name: 'Doe',
+        color: 'E69138'
     },
     actions: {
         Reset(event) {

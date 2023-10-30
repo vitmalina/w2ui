@@ -449,6 +449,14 @@ class w2field extends w2base {
         let options = this.options
         let time    = Date.now()
         let styles  = getComputedStyle(this.el)
+        // update color
+        if (this.type == 'color') {
+            let color = this.el.value
+            if (color.substr(0, 1) != '#' && color.substr(0, 3) != 'rgb') {
+                color = '#' + color
+            }
+            query(this.helpers.suffix).find(':scope > div').css('background-color', color)
+        }
         // enum
         if (this.type == 'list') {
             // next line will not work in a form with span: -1
@@ -519,6 +527,7 @@ class w2field extends w2base {
                 }, 1)
             }
         }
+        // multi select control
         let div = this.helpers.multi
         if (['enum', 'file'].includes(this.type) && div) {
             let html = ''

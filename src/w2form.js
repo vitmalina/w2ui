@@ -435,9 +435,10 @@ class w2form extends w2base {
         let el = field.el
         switch (field.type) {
             case 'toggle':
-            case 'checkbox':
+            case 'checkbox': {
                 el.checked = value ? true : false
                 break
+            }
             case 'radio': {
                 value = value?.id ?? value
                 let inputs = query(el).closest('div').find('input')
@@ -527,9 +528,15 @@ class w2form extends w2base {
                 break
             }
             case 'div':
-            case 'custom':
+            case 'custom': {
                 query(el).html(value)
                 break
+            }
+            case 'color': {
+                el.value = value ?? ''
+                field.w2field.refresh()
+                break
+            }
             case 'html':
             case 'empty':
                 break
