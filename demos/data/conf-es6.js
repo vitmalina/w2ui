@@ -1,3 +1,4 @@
+/* global query */
 export default {
     layout: {
         name: 'layout',

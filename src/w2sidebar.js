@@ -1288,7 +1288,7 @@ class w2sidebar extends w2base {
                     let txt = nd.count ?? this.badge.text
                     let style = this.badge.style
                     let last = this.last.badge[nd.id]
-                    if (typeof txt == 'function') txt = txt.call(this, node, level)
+                    if (typeof txt == 'function') txt = txt.call(this, nd, level)
                     $el.find('.w2ui-node-badge')
                         .html(txt)
                         .attr('style', `${style}; ${last?.style ?? ''}`)

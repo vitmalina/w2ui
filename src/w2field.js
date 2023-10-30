@@ -328,7 +328,7 @@ class w2field extends w2base {
                 // validate match
                 let valid = ['is', 'begins', 'contains', 'ends']
                 if (!valid.includes(options.match)) {
-                    console.log(`ERROR: invalid value "${option.match}" for option.match. It should be one of following: ${valid.join(', ')}.`)
+                    console.log(`ERROR: invalid value "${options.match}" for option.match. It should be one of following: ${valid.join(', ')}.`)
                 }
                 options.items    = w2utils.normMenu.call(this, options.items)
                 options.selected = w2utils.normMenu.call(this, options.selected)

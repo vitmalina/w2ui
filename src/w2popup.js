@@ -267,8 +267,8 @@ class Dialog extends w2base {
                 query('#w2ui-popup .w2ui-popup-title')
                     .show()
                     .html(w2utils.lang(options.title))
-                    query('#w2ui-popup .w2ui-popup-body').removeClass('w2ui-popup-no-title')
-                    query('#w2ui-popup .w2ui-box, #w2ui-popup .w2ui-box-temp').css('top', '')
+                query('#w2ui-popup .w2ui-popup-body').removeClass('w2ui-popup-no-title')
+                query('#w2ui-popup .w2ui-box, #w2ui-popup .w2ui-box-temp').css('top', '')
             } else {
                 query('#w2ui-popup .w2ui-popup-title').hide().html('')
                 query('#w2ui-popup .w2ui-popup-body').addClass('w2ui-popup-no-title')

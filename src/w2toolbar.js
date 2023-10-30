@@ -461,14 +461,14 @@ class w2toolbar extends w2base {
                                 })
                             }
                             w2menu.show(w2utils.extend({
-                                    items,
-                                    align: it.text ? 'left' : 'none', // if there is no text, then no alignent
-                                }, it.overlay, {
-                                    type: menuType,
-                                    name : this.name + '-drop',
-                                    anchor: el[0],
-                                    data: { item: it, btn }
-                                }))
+                                items,
+                                align: it.text ? 'left' : 'none', // if there is no text, then no alignent
+                            }, it.overlay, {
+                                type: menuType,
+                                name : this.name + '-drop',
+                                anchor: el[0],
+                                data: { item: it, btn }
+                            }))
                                 .hide(hideDrop(it.id, btn))
                                 .remove(event => {
                                     this.menuClick({ name: this.name, remove: true, item: it, subItem: event.detail.item,
@@ -481,12 +481,12 @@ class w2toolbar extends w2base {
                         }
                         if (['color', 'text-color'].includes(it.type)) {
                             w2color.show(w2utils.extend({
-                                    color: it.color
-                                }, it.overlay, {
-                                    anchor: el[0],
-                                    name: this.name + '-drop',
-                                    data: { item: it, btn }
-                                }))
+                                color: it.color
+                            }, it.overlay, {
+                                anchor: el[0],
+                                name: this.name + '-drop',
+                                data: { item: it, btn }
+                            }))
                                 .hide(hideDrop(it.id, btn))
                                 .select(event => {
                                     if (event.detail.color != null) {
@@ -925,7 +925,7 @@ class w2toolbar extends w2base {
                     let mult = 1
                     if (event.shiftKey || event.metaKey) mult = 10
                     if (event.altKey) mult = 0.1
-                    switch(event.key) {
+                    switch (event.key) {
                         case 'ArrowUp': {
                             inc = (it.spinner?.step ?? 1) * mult
                             event.preventDefault()

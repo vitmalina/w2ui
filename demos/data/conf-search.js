@@ -15,7 +15,7 @@ export default {
     sidebar: {
         name: 'sidebar',
         icon: {
-            style: `padding: 6px 0 0 6px`,
+            style: 'padding: 6px 0 0 6px',
             text(node) {
                 let color = Math.random() > 0.7 ? '#54cb84' : '#cdcdcd'
                 let text = `<div style="width: 11px; height: 11px; border-radius: 10px; background-color: ${color};"></div>`
@@ -73,7 +73,7 @@ export default {
         header: 'Search Fields',
         focus: -1,
         fields: {
-            "General": {
+            'General': {
                 type: 'group', span: -1,
                 attr: 'style="width: 100%"',
                 fields: [
@@ -81,7 +81,7 @@ export default {
                     { field: 'date', type: 'datetime', html: { label: 'Date & Time' }},
                 ]
             },
-            "Asset": {
+            'Asset': {
                 type: 'group', span: -1,
                 attr: 'style="width: 100%"',
                 fields: [
@@ -95,7 +95,7 @@ export default {
             }
         },
         actions: {
-            "Run Search"() {
+            'Run Search'() {
                 w2ui.layout.html('right', w2ui.grid)
             }
         }

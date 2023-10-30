@@ -3859,7 +3859,7 @@ class w2grid extends w2base {
         let col = this.columns[colIndex]
         let el = query(`#grid_${this.name}_column_${colIndex} .w2ui-col-header`)[0]
         if (col.autoResize === false || col.hidden === true || !el) {
-            return true;
+            return true
         }
         let style = getComputedStyle(el)
         let maxWidth = w2utils.getStrWidth(el.innerHTML, `font-family: ${style.fontFamily}; font-size: ${style.fontSize}`, true)
@@ -4723,7 +4723,7 @@ class w2grid extends w2base {
             if (multiField != true) {
                 this.sortData = []
                 sortIndex = 0
-             }
+            }
             if (direction === '') {
                 this.sortData.splice(sortIndex, 1)
             } else {
@@ -5332,7 +5332,7 @@ class w2grid extends w2base {
                 .on('click', { delegate: 'tr' }, (event) => {
                     let index = query(event.delegate).attr('index') // don't read recid directly as it could be a number or a string
                     let recid = this.records[index]?.recid
-                        // do not generate click if empty record is clicked
+                    // do not generate click if empty record is clicked
                     if (recid != '-none-') {
                         this.click(recid, event)
                     }
@@ -6353,7 +6353,7 @@ class w2grid extends w2base {
                         })
                         .on('blur', () => { this.last.liveText = '' })
                         .on('keyup', (event) => {
-                            switch(event.keyCode) {
+                            switch (event.keyCode) {
                                 case 40: { // arrow down
                                     this.searchSuggest(true)
                                     break

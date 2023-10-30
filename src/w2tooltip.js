@@ -563,7 +563,7 @@ class Tooltip {
         if (overlay.anchor == document.body) {
             // context menu
             let evt = options.originalEvent
-            while(evt.originalEvent) { evt = evt.originalEvent }
+            while (evt.originalEvent) { evt = evt.originalEvent }
             let { x, y, width, height } = evt
             anchor = { left: x - 2, top: y - 4, width, height, arrow: 'none' }
         }
@@ -1313,7 +1313,7 @@ class MenuTooltip extends Tooltip {
                     .then(data => {
                         if (!Tooltip.active[overlay.name].displayed) {
                         // if toolitp is not visible, do not proceed as it would make it visible
-                        return
+                            return
                         }
                         overlay.tmp.searchCount = data.count
                         overlay.tmp.search = data.search
@@ -1807,7 +1807,7 @@ class MenuTooltip extends Tooltip {
                         if (search) item.expanded = true
                         item.hidden = false
                     }
-                    })
+                })
             }
             if (item.hidden !== true) count++
         })
@@ -2527,15 +2527,15 @@ class DateTooltip extends Tooltip {
         DT = new Date(DT.getTime() + dayLengthMil * 0.5)
         let weekday = DT.getDay()
         if (w2utils.settings.weekStarts == 'M') weekDay--
-		let DaySat=6;
-        let DaySun=0;	        
+        let DaySat = 6
+        let DaySun = 0
         if (weekday > 0) {
             DT = new Date(DT.getTime() - (weekDay * dayLengthMil))
         } else {
-		   DaySat=DaySat+weekDay;
-           DaySun=DaySun+weekDay;	
-		   if (DaySat<0) DaySat = 6+DaySat+1;
-		   if (DaySun<0) DaySun = 6+DaySun+1;            
+            DaySat = DaySat + weekDay
+            DaySun = DaySun + weekDay
+            if (DaySat < 0) DaySat = 6 + DaySat + 1
+            if (DaySun < 0) DaySun = 6 + DaySun + 1
         }
         for (let ci = 0; ci < 42; ci++) {
             let className = []
