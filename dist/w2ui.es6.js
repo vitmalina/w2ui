@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (10/30/2023, 4:23:37 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (10/30/2023, 4:37:35 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -3359,8 +3359,8 @@ class Dialog extends w2base {
                 query('#w2ui-popup .w2ui-popup-title')
                     .show()
                     .html(w2utils.lang(options.title))
-                    query('#w2ui-popup .w2ui-popup-body').removeClass('w2ui-popup-no-title')
-                    query('#w2ui-popup .w2ui-box, #w2ui-popup .w2ui-box-temp').css('top', '')
+                query('#w2ui-popup .w2ui-popup-body').removeClass('w2ui-popup-no-title')
+                query('#w2ui-popup .w2ui-box, #w2ui-popup .w2ui-box-temp').css('top', '')
             } else {
                 query('#w2ui-popup .w2ui-popup-title').hide().html('')
                 query('#w2ui-popup .w2ui-popup-body').addClass('w2ui-popup-no-title')
@@ -4460,7 +4460,7 @@ class Tooltip {
         if (overlay.anchor == document.body) {
             // context menu
             let evt = options.originalEvent
-            while(evt.originalEvent) { evt = evt.originalEvent }
+            while (evt.originalEvent) { evt = evt.originalEvent }
             let { x, y, width, height } = evt
             anchor = { left: x - 2, top: y - 4, width, height, arrow: 'none' }
         }
@@ -5181,7 +5181,7 @@ class MenuTooltip extends Tooltip {
                     .then(data => {
                         if (!Tooltip.active[overlay.name].displayed) {
                         // if toolitp is not visible, do not proceed as it would make it visible
-                        return
+                            return
                         }
                         overlay.tmp.searchCount = data.count
                         overlay.tmp.search = data.search
@@ -5666,7 +5666,7 @@ class MenuTooltip extends Tooltip {
                         if (search) item.expanded = true
                         item.hidden = false
                     }
-                    })
+                })
             }
             if (item.hidden !== true) count++
         })
@@ -6373,14 +6373,21 @@ class DateTooltip extends Tooltip {
         DT = new Date(DT.getTime() + dayLengthMil * 0.5)
         let weekday = DT.getDay()
         if (w2utils.settings.weekStarts == 'M') weekDay--
+        let DaySat = 6
+        let DaySun = 0
         if (weekday > 0) {
             DT = new Date(DT.getTime() - (weekDay * dayLengthMil))
+        } else {
+            DaySat = DaySat + weekDay
+            DaySun = DaySun + weekDay
+            if (DaySat < 0) DaySat = 6 + DaySat + 1
+            if (DaySun < 0) DaySun = 6 + DaySun + 1
         }
         for (let ci = 0; ci < 42; ci++) {
             let className = []
             let dt = `${DT.getFullYear()}/${DT.getMonth()+1}/${DT.getDate()}`
-            if (DT.getDay() === 6) className.push('w2ui-saturday')
-            if (DT.getDay() === 0) className.push('w2ui-sunday')
+            if (DT.getDay() === DaySat) className.push('w2ui-saturday')
+            if (DT.getDay() === DaySun) className.push('w2ui-sunday')
             if (DT.getMonth() + 1 !== month) className.push('outside')
             if (dt == this.today) className.push('w2ui-today')
             let dspDay = DT.getDate()
@@ -6578,6 +6585,7 @@ let w2tooltip = new Tooltip()
 let w2menu    = new MenuTooltip()
 let w2color   = new ColorTooltip()
 let w2date    = new DateTooltip()
+
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: mQuery, w2utils, w2base, w2tooltip, w2color, w2menu
@@ -7018,14 +7026,14 @@ class w2toolbar extends w2base {
                                 })
                             }
                             w2menu.show(w2utils.extend({
-                                    items,
-                                    align: it.text ? 'left' : 'none', // if there is no text, then no alignent
-                                }, it.overlay, {
-                                    type: menuType,
-                                    name : this.name + '-drop',
-                                    anchor: el[0],
-                                    data: { item: it, btn }
-                                }))
+                                items,
+                                align: it.text ? 'left' : 'none', // if there is no text, then no alignent
+                            }, it.overlay, {
+                                type: menuType,
+                                name : this.name + '-drop',
+                                anchor: el[0],
+                                data: { item: it, btn }
+                            }))
                                 .hide(hideDrop(it.id, btn))
                                 .remove(event => {
                                     this.menuClick({ name: this.name, remove: true, item: it, subItem: event.detail.item,
@@ -7038,12 +7046,12 @@ class w2toolbar extends w2base {
                         }
                         if (['color', 'text-color'].includes(it.type)) {
                             w2color.show(w2utils.extend({
-                                    color: it.color
-                                }, it.overlay, {
-                                    anchor: el[0],
-                                    name: this.name + '-drop',
-                                    data: { item: it, btn }
-                                }))
+                                color: it.color
+                            }, it.overlay, {
+                                anchor: el[0],
+                                name: this.name + '-drop',
+                                data: { item: it, btn }
+                            }))
                                 .hide(hideDrop(it.id, btn))
                                 .select(event => {
                                     if (event.detail.color != null) {
@@ -7467,7 +7475,7 @@ class w2toolbar extends w2base {
                     let mult = 1
                     if (event.shiftKey || event.metaKey) mult = 10
                     if (event.altKey) mult = 0.1
-                    switch(event.key) {
+                    switch (event.key) {
                         case 'ArrowUp': {
                             inc = (it.spinner?.step ?? 1) * mult
                             event.preventDefault()
@@ -8902,7 +8910,7 @@ class w2sidebar extends w2base {
                     let txt = nd.count ?? this.badge.text
                     let style = this.badge.style
                     let last = this.last.badge[nd.id]
-                    if (typeof txt == 'function') txt = txt.call(this, node, level)
+                    if (typeof txt == 'function') txt = txt.call(this, nd, level)
                     $el.find('.w2ui-node-badge')
                         .html(txt)
                         .attr('style', `${style}; ${last?.style ?? ''}`)
@@ -14766,7 +14774,7 @@ class w2grid extends w2base {
         let col = this.columns[colIndex]
         let el = query(`#grid_${this.name}_column_${colIndex} .w2ui-col-header`)[0]
         if (col.autoResize === false || col.hidden === true || !el) {
-            return true;
+            return true
         }
         let style = getComputedStyle(el)
         let maxWidth = w2utils.getStrWidth(el.innerHTML, `font-family: ${style.fontFamily}; font-size: ${style.fontSize}`, true)
@@ -15588,7 +15596,7 @@ class w2grid extends w2base {
             if (multiField != true) {
                 this.sortData = []
                 sortIndex = 0
-             }
+            }
             if (direction === '') {
                 this.sortData.splice(sortIndex, 1)
             } else {
@@ -16178,7 +16186,7 @@ class w2grid extends w2base {
                 .on('click', { delegate: 'tr' }, (event) => {
                     let index = query(event.delegate).attr('index') // don't read recid directly as it could be a number or a string
                     let recid = this.records[index]?.recid
-                        // do not generate click if empty record is clicked
+                    // do not generate click if empty record is clicked
                     if (recid != '-none-') {
                         this.click(recid, event)
                     }
@@ -17153,7 +17161,7 @@ class w2grid extends w2base {
                         })
                         .on('blur', () => { this.last.liveText = '' })
                         .on('keyup', (event) => {
-                            switch(event.keyCode) {
+                            switch (event.keyCode) {
                                 case 40: { // arrow down
                                     this.searchSuggest(true)
                                     break
@@ -21667,7 +21675,7 @@ class w2field extends w2base {
                 // validate match
                 let valid = ['is', 'begins', 'contains', 'ends']
                 if (!valid.includes(options.match)) {
-                    console.log(`ERROR: invalid value "${option.match}" for option.match. It should be one of following: ${valid.join(', ')}.`)
+                    console.log(`ERROR: invalid value "${options.match}" for option.match. It should be one of following: ${valid.join(', ')}.`)
                 }
                 options.items    = w2utils.normMenu.call(this, options.items)
                 options.selected = w2utils.normMenu.call(this, options.selected)
