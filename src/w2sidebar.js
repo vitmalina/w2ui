@@ -19,9 +19,9 @@
  *  - reorder = true - to allow reorder
  *  - mouseDown - for reorder
  *  - onReorder, onDragStart, onDragOver - events
- *  - this.mutlti - for multi select
+ *  - this.mutlti - for multi select (ctrl for one at a time and shift for range)
  *  - onSelect, onUnselect - new events
- *  - prev(), next()
+ *  - prev(), next(), getChain()
  */
 
 import { w2base } from './w2base.js'
@@ -645,35 +645,59 @@ class w2sidebar extends w2base {
             }
             // default action
             if (this.multi) {
-                let isShift = (event?.shiftKey || event?.ctrlKey || event?.metaKey)
+                /**
+                 * Multi select with shift or ctrl/meta
+                 */
+                let isShift = event?.shiftKey ?? false
+                let isCtrl  = (event?.ctrlKey || event?.metaKey) ?? false
                 if (typeof this.selected == 'string') {
                     this.selected = [this.selected]
                 }
-                if (!isShift) {
-                    let ids = this.selected?.filter(sid => sid != id)
-                    this.unselect(ids)
-                } else {
+                if (isCtrl && !isShift) { // only Ctrl
                     if (this.selected?.includes(id)) {
                         this.unselect(id)
                         return
+                    } else {
+                        this.select(id)
+                    }
+                } else if (!isCtrl && isShift) { // only Shift
+                    // select range in between
+                    let chain = this.getChain()
+                    let ind1 = Math.min(this.selected.map(sel => chain.indexOf(sel))) // first item in selection
+                    let ind2 = chain.indexOf(id)
+                    for (let i = Math.min(ind1, ind2); i < chain.length && i <= Math.max(ind1, ind2); i++) {
+                        if (!this.selected.includes(chain[i])) {
+                            this.select(chain[i])
+                        }
+                    }
+
+                } else { // neither
+                    let ids = this.selected?.filter(sid => sid != id && this.selected.includes(sid))
+                    this.unselect(ids)
+                    // only select if it is not selected
+                    if (!this.selected?.includes(id)) {
+                        this.select(id)
                     }
                 }
-                if (!this.selected?.includes(id)) this.select(id)
+
             } else if (this.selected !== id) {
+                /**
+                 * Single selection at a time
+                 */
                 if (this.selected) this.unselect(this.selected)
                 this.select(id)
-            }
-            // route processing
-            if (typeof nd.route == 'string') {
-                let route = nd.route !== '' ? String('/'+ nd.route).replace(/\/{2,}/g, '/') : ''
-                let info  = w2utils.parseRoute(route)
-                if (info.keys.length > 0) {
-                    for (let k = 0; k < info.keys.length; k++) {
-                        if (obj.routeData[info.keys[k].name] == null) continue
-                        route = route.replace((new RegExp(':'+ info.keys[k].name, 'g')), obj.routeData[info.keys[k].name])
+                // route processing
+                if (typeof nd.route == 'string') {
+                    let route = nd.route !== '' ? String('/'+ nd.route).replace(/\/{2,}/g, '/') : ''
+                    let info  = w2utils.parseRoute(route)
+                    if (info.keys.length > 0) {
+                        for (let k = 0; k < info.keys.length; k++) {
+                            if (obj.routeData[info.keys[k].name] == null) continue
+                            route = route.replace((new RegExp(':'+ info.keys[k].name, 'g')), obj.routeData[info.keys[k].name])
+                        }
                     }
+                    setTimeout(() => { window.location.hash = route }, 1)
                 }
-                setTimeout(() => { window.location.hash = route }, 1)
             }
             // event after
             edata.finish()
@@ -709,8 +733,8 @@ class w2sidebar extends w2base {
 
     next(node, noSubs) {
         if (node == null) return null
-        let parent   = node.parent
-        let ind      = this.get(node.id, true)
+        let parent = node.parent
+        let ind = this.get(node.id, true)
         let nextNode = null
         // jump inside
         if (node.expanded && node.nodes.length > 0 && noSubs !== true) {
@@ -729,8 +753,8 @@ class w2sidebar extends w2base {
 
     prev(node) {
         if (node == null) return null
-        let parent   = node.parent
-        let ind      = this.get(node.id, true)
+        let parent = node.parent
+        let ind = this.get(node.id, true)
         let lastChild = (node) => {
             if (node.expanded && node.nodes.length > 0) {
                 let nd = node.nodes[node.nodes.length - 1]
@@ -741,6 +765,24 @@ class w2sidebar extends w2base {
         let prevNode = (ind > 0) ? lastChild(parent.nodes[ind - 1]) : parent
         if (prevNode != null && (prevNode.hidden || prevNode.disabled || prevNode.group)) prevNode = this.prev(prevNode)
         return prevNode
+    }
+
+    // returns ids of expanded elements as a flat array
+    getChain(nodes, options = {}) {
+        options.returnDisabled ??= false
+        options.returnGroups ??= false
+        let ids = []
+        if (nodes == null) nodes = this.nodes
+        nodes.forEach(node => {
+            // can skip disabled if needed
+            if ((!node.disabled && !node.group) || (node.disabled && options.returnDisabled) || (node.group && options.returnGroups)) {
+                ids.push(node.id)
+            }
+            if (Array.isArray(node.nodes) && node.expanded) {
+                ids.push(...this.getChain(node.nodes, options))
+            }
+        })
+        return ids
     }
 
     keydown(event) {
