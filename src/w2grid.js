@@ -5341,7 +5341,7 @@ class w2grid extends w2base {
                     let index = query(event.delegate).attr('index') // don't read recid directly as it could be a number or a string
                     let recid = this.records[index]?.recid
                     let td = query(event.target).closest('td')
-                    let column = parseInt(td.attr('col') ?? -1)
+                    let column = td.attr('col') ? parseInt(td.attr('col')) : null
                     this.showContextMenu(recid, column, event)
                 })
                 .on('mouseover', { delegate: 'tr' }, (event) => {
