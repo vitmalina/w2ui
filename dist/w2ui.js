@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (9/8/2023, 10:52:46 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (10/30/2023, 4:23:37 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -1124,7 +1124,7 @@ class Utils {
                 return w2utils.interval(value) + (params ? (' ' + params) : '')
             },
             'toggle'(value, params) {
-                return (value ? 'Yes' : '')
+                return (value ? w2utils.lang('Yes') : '')
             },
             'password'(value, params) {
                 let ret = ''
@@ -2724,7 +2724,7 @@ class Utils {
         let lum1 = calcLumens(color1)
         let lum2 = calcLumens(color2)
         let ratio = (Math.max(lum1, lum2) + 0.05) / (Math.min(lum1, lum2) + 0.05)
-        return ratio.toFixed(2);
+        return ratio.toFixed(2)
         function calcLumens(color) {
             let { r, g, b } = w2utils.parseColor(color) ?? { r: 0, g: 0, b: 0 }
             let gamma = 2.2
@@ -5410,7 +5410,7 @@ class MenuTooltip extends Tooltip {
                 }
                 // for backward compatibility
                 if (mitem.removable == null && mitem.remove != null) {
-                    mitem.rmovable = mitem.remove
+                    mitem.removable = mitem.remove
                 }
                 // render only if non-empty
                 if (mitem.type !== 'break' && txt != null && txt !== '' && String(txt).substr(0, 2) != '--') {
@@ -7691,9 +7691,9 @@ class w2toolbar extends w2base {
  *  - reorder = true - to allow reorder
  *  - mouseDown - for reorder
  *  - onReorder, onDragStart, onDragOver - events
- *  - this.mutlti - for multi select
+ *  - this.mutlti - for multi select (ctrl for one at a time and shift for range)
  *  - onSelect, onUnselect - new events
- *  - prev(), next()
+ *  - prev(), next(), getChain()
  */
 
 class w2sidebar extends w2base {
@@ -8266,7 +8266,12 @@ class w2sidebar extends w2base {
         let obj = this
         let nd  = this.get(id)
         if (nd == null) return
-        if (nd.disabled || nd.group) return // should click event if already selected
+        if (nd.disabled || nd.group) {
+            // even if disabled, it should still emit click event
+            let edata = obj.trigger('click', { target: id, originalEvent: event, node: nd, object: nd })
+            edata.finish()
+            return
+        }
         // select new one
         let newNode = query(obj.box).find('#node_'+ w2utils.escapeId(id))
         newNode.addClass('w2ui-selected').find('.w2ui-icon').addClass('w2ui-icon-selected')
@@ -8281,35 +8286,57 @@ class w2sidebar extends w2base {
             }
             // default action
             if (this.multi) {
-                let isShift = (event?.shiftKey || event?.ctrlKey || event?.metaKey)
+                /**
+                 * Multi select with shift or ctrl/meta
+                 */
+                let isShift = event?.shiftKey ?? false
+                let isCtrl  = (event?.ctrlKey || event?.metaKey) ?? false
                 if (typeof this.selected == 'string') {
                     this.selected = [this.selected]
                 }
-                if (!isShift) {
-                    let ids = this.selected?.filter(sid => sid != id)
-                    this.unselect(ids)
-                } else {
+                if (isCtrl && !isShift) { // only Ctrl
                     if (this.selected?.includes(id)) {
                         this.unselect(id)
                         return
+                    } else {
+                        this.select(id)
+                    }
+                } else if (!isCtrl && isShift) { // only Shift
+                    // select range in between
+                    let chain = this.getChain()
+                    let ind1 = Math.min(this.selected.map(sel => chain.indexOf(sel))) // first item in selection
+                    let ind2 = chain.indexOf(id)
+                    for (let i = Math.min(ind1, ind2); i < chain.length && i <= Math.max(ind1, ind2); i++) {
+                        if (!this.selected.includes(chain[i])) {
+                            this.select(chain[i])
+                        }
+                    }
+                } else { // neither
+                    let ids = this.selected?.filter(sid => sid != id && this.selected.includes(sid))
+                    this.unselect(ids)
+                    // only select if it is not selected
+                    if (!this.selected?.includes(id)) {
+                        this.select(id)
                     }
                 }
-                if (!this.selected?.includes(id)) this.select(id)
             } else if (this.selected !== id) {
+                /**
+                 * Single selection at a time
+                 */
                 if (this.selected) this.unselect(this.selected)
                 this.select(id)
-            }
-            // route processing
-            if (typeof nd.route == 'string') {
-                let route = nd.route !== '' ? String('/'+ nd.route).replace(/\/{2,}/g, '/') : ''
-                let info  = w2utils.parseRoute(route)
-                if (info.keys.length > 0) {
-                    for (let k = 0; k < info.keys.length; k++) {
-                        if (obj.routeData[info.keys[k].name] == null) continue
-                        route = route.replace((new RegExp(':'+ info.keys[k].name, 'g')), obj.routeData[info.keys[k].name])
+                // route processing
+                if (typeof nd.route == 'string') {
+                    let route = nd.route !== '' ? String('/'+ nd.route).replace(/\/{2,}/g, '/') : ''
+                    let info  = w2utils.parseRoute(route)
+                    if (info.keys.length > 0) {
+                        for (let k = 0; k < info.keys.length; k++) {
+                            if (obj.routeData[info.keys[k].name] == null) continue
+                            route = route.replace((new RegExp(':'+ info.keys[k].name, 'g')), obj.routeData[info.keys[k].name])
+                        }
                     }
+                    setTimeout(() => { window.location.hash = route }, 1)
                 }
-                setTimeout(() => { window.location.hash = route }, 1)
             }
             // event after
             edata.finish()
@@ -8342,8 +8369,8 @@ class w2sidebar extends w2base {
     }
     next(node, noSubs) {
         if (node == null) return null
-        let parent   = node.parent
-        let ind      = this.get(node.id, true)
+        let parent = node.parent
+        let ind = this.get(node.id, true)
         let nextNode = null
         // jump inside
         if (node.expanded && node.nodes.length > 0 && noSubs !== true) {
@@ -8361,8 +8388,8 @@ class w2sidebar extends w2base {
     }
     prev(node) {
         if (node == null) return null
-        let parent   = node.parent
-        let ind      = this.get(node.id, true)
+        let parent = node.parent
+        let ind = this.get(node.id, true)
         let lastChild = (node) => {
             if (node.expanded && node.nodes.length > 0) {
                 let nd = node.nodes[node.nodes.length - 1]
@@ -8373,6 +8400,23 @@ class w2sidebar extends w2base {
         let prevNode = (ind > 0) ? lastChild(parent.nodes[ind - 1]) : parent
         if (prevNode != null && (prevNode.hidden || prevNode.disabled || prevNode.group)) prevNode = this.prev(prevNode)
         return prevNode
+    }
+    // returns ids of expanded elements as a flat array
+    getChain(nodes, options = {}) {
+        options.returnDisabled ??= false
+        options.returnGroups ??= false
+        let ids = []
+        if (nodes == null) nodes = this.nodes
+        nodes.forEach(node => {
+            // can skip disabled if needed
+            if ((!node.disabled && !node.group) || (node.disabled && options.returnDisabled) || (node.group && options.returnGroups)) {
+                ids.push(node.id)
+            }
+            if (Array.isArray(node.nodes) && node.expanded) {
+                ids.push(...this.getChain(node.nodes, options))
+            }
+        })
+        return ids
     }
     keydown(event) {
         let self = this
@@ -16143,7 +16187,7 @@ class w2grid extends w2base {
                     let index = query(event.delegate).attr('index') // don't read recid directly as it could be a number or a string
                     let recid = this.records[index]?.recid
                     let td = query(event.target).closest('td')
-                    let column = parseInt(td.attr('col') ?? -1)
+                    let column = td.attr('col') ? parseInt(td.attr('col')) : null
                     this.showContextMenu(recid, column, event)
                 })
                 .on('mouseover', { delegate: 'tr' }, (event) => {
@@ -19791,9 +19835,10 @@ class w2form extends w2base {
         let el = field.el
         switch (field.type) {
             case 'toggle':
-            case 'checkbox':
+            case 'checkbox': {
                 el.checked = value ? true : false
                 break
+            }
             case 'radio': {
                 value = value?.id ?? value
                 let inputs = query(el).closest('div').find('input')
@@ -19883,9 +19928,15 @@ class w2form extends w2base {
                 break
             }
             case 'div':
-            case 'custom':
+            case 'custom': {
                 query(el).html(value)
                 break
+            }
+            case 'color': {
+                el.value = value ?? ''
+                field.w2field.refresh()
+                break
+            }
             case 'html':
             case 'empty':
                 break
@@ -21733,6 +21784,14 @@ class w2field extends w2base {
         let options = this.options
         let time    = Date.now()
         let styles  = getComputedStyle(this.el)
+        // update color
+        if (this.type == 'color') {
+            let color = this.el.value
+            if (color.substr(0, 1) != '#' && color.substr(0, 3) != 'rgb') {
+                color = '#' + color
+            }
+            query(this.helpers.suffix).find(':scope > div').css('background-color', color)
+        }
         // enum
         if (this.type == 'list') {
             // next line will not work in a form with span: -1
@@ -21803,6 +21862,7 @@ class w2field extends w2base {
                 }, 1)
             }
         }
+        // multi select control
         let div = this.helpers.multi
         if (['enum', 'file'].includes(this.type) && div) {
             let html = ''
