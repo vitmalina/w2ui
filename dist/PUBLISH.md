@@ -1,6 +1,6 @@
 # Publish to NPM
 
-This forlder is used to publish package to npm. (IMPORTANT) You cannot republish a package with the same version. So, basically, you only have a single shut with NPM for a version. Even though you can unpublish a package within first 48 hours, you cannot re-use same version.
+This folder is used to publish package to npm. (IMPORTANT) You cannot republish a package with the same version. So, basically, you only have a single shot with NPM for a version. Even though you can unpublish a package within first 48 hours, you cannot re-use same version.
 
 Here are the steps how to do it.
 
