@@ -17,6 +17,7 @@
  *  - rename focus -> setFocus
  *  - added center() // will auto center on window resize
  *  - close(immediate), also refactored if popup is closed when opening
+ *  - options.resizable
  */
 
 import { w2base } from './w2base.js'
@@ -42,6 +43,7 @@ class Dialog extends w2base {
             keyboard: true,     // will close popup on esc if not modal
             showClose: true,
             showMax: false,
+            resizable: false,
             transition: null,
             openMaximized: false,
             moved: false
@@ -208,6 +210,7 @@ class Dialog extends w2base {
                     </div>
                 </div>
                 <div class="w2ui-popup-buttons" style="${!options.buttons ? 'display: none' : ''}"></div>
+                <div class="w2ui-popup-resizer resize-point resize-icon"></div>
                 <span name="hidden-last" tabindex="0" style="position: absolute; top: -100px"></span>
             `
             query('#w2ui-popup').html(msg)
@@ -322,28 +325,43 @@ class Dialog extends w2base {
         query(window).on('resize', this.handleResize)
         // initialize move
         tmp = {
-            resizing : false,
+            changing : false,
             mvMove   : mvMove,
             mvStop   : mvStop
         }
-        query('#w2ui-popup .w2ui-popup-title').on('mousedown', function(event) {
-            if (!self.options.maximized) mvStart(event)
-        })
+        query('#w2ui-popup .w2ui-popup-title')
+            .off('mousedown')
+            .on('mousedown', function(event) {
+                if (!self.options.maximized) mvStart(event)
+            })
+
+        if (options.resizable) {
+            query('#w2ui-popup .w2ui-popup-resizer').show()
+            query('#w2ui-popup .w2ui-popup-resizer')
+                .off('mousedown')
+                .on('mousedown', event => {
+                    mvStart(event, true)
+                })
+        } else {
+            query('#w2ui-popup .w2ui-popup-resizer').hide()
+        }
 
         return prom
 
         // handlers
-        function mvStart(evt) {
+        function mvStart(evt, resizer) {
             if (!evt) evt = window.event
-            self.status = 'moving'
+            self.status = resizer ? 'resizing' : 'moving'
             let rect = query('#w2ui-popup').get(0).getBoundingClientRect()
             Object.assign(tmp, {
-                resizing: true,
+                changing: true,
                 isLocked: query('#w2ui-popup > .w2ui-lock').length == 1 ? true : false,
                 x       : evt.screenX,
                 y       : evt.screenY,
                 pos_x   : rect.x,
                 pos_y   : rect.y,
+                width   : rect.width,
+                height  : rect.height
             })
             if (!tmp.isLocked) self.lock({ opacity: 0 })
             query(document.body)
@@ -354,7 +372,7 @@ class Dialog extends w2base {
         }
 
         function mvMove(evt) {
-            if (tmp.resizing != true) return
+            if (tmp.changing != true) return
             if (!evt) evt = window.event
             tmp.div_x = evt.screenX - tmp.x
             tmp.div_y = evt.screenY - tmp.y
@@ -362,31 +380,48 @@ class Dialog extends w2base {
             let edata = self.trigger('move', { target: 'popup', div_x: tmp.div_x, div_y: tmp.div_y, originalEvent: evt })
             if (edata.isCancelled === true) return
             // default behavior
-            query('#w2ui-popup').css({
-                'transition': 'none',
-                'transform' : 'translate3d('+ tmp.div_x +'px, '+ tmp.div_y +'px, 0px)'
-            })
-            self.options.moved = true
+            if (self.status == 'moving') {
+                query('#w2ui-popup').css({
+                    'transition': 'none',
+                    'transform' : 'translate3d('+ tmp.div_x +'px, '+ tmp.div_y +'px, 0px)'
+                })
+                self.options.moved = true
+            } else {
+                query('#w2ui-popup').css({
+                    transition: 'none',
+                    width: (tmp.width + tmp.div_x) + 'px',
+                    height: (tmp.height + tmp.div_y) + 'px'
+                })
+            }
             // event after
             edata.finish()
         }
 
         function mvStop(evt) {
-            if (tmp.resizing != true) return
+            if (tmp.changing != true) return
             if (!evt) evt = window.event
+            tmp.div_x = (evt.screenX - tmp.x)
+            tmp.div_y = (evt.screenY - tmp.y)
+            if (self.status == 'moving') {
+                query('#w2ui-popup')
+                    .css({
+                        'left': (tmp.pos_x + tmp.div_x) + 'px',
+                        'top' : (tmp.pos_y + tmp.div_y) + 'px'
+                    })
+                    .css({
+                        'transition': 'none',
+                        'transform' : 'translate3d(0px, 0px, 0px)'
+                    })
+            } else {
+                query('#w2ui-popup').css({
+                    transition: 'none',
+                    width: (tmp.width + tmp.div_x) + 'px',
+                    height: (tmp.height + tmp.div_y) + 'px'
+                })
+                self.resizeMessages()
+            }
+            tmp.changing = false
             self.status = 'open'
-            tmp.div_x      = (evt.screenX - tmp.x)
-            tmp.div_y      = (evt.screenY - tmp.y)
-            query('#w2ui-popup')
-                .css({
-                    'left': (tmp.pos_x + tmp.div_x) + 'px',
-                    'top' : (tmp.pos_y + tmp.div_y) + 'px'
-                })
-                .css({
-                    'transition': 'none',
-                    'transform' : 'translate3d(0px, 0px, 0px)'
-                })
-            tmp.resizing = false
             query(document.body).off('.w2ui-popup')
             if (!tmp.isLocked) self.unlock()
         }
@@ -535,7 +570,7 @@ class Dialog extends w2base {
         this.options.prevSize = rect.width + ':' + rect.height
         // do resize
         this.resize(10000, 10000, () => {
-            this.status    = 'open'
+            this.status = 'open'
             this.options.maximized = true
             edata.finish()
         })

@@ -372,7 +372,8 @@ query(async function () {
                 { id: 'popup-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
                         { id: 'popup/10', text: 'Custom Actions', icon: 'fa fa-list-alt' },
-                        { id: 'popup/11', text: 'Promises', icon: 'fa fa-list-alt' }
+                        { id: 'popup/11', text: 'Promises', icon: 'fa fa-list-alt' },
+                        { id: 'popup/12', text: 'Resizable Popups', icon: 'fa fa-list-alt' }
                     ]
                 },
                 { id: 'tooltip', text: 'Tooltip Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,

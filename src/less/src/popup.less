@@ -147,6 +147,61 @@
             resize: none
         }
     }
+
+    .w2ui-popup-resizer {
+        z-index: 201;
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
+        width: 10px;
+        height: 10px;
+        box-shadow: 0px 0px 1px white;
+        cursor: nwse-resize;
+        color: #aaa;
+        box-shadow: none;
+
+        &.resize-point {
+            box-sizing: border-box;
+            display: inline-block;
+            font-size: inherit;
+            font-style: normal;
+            text-indent: -9999px;
+            vertical-align: middle;
+            width: 1em;
+            height: 1em;
+            line-height: 100%;
+        }
+
+        &.resize-point::before,
+        &.resize-point::after {
+            content: "";
+            display: block;
+            left: 50%;
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        &.resize-icon::before {
+            border: .1rem solid currentColor;
+            border-right: 0;
+            border-top: 0;
+            border-left: 0;
+            height: 1.4em;
+            transform: translate(-84%, -84%) rotate(-45deg);
+            width: 1.4em;
+        }
+
+        &.resize-icon::after {
+            border: .1rem solid currentColor;
+            border-right: 0;
+            border-top: 0;
+            border-left: 0;
+            height: .7em;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            width: .7em;
+        }
+    }
 }
 
 // slide down message - not just popup, but also grid, form, layout

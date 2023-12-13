@@ -1,0 +1,22 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Resizable Popup</h1>
+        Though you cannot open more then on popup, you can make popups resiable (bototm right corner).
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<button class="w2ui-btn" onclick="popup()">Open Popup</button>
+
+<!--CODE-->
+<script type="module">
+import { w2popup, query } from '__W2UI_PATH__'
+
+window.popup = function() {
+    w2popup.open('Some text', {
+        resizable: true,
+    })
+}
+</script>
