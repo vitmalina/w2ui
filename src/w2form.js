@@ -298,6 +298,7 @@ class w2form extends w2base {
         for (let f = 0; f < this.fields.length; f++) {
             if (this.fields[f].field == field) {
                 w2utils.extend(this.fields[f] , obj)
+                delete this.fields[f].w2field // otherwise options are not updates
                 this.refresh(field)
                 return true
             }
@@ -698,10 +699,10 @@ class w2form extends w2base {
                 let val = this.getValue(field.field)
                 let min = field.options.min
                 let max = field.options.max
-                if (min != null && val < min) {
+                if (min != null && val != null && val < min) {
                     errors.push({ field: field, error: w2utils.lang('Should be more than ${min}', { min }) })
                 }
-                if (max != null && val > max) {
+                if (max != null && val != null && val > max) {
                     errors.push({ field: field, error: w2utils.lang('Should be less than ${max}', { max }) })
                 }
             }
