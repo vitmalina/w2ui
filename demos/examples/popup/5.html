@@ -22,8 +22,7 @@ window.popup = function() {
         text: 'This is text inside the popup',
         actions: ['Show Message', 'Longer Message', 'Close'],
         showMax: true
-    })
-    .showMessage(() => {
+    }).showMessage(() => {
         showMessage('Click on the message to hide it or hit escape')
     })
     .longerMessage(() => {
