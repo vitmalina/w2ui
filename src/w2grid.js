@@ -2914,7 +2914,11 @@ class w2grid extends w2base {
             if (edata2.isCancelled === true) return
             // default behavior
             if (response.status && response.status != 200) {
-                self.error(response.status + ': ' + response.statusText)
+                response.json().then((data) => {
+                  self.error(response.status + ': ' + data.message ?? response.statusText)
+                }).catch(() => {
+                  self.error(response.status + ': ' + response.statusText)
+                })
             } else {
                 console.log('ERROR: Server communication failed.',
                     '\n   EXPECTED:', { total: 5, records: [{ recid: 1, field: 'value' }] },
