@@ -5701,6 +5701,13 @@ class w2grid extends w2base {
                 let index = query(event.target).parents('tr').attr('index')
                 let recid = obj.records[index]?.recid
 
+                // if cell selection, on initial click start selection
+                if (obj.selectType == 'cell') {
+                    let column = query(event.target).closest('td').attr('col')
+                    obj.selectNone()
+                    obj.select([{ recid, column }])
+                }
+
                 obj.last.move = {
                     x      : event.screenX,
                     y      : event.screenY,
