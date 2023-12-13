@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (10/30/2023, 4:37:35 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (12/13/2023, 1:10:24 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -154,7 +154,11 @@ class w2base {
      */
     trigger(eventName, edata) {
         if (arguments.length == 1) {
-            edata = eventName
+            if (typeof eventName == 'string') {
+                edata = { type: eventName, target: this }
+            } else {
+                edata = eventName
+            }
         } else {
             edata.type = eventName
             edata.target = edata.target ?? this
@@ -4370,7 +4374,7 @@ class Tooltip {
         query('body').off(`.${scope}`)   // hide to click event here
         query(document).off(`.${scope}`) // scroll event here
         // remove element
-        overlay.box.remove()
+        overlay.box?.remove()
         overlay.box = null
         overlay.displayed = false
         // remove name from anchor properties
@@ -13850,7 +13854,11 @@ class w2grid extends w2base {
             if (edata2.isCancelled === true) return
             // default behavior
             if (response.status && response.status != 200) {
-                self.error(response.status + ': ' + response.statusText)
+                response.json().then((data) => {
+                  self.error(response.status + ': ' + data.message ?? response.statusText)
+                }).catch(() => {
+                  self.error(response.status + ': ' + response.statusText)
+                })
             } else {
                 console.log('ERROR: Server communication failed.',
                     '\n   EXPECTED:', { total: 5, records: [{ recid: 1, field: 'value' }] },
@@ -19711,6 +19719,7 @@ class w2form extends w2base {
         for (let f = 0; f < this.fields.length; f++) {
             if (this.fields[f].field == field) {
                 w2utils.extend(this.fields[f] , obj)
+                delete this.fields[f].w2field // otherwise options are not updates
                 this.refresh(field)
                 return true
             }
@@ -20094,10 +20103,10 @@ class w2form extends w2base {
                 let val = this.getValue(field.field)
                 let min = field.options.min
                 let max = field.options.max
-                if (min != null && val < min) {
+                if (min != null && val != null && val < min) {
                     errors.push({ field: field, error: w2utils.lang('Should be more than ${min}', { min }) })
                 }
-                if (max != null && val > max) {
+                if (max != null && val != null && val > max) {
                     errors.push({ field: field, error: w2utils.lang('Should be less than ${max}', { max }) })
                 }
             }
