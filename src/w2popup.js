@@ -621,7 +621,7 @@ class Dialog extends w2base {
 
     setFocus(focus) {
         let box = query('#w2ui-popup')
-        let sel = 'input, button, select, textarea, [contentEditable], .w2ui-input'
+        let sel = 'input, button, select, textarea, [contentEditable], [tabindex], .w2ui-input'
         if (focus != null) {
             let el = isNaN(focus)
                 ? box.find(sel).filter(focus).get(0)
@@ -632,7 +632,7 @@ class Dialog extends w2base {
             if (el) el.focus()
         }
         // keep focus/blur inside popup
-        query(box).find(sel + ',[name=hidden-first],[name=hidden-last]')
+        query(box).find(sel)
             .off('.keep-focus')
             .on('blur.keep-focus', function (event) {
                 setTimeout(() => {
@@ -643,10 +643,10 @@ class Dialog extends w2base {
                         query(box).find(sel).get(0)?.focus()
                     }
                     if (name == 'hidden-last') {
-                        query(box).find(sel).get(0)?.focus()
+                        query(box).find(sel).get(1)?.focus()
                     }
                     if (name == 'hidden-first') {
-                        query(box).find(sel).get(-1)?.focus()
+                        query(box).find(sel).get(-2)?.focus()
                     }
                 }, 1)
             })
