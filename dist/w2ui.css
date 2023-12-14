@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (10/30/2023, 4:29:46 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (12/13/2023, 1:56:57 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -3200,6 +3200,56 @@ textarea.w2ui-error {
   width: 100%;
   height: 50px;
   resize: none;
+}
+.w2ui-popup .w2ui-popup-resizer {
+  z-index: 201;
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 10px;
+  height: 10px;
+  box-shadow: 0px 0px 1px white;
+  cursor: nwse-resize;
+  color: #aaa;
+  box-shadow: none;
+}
+.w2ui-popup .w2ui-popup-resizer.resize-point {
+  box-sizing: border-box;
+  display: inline-block;
+  font-size: inherit;
+  font-style: normal;
+  text-indent: -9999px;
+  vertical-align: middle;
+  width: 1em;
+  height: 1em;
+  line-height: 100%;
+}
+.w2ui-popup .w2ui-popup-resizer.resize-point::before,
+.w2ui-popup .w2ui-popup-resizer.resize-point::after {
+  content: "";
+  display: block;
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+.w2ui-popup .w2ui-popup-resizer.resize-icon::before {
+  border: 0.1rem solid currentColor;
+  border-right: 0;
+  border-top: 0;
+  border-left: 0;
+  height: 1.4em;
+  transform: translate(-84%, -84%) rotate(-45deg);
+  width: 1.4em;
+}
+.w2ui-popup .w2ui-popup-resizer.resize-icon::after {
+  border: 0.1rem solid currentColor;
+  border-right: 0;
+  border-top: 0;
+  border-left: 0;
+  height: 0.7em;
+  transform: translate(-50%, -50%) rotate(-45deg);
+  width: 0.7em;
 }
 .w2ui-message {
   font-size: 12px;
