@@ -679,7 +679,7 @@ class Dialog extends w2base {
         }
         if (maxW - 10 < width) width = maxW - 10
         if (maxH - 10 < height) height = maxH - 10
-        let top  = (maxH - height) / 2
+        let top  = (maxH - height) / 3 // it is my oppinion that it is more estatic to show closer to top then in exact middle
         let left = (maxW - width) / 2
         if (force) {
             query('#w2ui-popup').css({

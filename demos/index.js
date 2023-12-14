@@ -328,6 +328,7 @@ query(async function () {
                         { id: 'form/23', text: 'Better Groups', icon: 'fa fa-pencil-square-o' },
                         { id: 'form/24', text: 'Set Focus', icon: 'fa fa-pencil-square-o' },
                         { id: 'form/25', text: 'Promises', icon: 'fa fa-pencil-square-o' },
+                        { id: 'form/26', text: 'Field Type: Switch', icon: 'fa fa-pencil-square-o' },
                     ]
                 },
                 { id: 'fields', text: 'Fields Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,

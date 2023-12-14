@@ -91,9 +91,9 @@ class w2form extends w2base {
         this.msgServerError = 'Server error'
         this.ALL_TYPES    = [ 'text', 'textarea', 'email', 'pass', 'password', 'int', 'float', 'money', 'currency',
             'percent', 'hex', 'alphanumeric', 'color', 'date', 'time', 'datetime', 'toggle', 'checkbox', 'radio',
-            'check', 'checks', 'list', 'combo', 'enum', 'file', 'select', 'map', 'array', 'div', 'custom', 'html',
+            'check', 'checks', 'list', 'combo', 'enum', 'file', 'select', 'switch', 'map', 'array', 'div', 'custom', 'html',
             'empty']
-        this.LIST_TYPES = ['select', 'radio', 'check', 'checks', 'list', 'combo', 'enum']
+        this.LIST_TYPES = ['select', 'radio', 'check', 'checks', 'list', 'combo', 'enum', 'switch']
         this.W2FIELD_TYPES = ['int', 'float', 'money', 'currency', 'percent', 'hex', 'alphanumeric', 'color',
             'date', 'time', 'datetime', 'list', 'combo', 'enum', 'file']
         // mix in options
@@ -488,6 +488,12 @@ class w2form extends w2base {
                     field.el.value = item?.text ?? value
                 }
                 break
+            case 'switch': {
+                el.value = value
+                field.toolbar.uncheck(...field.toolbar.get())
+                field.toolbar.check(value)
+                break
+            }
             case 'enum':
             case 'file': {
                 if (!Array.isArray(value)) {
@@ -757,6 +763,7 @@ class w2form extends w2base {
                     break
                 case 'list':
                 case 'combo':
+                case 'switch':
                     break
                 case 'enum':
                     break
@@ -1285,6 +1292,13 @@ class w2form extends w2base {
                     input += '</select>'
                     break
                 }
+                case 'switch': {
+                    input = `<div id="${field.field}-tb" class="w2ui-form-switch ${field.html.class ?? ''}" ${field.html.attr}
+                        style="outline1: 1px solid red !important; height: 34px; margin-top: -5px; padding: 0px; background-color: transparent; position: relative;"></div>
+                        <input id="${field.field}" name="${field.field}" ${tabindex_str} class="w2ui-input"
+                            style="position: absolute; right: 0; margin-top: -30px; width: 1px; padding: 0; opacity: 0">`
+                    break
+                }
                 case 'textarea':
                     input = `<textarea id="${field.field}" name="${field.field}" class="w2ui-input ${field.html.class ?? ''}" ${field.html.attr + tabindex_str}></textarea>`
                     break
@@ -1666,8 +1680,78 @@ class w2form extends w2base {
             if (this.LIST_TYPES.includes(field.type)) {
                 let items = field.options.items
                 if (items == null) field.options.items = []
-                field.options.items = w2utils.normMenu.call(this, items, field)
+                if (field.type == 'switch') {
+                    // should not have .text if it is not explicitly set, or toolbar will have text
+                    items.forEach((item, ind) => {
+                        return items[ind] = typeof item != 'object'
+                            ? { id: item, text: item }
+                            : item
+                    })
+                } else {
+                    field.options.items = w2utils.normMenu.call(this, items ?? [], field)
+                }
             }
+            // switch
+            if (field.type == 'switch') {
+                if (field.toolbar) {
+                    w2ui[this.name + '_' + field.name + '_tb'].destroy()
+                }
+                let items = field.options.items
+                items.forEach(item => item.type = 'radio')
+                field.toolbar = new w2toolbar({
+                    box: field.$el.prev().get(0),
+                    name: this.name + '_' + field.name + '_tb',
+                    items,
+                    onClick(event) {
+                        self.record[field.name] = event.detail.item.id
+                        self.setFieldValue(field.name, event.detail.item.id)
+                    }
+                })
+                field.$el
+                    .off('.form-input')
+                    .on('focus.form-input', event => {
+                        let ind = field.toolbar.get(field.$el.val(), true)
+                        query(event.target).prop('_index', ind)
+                    })
+                    .on('blur.form-input', event => {
+                        query(event.target).removeProp('_index')
+                        query(`#${field.name}-tb .w2ui-tb-button`).removeClass('over')
+                    })
+                    .on('keydown.form-input', event => {
+                        let ind = query(event.target).prop('_index')
+                        switch(event.key) {
+                            case 'ArrowLeft': {
+                                if (ind > 0) ind--
+                                query(`#${field.name}-tb .w2ui-tb-button`)
+                                    .removeClass('over')
+                                    .eq(ind)
+                                    .addClass('over')
+                                    query(event.target).prop('_index', ind)
+                                break
+                            }
+                            case 'ArrowRight': {
+                                if (ind < field.toolbar.items.length -1) ind++
+                                query(`#${field.name}-tb .w2ui-tb-button`)
+                                    .removeClass('over')
+                                    .eq(ind)
+                                    .addClass('over')
+                                query(event.target).prop('_index', ind)
+                                break
+                            }
+                        }
+                        if (event.keyCode == 32 || event.keyCode == 13) {
+                            // space or enter - apply selection
+                            let item = field.toolbar.items[ind]
+                            self.setFieldValue(field.name, item.id)
+                            query(`#${field.name}-tb .w2ui-tb-button`).removeClass('over')
+                        }
+                        // do not allow any input, besides a tab
+                        if (!event.metaKey && !event.ctrlKey && event.keyCode != 9) {
+                            event.preventDefault()
+                        }
+                    })
+            }
+
             // HTML select
             if (field.type == 'select') {
                 // generate options
