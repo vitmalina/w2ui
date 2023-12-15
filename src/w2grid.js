@@ -48,6 +48,7 @@
  *  - updagte docs search.label (not search.text)
  *  - added columnAutoSize - which resizes column based on text in it
  *  - added grid.replace()
+ *  - grid.compareSelection
  */
 
 import { w2base } from './w2base.js'
@@ -1620,6 +1621,10 @@ class w2grid extends w2base {
             tmp.multiple = true
             tmp.clicked = { recids:  args }
         }
+        if (this.compareSelection(args).select.length == 0) {
+            // if all needed records are already selected
+            return
+        }
         let edata = this.trigger('select', tmp)
         if (edata.isCancelled === true) return 0
 
@@ -1745,6 +1750,10 @@ class w2grid extends w2base {
             tmp.multiple = true
             tmp.recids   = args
         }
+        if (this.compareSelection(args).unselect.length == 0) {
+            // if all needed records are already unselected
+            return
+        }
         let edata = this.trigger('select', tmp)
         if (edata.isCancelled === true) return 0
 
@@ -1817,6 +1826,44 @@ class w2grid extends w2base {
         // event after
         edata.finish()
         return unselected
+    }
+
+    compareSelection(newSel) {
+        let sel = this.getSelection()
+        let select = []
+        let unselect = []
+        if (this.selectType == 'row') {
+            // normalize
+            newSel.forEach((sel, ind) => {
+                if (typeof sel == 'object') newSel[ind] = sel.recid
+            })
+            // add items
+            for (let i = 0; i < newSel.length; i++) {
+                if (!sel.includes(newSel[i])) {
+                    select.push(newSel[i])
+                }
+            }
+            // remove items
+            for (let i = 0; i < newSel.length; i++) {
+                if (sel.includes(newSel[i])) {
+                    unselect.push(newSel[i])
+                }
+            }
+        } else {
+            // add more items
+            for (let ns = 0; ns < newSel.length; ns++) {
+                let flag = false
+                for (let s = 0; s < sel.length; s++) if (newSel[ns].recid == sel[s].recid && newSel[ns].column == sel[s].column) flag = true
+                if (!flag) select.push({ recid: newSel[ns].recid, column: newSel[ns].column })
+            }
+            // remove items
+            for (let s = 0; s < sel.length; s++) {
+                let flag = false
+                for (let ns = 0; ns < newSel.length; ns++) if (newSel[ns].recid == sel[s].recid && newSel[ns].column == sel[s].column) flag = true
+                if (!flag) unselect.push({ recid: sel[s].recid, column: sel[s].column })
+            }
+        }
+        return { select, unselect }
     }
 
     selectAll() {
@@ -3718,15 +3765,18 @@ class w2grid extends w2base {
             if (query(event.target).closest('td').hasClass('w2ui-col-select')) fselect = true
             // clear other if necessary
             if (((!event.ctrlKey && !event.shiftKey && !event.metaKey && !fselect) || !this.multiSelect) && !this.showSelectColumn) {
-                if (this.selectType != 'row' && !last.columns[ind]?.includes(column)) flag = false
-                this.selectNone(true) // no need to trigger select event
+                if (this.selectType != 'row') {
+                    flag = false
+                } else {
+                    this.selectNone(true) // no need to trigger select event
+                }
                 if (flag === true && sel.length == 1) {
                     this.unselect({ recid: recid, column: column })
                 } else {
                     this.select({ recid: recid, column: column })
                 }
             } else {
-                if (this.selectType != 'row' && !last.columns[ind]?.includes(column)) flag = false
+                if (this.selectType != 'row') flag = false
                 if (flag === true) {
                     this.unselect({ recid: recid, column: column })
                 } else {
@@ -5703,9 +5753,10 @@ class w2grid extends w2base {
 
                 // if cell selection, on initial click start selection
                 if (obj.selectType == 'cell') {
-                    let column = query(event.target).closest('td').attr('col')
-                    obj.selectNone()
-                    obj.select([{ recid, column }])
+                    let column = parseInt(query(event.target).closest('td').attr('col'))
+                    let { select, unselect } = obj.compareSelection([{ recid, column }])
+                    if (select.length > 0) obj.select(select)
+                    if (unselect.length > 0) obj.unselect(unselect)
                 }
 
                 obj.last.move = {
@@ -5860,7 +5911,7 @@ class w2grid extends w2base {
                 })
                 return
             }
-            if (mv.start && mv.recid) {
+            if (obj.selectType == 'row' && mv.start && mv.recid) {
                 obj.selectNone()
                 mv.start = false
             }
@@ -5943,23 +5994,9 @@ class w2grid extends w2base {
                     }
                 }
                 if (obj.selectType != 'row') {
-                    let sel = obj.getSelection()
-                    // add more items
-                    let tmp = []
-                    for (let ns = 0; ns < newSel.length; ns++) {
-                        let flag = false
-                        for (let s = 0; s < sel.length; s++) if (newSel[ns].recid == sel[s].recid && newSel[ns].column == sel[s].column) flag = true
-                        if (!flag) tmp.push({ recid: newSel[ns].recid, column: newSel[ns].column })
-                    }
-                    obj.select(tmp)
-                    // remove items
-                    tmp = []
-                    for (let s = 0; s < sel.length; s++) {
-                        let flag = false
-                        for (let ns = 0; ns < newSel.length; ns++) if (newSel[ns].recid == sel[s].recid && newSel[ns].column == sel[s].column) flag = true
-                        if (!flag) tmp.push({ recid: sel[s].recid, column: sel[s].column })
-                    }
-                    obj.unselect(tmp)
+                    let { select, unselect } = obj.compareSelection(newSel)
+                    if (select.length > 0) obj.select(select)
+                    if (unselect.length > 0) obj.unselect(unselect)
                 } else {
                     if (obj.multiSelect) {
                         let sel = obj.getSelection()
