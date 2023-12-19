@@ -1342,7 +1342,8 @@ class w2grid extends w2base {
                 let rg = {
                     name: ranges[i].name,
                     range: [{ recid: first.recid, column: first.column }, { recid: last.recid, column: last.column }],
-                    style: ranges[i].style || ''
+                    style: ranges[i].style || '',
+                    class: ranges[i].class
                 }
                 // add range
                 let ind = false
@@ -1467,9 +1468,14 @@ class w2grid extends w2base {
             range = query(this.box).find('#grid_'+ this.name +'_'+ rg.name)
             if (td1.length > 0 || td2.length > 0) {
                 if (range.length === 0) {
-                    rec2.append('<div id="grid_'+ this.name +'_' + rg.name +'" class="w2ui-selection" style="'+ rg.style +'">'+
-                                    (rg.name == 'selection' && this.show.selectionResizer ? '<div id="grid_'+ this.name +'_resizer" class="w2ui-selection-resizer"></div>' : '')+
-                                '</div>')
+                    rec2.append(`
+                        <div id="grid_${this.name}_${rg.name}" class="w2ui-selection ${rg.class ?? ''}" style="${rg.style}">
+                            ${rg.name == 'selection' && this.show.selectionResizer
+                                ? `<div id="grid_${this.name}_resizer" class="w2ui-selection-resizer"></div>`
+                                : ''
+                            }
+                        </div>
+                    `)
                     range = query(this.box).find('#grid_'+ this.name +'_'+ rg.name)
                 } else {
                     range.attr('style', rg.style)
@@ -1578,22 +1584,23 @@ class w2grid extends w2base {
                 return
             } else {
                 // default behavior
-                self.removeRange('grid-selection-expand')
                 self.addRange({
-                    name  : 'grid-selection-expand',
-                    range : mv.newRange,
-                    style : 'background-color: rgba(100,100,100,0.1); border: 2px dotted rgba(100,100,100,0.5);'
+                    name: 'selection-expand',
+                    range: mv.newRange,
+                    class: 'w2ui-selection-expand'
                 })
             }
         }
 
         function mouseStop(event) {
             // default behavior
-            self.removeRange('grid-selection-expand')
-            delete self.last.move
+            self.removeRange('selection-expand')
             query('body').off('.w2ui-' + self.name)
             // event after
-            if (edata.finish) edata.finish()
+            if (self.last.move?.type == 'expand' && edata.finish) {
+                edata.finish()
+            }
+            delete self.last.move
         }
     }
 
@@ -3765,11 +3772,8 @@ class w2grid extends w2base {
             if (query(event.target).closest('td').hasClass('w2ui-col-select')) fselect = true
             // clear other if necessary
             if (((!event.ctrlKey && !event.shiftKey && !event.metaKey && !fselect) || !this.multiSelect) && !this.showSelectColumn) {
-                if (this.selectType != 'row') {
-                    flag = false
-                } else {
+                if (this.selectType != 'row' && !last.columns[ind]?.includes(column)) flag = false
                     this.selectNone(true) // no need to trigger select event
-                }
                 if (flag === true && sel.length == 1) {
                     this.unselect({ recid: recid, column: column })
                 } else {
@@ -4018,25 +4022,32 @@ class w2grid extends w2base {
 
         switch (key) {
             case 8: // backspace
-            case 46: // delete
+            case 46: { // delete
                 // delete if button is visible
                 obj.delete()
                 cancel = true
                 event.stopPropagation()
                 break
-
-            case 27: // escape
-                obj.selectNone()
-                cancel = true
+            }
+            case 27: { // escape
+                if (obj.last.move?.type) {
+                    delete obj.last.move
+                    obj.removeRange('selection-preview')
+                    obj.removeRange('selection-expand')
+                    cancel = true
+                } else {
+                    obj.selectNone()
+                    cancel = true
+                }
                 break
-
-            case 65: // cmd + A
+            }
+            case 65: { // cmd + A
                 if (!event.metaKey && !event.ctrlKey) break
                 obj.selectAll()
                 cancel = true
                 break
-
-            case 13: // enter
+            }
+            case 13: { // enter
                 // if expandable columns - expand it
                 if (this.selectType == 'row' && obj.show.expandColumn === true) {
                     if (recEL.length <= 0) break
@@ -4060,44 +4071,44 @@ class w2grid extends w2base {
                     }
                 }
                 break
-
-            case 37: // left
+            }
+            case 37: { // left
                 moveLeft()
                 break
-
-            case 39: // right
+            }
+            case 39: { // right
                 moveRight()
                 break
-
-            case 33: // <PgUp>
+            }
+            case 33: { // <PgUp>
                 moveUp(pageSize)
                 break
-
-            case 34: // <PgDn>
+            }
+            case 34: { // <PgDn>
                 moveDown(pageSize)
                 break
-
-            case 35: // <End>
+            }
+            case 35: { // <End>
                 moveDown(-1)
                 break
-
-            case 36: // <Home>
+            }
+            case 36: { // <Home>
                 moveUp(-1)
                 break
-
-            case 38: // up
+            }
+            case 38: { // up
                 // ctrl (or cmd) + up -> same as home
                 moveUp(event.metaKey || event.ctrlKey ? -1 : 1)
                 break
-
-            case 40: // down
+            }
+            case 40: { // down
                 // ctrl (or cmd) + up -> same as end
                 moveDown(event.metaKey || event.ctrlKey ? -1 : 1)
                 break
-
+            }
             // copy & paste
             case 17: // ctrl key
-            case 91: // cmd key
+            case 91: { // cmd key
                 // SLOW: 10k records take 7.0
                 if (empty) break
                 // in Safari need to copy to buffer on cmd or ctrl key (otherwise does not work)
@@ -4108,8 +4119,8 @@ class w2grid extends w2base {
                     focus[0].select()
                 }
                 break
-
-            case 67: // - c
+            }
+            case 67: { // - c
                 // this fill trigger event.onComplete
                 if (event.metaKey || event.ctrlKey) {
                     if (w2utils.isSafari) {
@@ -4123,8 +4134,8 @@ class w2grid extends w2base {
                     }
                 }
                 break
-
-            case 88: // x - cut
+            }
+            case 88: { // x - cut
                 if (empty) break
                 if (event.ctrlKey || event.metaKey) {
                     if (w2utils.isSafari) {
@@ -4138,6 +4149,7 @@ class w2grid extends w2base {
                     }
                 }
                 break
+            }
         }
         let tmp = [32, 187, 189, 192, 219, 220, 221, 186, 222, 188, 190, 191] // other typeable chars
         for (let i = 48; i <= 111; i++) tmp.push(i) // 0-9,a-z,A-Z,numpad
@@ -5730,7 +5742,7 @@ class w2grid extends w2base {
             if (event.altKey) {
                 query(obj.box).find('.w2ui-grid-body').css('user-select', 'text')
                 obj.selectNone()
-                obj.last.move       = { type: 'text-select' }
+                obj.last.move = { type: 'text-select' }
                 obj.last.userSelect = 'text'
             } else {
                 let tmp  = event.target
@@ -5752,11 +5764,18 @@ class w2grid extends w2base {
                 let recid = obj.records[index]?.recid
 
                 // if cell selection, on initial click start selection
-                if (obj.selectType == 'cell') {
-                    let column = parseInt(query(event.target).closest('td').attr('col'))
-                    let { select, unselect } = obj.compareSelection([{ recid, column }])
-                    if (select.length > 0) obj.select(select)
-                    if (unselect.length > 0) obj.unselect(unselect)
+                if (obj.selectType == 'cell' && !event.shiftKey) {
+                    let column1 = parseInt(query(event.target).closest('td').attr('col'))
+                    let column2 = column1
+                    if (isNaN(column1)) {
+                        column1 = 0
+                        column2 = obj.columns.length - 1
+                    }
+                    obj.addRange({
+                        name: 'selection-preview',
+                        range: [{ recid, column: column1 }, { recid, column: column2 }],
+                        class: 'w2ui-selection-preview'
+                    })
                 }
 
                 obj.last.move = {
@@ -5772,7 +5791,17 @@ class w2grid extends w2base {
                     ghost  : false,
                     start  : true
                 }
-                if (obj.last.move.recid == null) obj.last.move.type = 'select-column'
+                if (obj.last.move.recid == null) {
+                    obj.last.move.type = 'select-column'
+                    let column = parseInt(query(event.target).closest('td').attr('col'))
+                    let start = obj.records[0].recid
+                    let end = obj.records[obj.records.length - 1].recid
+                    obj.addRange({
+                        name: 'selection-preview',
+                        range: [{ recid: start, column }, { recid: end, column }],
+                        class: 'w2ui-selection-preview'
+                    })
+                }
                 // set focus to grid
                 let target = event.target
                 let $input = query(obj.box).find('#grid_'+ obj.name + '_focus')
@@ -5870,7 +5899,7 @@ class w2grid extends w2base {
                 return
             }
             let mv = obj.last.move
-            if (!mv || ['select', 'select-column'].indexOf(mv.type) == -1) return
+            if (!mv || !['select', 'select-column'].includes(mv.type)) return
             mv.divX = (event.screenX - mv.x)
             mv.divY = (event.screenY - mv.y)
             if (Math.abs(mv.divX) <= 1 && Math.abs(mv.divY) <= 1) return // only if moved more then 1px
@@ -5939,24 +5968,17 @@ class w2grid extends w2base {
                     for (let ii = parseInt(tmp[0]); ii <= parseInt(tmp[1]); ii++) {
                         cols.push(ii)
                     }
-                    if (mv.colRange != newRange) {
+                    if (mv.colRange != newRange && mv.type == 'select-column') {
                         edataCol = obj.trigger('columnSelect', { target: obj.name, columns: cols })
                         if (edataCol.isCancelled !== true) {
-                            if (mv.colRange == null) obj.selectNone()
-                            // highlight columns
-                            let tmp = newRange.split('-')
-                            query(obj.box).find('.w2ui-grid-columns .w2ui-col-header, .w2ui-grid-fcolumns .w2ui-col-header').removeClass('w2ui-col-selected')
-                            for (let j = parseInt(tmp[0]); j <= parseInt(tmp[1]); j++) {
-                                query(obj.box).find('#grid_'+ obj.name +'_column_' + j + ' .w2ui-col-header').addClass('w2ui-col-selected')
-                            }
-                            query(obj.box).find('.w2ui-col-number:not(.w2ui-head)').addClass('w2ui-row-selected')
                             // show new range
                             mv.colRange = newRange
-                            obj.removeRange('column-selection')
+                            let start = obj.records[0].recid
+                            let end = obj.records[obj.records.length - 1].recid
                             obj.addRange({
-                                name  : 'column-selection',
-                                range : [{ recid: obj.records[0].recid, column: tmp[0] }, { recid: obj.records[obj.records.length-1].recid, column: tmp[1] }],
-                                style : 'background-color: rgba(90, 145, 234, 0.1)'
+                                name: 'selection-preview',
+                                range: [{ recid: start, column: tmp[0] }, { recid: end, column: tmp[1] }],
+                                class: 'w2ui-selection-preview'
                             })
                         }
                     }
@@ -5994,9 +6016,14 @@ class w2grid extends w2base {
                     }
                 }
                 if (obj.selectType != 'row') {
-                    let { select, unselect } = obj.compareSelection(newSel)
-                    if (select.length > 0) obj.select(select)
-                    if (unselect.length > 0) obj.unselect(unselect)
+                    let start = newSel[0]
+                    let end = newSel[newSel.length - 1]
+                    obj.addRange({
+                        name: 'selection-preview',
+                        range: [{ recid: start.recid, column: start.column }, { recid: end.recid, column: end.column }],
+                        class: 'w2ui-selection-preview'
+                    })
+                    mv.newRange = newSel
                 } else {
                     if (obj.multiSelect) {
                         let sel = obj.getSelection()
@@ -6013,9 +6040,12 @@ class w2grid extends w2base {
 
         function mouseStop(event) {
             let mv = obj.last.move
-            setTimeout(() => { delete obj.last.cancelClick }, 1)
+            setTimeout(() => {
+                delete obj.last.cancelClick
+            }, 1)
             if (query(event.target).parents().hasClass('.w2ui-head') || query(event.target).hasClass('.w2ui-head')) return
-            if (mv && ['select', 'select-column'].indexOf(mv.type) != -1) {
+            obj.removeRange('selection-preview')
+            if (mv && ['select', 'select-column'].includes(mv.type)) {
                 if (mv.colRange != null && edataCol.isCancelled !== true) {
                     let tmp = mv.colRange.split('-')
                     let sel = []
@@ -6024,9 +6054,12 @@ class w2grid extends w2base {
                         for (let j = parseInt(tmp[0]); j <= parseInt(tmp[1]); j++) cols.push(j)
                         sel.push({ recid: obj.records[i].recid, column: cols })
                     }
-                    obj.removeRange('column-selection')
                     edataCol.finish()
+                    obj.selectNone(true)
                     obj.select(sel)
+                } else if (mv.newRange != null) {
+                    obj.selectNone(true)
+                    obj.select(...mv.newRange)
                 }
                 if (obj.reorderRows == true && obj.last.move.reorder) {
                     if (mv.to != null) {

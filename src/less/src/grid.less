@@ -848,7 +848,18 @@
         position: absolute;
         z-index: 1000;
         border: 1.5px solid #6299DA; /* #457FC2; */
+        border-radius: 2px;
         pointer-events: none;
+
+        &.w2ui-selection-preview {
+            background-color: #5a91ea08;
+            border: 1px dashed silver;
+        }
+
+        &.w2ui-selection-expand {
+            background-color: #e7f2e844;
+            border: 1px dotted silver;
+        }
 
         .w2ui-selection-resizer {
             cursor: crosshair;

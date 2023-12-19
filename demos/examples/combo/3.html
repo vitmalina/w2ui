@@ -59,6 +59,10 @@ let config = {
         async onSelect(event) {
             await event.complete
             console.log('select', event.detail, this.getSelection())
+        },
+        async onClick(event) {
+            await event.complete
+            console.log('click', event.detail)
         }
     }
 }
