@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (12/13/2023, 1:56:57 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (12/19/2023, 1:35:23 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -2892,7 +2892,16 @@ textarea.w2ui-error {
   z-index: 1000;
   border: 1.5px solid #6299DA;
   /* #457FC2; */
+  border-radius: 2px;
   pointer-events: none;
+}
+.w2ui-ss .w2ui-grid-body .w2ui-selection.w2ui-selection-preview {
+  background-color: #5a91ea08;
+  border: 1px dashed silver;
+}
+.w2ui-ss .w2ui-grid-body .w2ui-selection.w2ui-selection-expand {
+  background-color: #e7f2e844;
+  border: 1px dotted silver;
 }
 .w2ui-ss .w2ui-grid-body .w2ui-selection .w2ui-selection-resizer {
   cursor: crosshair;
