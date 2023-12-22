@@ -6421,31 +6421,30 @@ class w2grid extends w2base {
                             this.last.liveText = val
                             this.search(this.last.field, val)
                         }
-                        if (event.keyCode == 40) { // arrow down
-                            this.searchSuggest(true)
-                        }
                     }, 250)
                     input
-                        .on('change', event => {
-                            if (!this.liveSearch) {
-                                this.search(this.last.field, event.target.value)
-                                this.searchSuggest(true, true, this)
-                            }
-                        })
                         .on('blur', () => { this.last.liveText = '' })
                         .on('keyup', (event) => {
                             switch (event.keyCode) {
-                                case 40: { // arrow down
+                                case 40: {
+                                    // show saved searches on arrow down
                                     this.searchSuggest(true)
                                     break
                                 }
+                                case 38: {
+                                    // hide saved searches on arrow up
+                                    this.searchSuggest(true, true)
+                                    break
+                                }
                                 case 13: {
+                                    // search on enter key
                                     this.search(this.last.field, event.target.value)
-                                    event.preventDefault()
                                     break
                                 }
                                 default: {
+                                    // live search (if enabled)
                                     slowSearch(event)
+                                    break
                                 }
                             }
                         })
