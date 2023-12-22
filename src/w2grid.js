@@ -5908,7 +5908,7 @@ class w2grid extends w2base {
                 let tmp   = query(event.target).parents('tr')
                 let ind  = tmp.attr('index')
                 let recid = obj.records[ind]?.recid
-                if (recid == '-none-') recid = 'bottom'
+                if (recid == '-none-' || recid == null) recid = 'bottom'
                 if (recid != mv.from) {
                     // let row1 = query(obj.box).find('#grid_'+ obj.name + '_rec_'+ mv.recid)
                     let row2 = query(obj.box).find('#grid_'+ obj.name + '_rec_'+ recid)
