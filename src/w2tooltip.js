@@ -492,6 +492,8 @@ class Tooltip {
         if (overlay.options.url) {
             // remove all cached items
             overlay.options.items.splice(0)
+            overlay.tmp.remote.hasMore = true
+            overlay.tmp.remote.search = null
         }
         // event after
         edata.finish()
@@ -1757,6 +1759,11 @@ class MenuTooltip extends Tooltip {
                 proceed = false
                 if (search === '') {
                     msg = w2utils.lang(options.msgSearch)
+                }
+                // if there are items - then clear them
+                if (options.items?.length > 0) {
+                    this.update(name, [])
+                    this.applyFilter(name, null, search)
                 }
             }
             query(overlay.box).find('.w2ui-no-items').html(msg)
