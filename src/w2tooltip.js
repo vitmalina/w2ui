@@ -1293,6 +1293,9 @@ class MenuTooltip extends Tooltip {
         if (options.items == null) {
             options.items = []
         }
+        if (options.cacheMax <= 0) {
+            console.log(`The option "cacheMax" is ${options.cacheMax} but should be more than 0`)
+        }
         options.items = w2utils.normMenu(options.items)
         options.html = this.getMenuHTML(options)
         let ret = super.attach(options)
@@ -1732,7 +1735,13 @@ class MenuTooltip extends Tooltip {
         }
         overlay.tmp.activeChain = null
         // if url is defined, get items from it
-        let remote = overlay.tmp.remote ?? { hasMore: true, emtpySet: false, search: null, total: -1 }
+        let remote = overlay.tmp.remote ?? { hasMore: true, emtpySet: false, search: null, cached: -1 }
+        if (remote.hasMore == false) {
+            let len = remote.hasMore_search.length
+            if (search.substr(0, len) != remote.hasMore_search) {
+                remote.hasMore = true
+            }
+        }
         if (items == null && options.url && remote.hasMore && remote.search !== search) {
             let proceed = true
             // only when items == null because it is case of nested items
@@ -1820,8 +1829,8 @@ class MenuTooltip extends Tooltip {
         let options = overlay.options
         let remote = overlay.tmp.remote
         let resolve, reject // promise functions
-        if ((options.items.length === 0 && remote.total !== 0)
-            || (remote.total == options.cacheMax && search.length > remote.search.length)
+        if ((options.items.length === 0 && remote.cached !== 0)
+            || (remote.cached == options.cacheMax && search.length > remote.search.length)
             || (search.length >= remote.search.length && search.substr(0, remote.search.length) !== remote.search)
             || (search.length < remote.search.length))
         {
@@ -1889,6 +1898,7 @@ class MenuTooltip extends Tooltip {
                             remote.hasMore = true
                         } else {
                             remote.hasMore = false
+                            remote.hasMore_search = search
                         }
                         // map id and text
                         if (options.recId == null && options.recid != null) options.recId = options.recid // since lower-case recid is used in grid
@@ -1903,7 +1913,7 @@ class MenuTooltip extends Tooltip {
                         // remember stats
                         remote.loading = false
                         remote.search = search
-                        remote.total = data.records.length
+                        remote.cached = data.records.length
                         remote.lastError = ''
                         remote.emptySet = (search === '' && data.records.length === 0 ? true : false)
                         // event after
@@ -1923,7 +1933,7 @@ class MenuTooltip extends Tooltip {
                         // reset stats
                         remote.loading = false
                         remote.search = ''
-                        remote.total = -1
+                        remote.cached = -1
                         remote.emptySet = true
                         remote.lastError = (edata.detail.error || 'Server communication failed')
                         options.items = []
@@ -1982,7 +1992,7 @@ class MenuTooltip extends Tooltip {
             items = items({ overlay, index, parentIndex, event })
         }
         let item = items[index]
-        if (item.disabled) {
+        if (item == null || item.disabled) {
             return
         }
         let uncheck = (items, parent) => {
