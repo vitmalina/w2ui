@@ -213,6 +213,12 @@ class w2field extends w2base {
                 defaults = {
                     items           : [],
                     selected        : {},
+                    prefix          : '',
+                    suffix          : '',
+                    openOnFocus     : false,  // if to show overlay onclick or when typing
+                    icon            : null,
+                    iconStyle       : '',
+                    // -- following options implemented in w2tooltip
                     url             : null,   // remove source for items
                     recId           : null,   // map retrieved data from url to id, can be string or function
                     recText         : null,   // map retrieved data from url to text, can be string or function
@@ -225,24 +231,19 @@ class w2field extends w2base {
                     maxDropWidth    : null,   // if null then auto set
                     minDropWidth    : null,   // if null then auto set
                     match           : 'begins', // ['contains', 'is', 'begins', 'ends']
-                    icon            : null,
-                    iconStyle       : '',
                     align           : 'both', // same width as control
                     altRows         : true,   // alternate row color
                     renderDrop      : null,   // render function for drop down item
                     compare         : null,   // compare function for filtering
                     filter          : true,   // weather to filter at all
                     hideSelected    : false,  // hide selected item from drop down
-                    prefix          : '',
-                    suffix          : '',
+                    markSearch      : false,
                     msgNoItems      : 'No matches',
                     msgSearch       : 'Type to search...',
-                    openOnFocus     : false,  // if to show overlay onclick or when typing
-                    markSearch      : false,
                     onSearch        : null,   // when search needs to be performed
                     onRequest       : null,   // when request is submitted
                     onLoad          : null,   // when data is received
-                    onError         : null    // when data fails to load due to server error or other failure modes
+                    onError         : null,    // when data fails to load due to server error or other failure modes
                 }
                 if (typeof options.items == 'function') {
                     options._items_fun = options.items
@@ -285,6 +286,18 @@ class w2field extends w2base {
                     items           : [],    // id, text, tooltip, icon
                     selected        : [],
                     max             : 0,     // max number of selected items, 0 - unlimited
+                    maxItemWidth    : 250,   // max width for a single item
+                    style           : '',    // style for container div
+                    openOnFocus     : false, // if to show overlay onclick or when typing
+                    renderItem      : null,  // render selected item
+                    onMouseEnter    : null,  // when an item is mouse over
+                    onMouseLeave    : null,  // when an item is mouse out
+                    onScroll        : null,   // when div with selected items is scrolled
+                    onClick         : null,  // when an item is clicked
+                    onAdd           : null,  // when an item is added
+                    onNew           : null,  // when new item should be added
+                    onRemove        : null,  // when an item is removed
+                    // -- following options implemented in w2tooltip
                     url             : null,  // remove source for items
                     recId           : null,  // map retrieved data from url to id, can be string or function
                     recText         : null,  // map retrieved data from url to text, can be string or function
@@ -293,33 +306,22 @@ class w2field extends w2base {
                     postData        : {},
                     minLength       : 1,     // min number of chars when trigger search
                     cacheMax        : 250,
-                    maxItemWidth    : 250,   // max width for a single item
-                    maxDropHeight   : 350,   // max height for drop down menu
-                    maxDropWidth    : null,  // if null then auto set
                     match           : 'begins', // ['contains', 'is', 'begins', 'ends']
                     align           : '',    // align drop down related to search field
                     altRows         : true,  // alternate row color
-                    openOnFocus     : false, // if to show overlay onclick or when typing
-                    markSearch      : false,
                     renderDrop      : null,  // render function for drop down item
-                    renderItem      : null,  // render selected item
+                    maxDropHeight   : 350,   // max height for drop down menu
+                    maxDropWidth    : null,  // if null then auto set
+                    markSearch      : false,
                     compare         : null,  // compare function for filtering
                     filter          : true,  // alias for compare
                     hideSelected    : true,  // hide selected item from drop down
-                    style           : '',    // style for container div
                     msgNoItems      : 'No matches',
                     msgSearch       : 'Type to search...',
                     onSearch        : null,  // when search needs to be performed
                     onRequest       : null,  // when request is submitted
                     onLoad          : null,  // when data is received
                     onError         : null,  // when data fails to load due to server error or other failure modes
-                    onClick         : null,  // when an item is clicked
-                    onAdd           : null,  // when an item is added
-                    onNew           : null,  // when new item should be added
-                    onRemove        : null,  // when an item is removed
-                    onMouseEnter    : null,  // when an item is mouse over
-                    onMouseLeave    : null,  // when an item is mouse out
-                    onScroll        : null   // when div with selected items is scrolled
                 }
                 options  = w2utils.extend({}, defaults, options, { suffix: '' })
                 if (typeof options.items == 'function') {

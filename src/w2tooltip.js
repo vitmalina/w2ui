@@ -395,7 +395,7 @@ class Tooltip {
             let $anchor = query(overlay.anchor)
             let scope = 'tooltip-' + overlay.name
             // document click
-            query('body').off(`.${scope}`)
+            query('html').off(`.${scope}`)
             if (options.hideOn.includes('doc-click')) {
                 if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
                     // otherwise hides on click to focus
@@ -403,10 +403,10 @@ class Tooltip {
                         .off(`.${scope}-doc`)
                         .on(`click.${scope}-doc`, (event) => { event.stopPropagation() })
                 }
-                query('body').on(`click.${scope}`, hide)
+                query('html').on(`click.${scope}`, hide)
             }
             if (options.hideOn.includes('focus-change')) {
-                query('body')
+                query('html')
                     .on(`focusin.${scope}`, (e) => {
                         if (document.activeElement != overlay.anchor) {
                             self.hide(overlay.name)
@@ -466,7 +466,7 @@ class Tooltip {
         if (cnt == 0) {
             Tooltip.observeRemove.disconnect()
         }
-        query('body').off(`.${scope}`)   // hide to click event here
+        query('html').off(`.${scope}`)   // hide to click event here
         query(document).off(`.${scope}`) // scroll event here
         // remove element
         overlay.box?.remove()
@@ -488,6 +488,11 @@ class Tooltip {
         query(overlay.anchor)
             .off(`.${scope}`)
             .removeClass(overlay.options.anchorClass)
+        // for remote data source
+        if (overlay.options.url) {
+            // remove all cached items
+            overlay.options.items.splice(0)
+        }
         // event after
         edata.finish()
     }
@@ -1176,14 +1181,14 @@ class ColorTooltip extends Tooltip {
                 top    : parseInt(el.css('top'))
             }
             mouseMove(event)
-            query('body')
+            query('html')
                 .off('.w2color')
                 .on(mMove, mouseMove)
                 .on(mUp, mouseUp)
         }
 
         function mouseUp(event) {
-            query('body').off('.w2color')
+            query('html').off('.w2color')
         }
 
         function mouseMove(event) {
@@ -1615,9 +1620,10 @@ class MenuTooltip extends Tooltip {
             items[f] = mitem
         })
         if (count === 0 && options.msgNoItems) {
+            let msg = options.url ? options.msgSearch : options.msgNoItems
             menu_html += `
                 <div class="w2ui-no-items">
-                    ${w2utils.lang(options.msgNoItems)}
+                    ${w2utils.lang(msg)}
                 </div>`
         }
         menu_html += '</div>'
