@@ -684,7 +684,7 @@ class w2sidebar extends w2base {
                 /**
                  * Single selection at a time
                  */
-                if (this.selected) this.unselect(this.selected)
+                if (this.selected != null) this.unselect(this.selected)
                 this.select(id)
                 // route processing
                 if (typeof nd.route == 'string') {
