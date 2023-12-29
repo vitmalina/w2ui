@@ -3516,7 +3516,7 @@ class w2grid extends w2base {
             if (fld.type == 'list') {
                 new_val = fld.selected
             }
-            if (Object.keys(new_val).length === 0 || new_val == null) new_val = ''
+            if (new_val == null || Object.keys(new_val).length === 0) new_val = ''
             if (!w2utils.isPlainObject(new_val)) new_val = fld.clean(new_val)
         }
         if (input.type == 'checkbox') {
