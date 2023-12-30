@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (12/28/2023, 7:58:27 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (12/30/2023, 11:12:53 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -5523,7 +5523,17 @@ class MenuTooltip extends Tooltip {
             items[f] = mitem
         })
         if (count === 0 && options.msgNoItems) {
-            let msg = options.url ? options.msgSearch : options.msgNoItems
+            let overlay = Tooltip.active[options.name.replace(/[\s\.#]/g, '_')]
+            let remote = overlay?.tmp.remote
+            let msg = options.msgNoItems
+            if (options.url) {
+                if (count == 0 && remote?.hasMore === false) {
+                    // if search is applied, but there are no items
+                    msg = options.msgNoItems
+                } else {
+                    msg = options.msgSearch
+                }
+            }
             menu_html += `
                 <div class="w2ui-no-items">
                     ${w2utils.lang(msg)}
@@ -5641,7 +5651,7 @@ class MenuTooltip extends Tooltip {
         }
         overlay.tmp.activeChain = null
         // if url is defined, get items from it
-        let remote = overlay.tmp.remote ?? { hasMore: true, emtpySet: false, search: null, cached: -1 }
+        let remote = overlay.tmp.remote ?? { hasMore: true, emptySet: false, search: null, cached: -1 }
         if (remote.hasMore == false) {
             let len = remote.hasMore_search.length
             if (search.substr(0, len) != remote.hasMore_search) {
@@ -5822,7 +5832,7 @@ class MenuTooltip extends Tooltip {
                         // remember stats
                         remote.loading = false
                         remote.search = search
-                        remote.cached = data.records.length
+                        remote.cached = data.records.length == 0 ? -1 : data.records.length
                         remote.lastError = ''
                         remote.emptySet = (search === '' && data.records.length === 0 ? true : false)
                         // event after
@@ -14498,7 +14508,7 @@ class w2grid extends w2base {
             if (fld.type == 'list') {
                 new_val = fld.selected
             }
-            if (Object.keys(new_val).length === 0 || new_val == null) new_val = ''
+            if (new_val == null || Object.keys(new_val).length === 0) new_val = ''
             if (!w2utils.isPlainObject(new_val)) new_val = fld.clean(new_val)
         }
         if (input.type == 'checkbox') {
@@ -16707,7 +16717,7 @@ class w2grid extends w2base {
                     ghost  : false,
                     start  : true
                 }
-                if (obj.last.move.recid == null) {
+                if (obj.last.move.recid == null && obj.records.length > 0) {
                     obj.last.move.type = 'select-column'
                     let column = parseInt(query(event.target).closest('td').attr('col'))
                     let start = obj.records[0].recid
