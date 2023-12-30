@@ -5791,7 +5791,7 @@ class w2grid extends w2base {
                     ghost  : false,
                     start  : true
                 }
-                if (obj.last.move.recid == null) {
+                if (obj.last.move.recid == null && obj.records.length > 0) {
                     obj.last.move.type = 'select-column'
                     let column = parseInt(query(event.target).closest('td').attr('col'))
                     let start = obj.records[0].recid

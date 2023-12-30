@@ -1622,7 +1622,17 @@ class MenuTooltip extends Tooltip {
             items[f] = mitem
         })
         if (count === 0 && options.msgNoItems) {
-            let msg = options.url ? options.msgSearch : options.msgNoItems
+            let overlay = Tooltip.active[options.name.replace(/[\s\.#]/g, '_')]
+            let remote = overlay?.tmp.remote
+            let msg = options.msgNoItems
+            if (options.url) {
+                if (count == 0 && remote?.hasMore === false) {
+                    // if search is applied, but there are no items
+                    msg = options.msgNoItems
+                } else {
+                    msg = options.msgSearch
+                }
+            }
             menu_html += `
                 <div class="w2ui-no-items">
                     ${w2utils.lang(msg)}
@@ -1743,7 +1753,7 @@ class MenuTooltip extends Tooltip {
         }
         overlay.tmp.activeChain = null
         // if url is defined, get items from it
-        let remote = overlay.tmp.remote ?? { hasMore: true, emtpySet: false, search: null, cached: -1 }
+        let remote = overlay.tmp.remote ?? { hasMore: true, emptySet: false, search: null, cached: -1 }
         if (remote.hasMore == false) {
             let len = remote.hasMore_search.length
             if (search.substr(0, len) != remote.hasMore_search) {
@@ -1926,7 +1936,7 @@ class MenuTooltip extends Tooltip {
                         // remember stats
                         remote.loading = false
                         remote.search = search
-                        remote.cached = data.records.length
+                        remote.cached = data.records.length == 0 ? -1 : data.records.length
                         remote.lastError = ''
                         remote.emptySet = (search === '' && data.records.length === 0 ? true : false)
                         // event after
