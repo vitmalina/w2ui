@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (1/7/2024, 8:26:55 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (1/7/2024, 9:20:27 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -4511,8 +4511,8 @@ class Tooltip {
             while (evt?.originalEvent) { evt = evt.originalEvent }
             let { x, y, width, height } = evt ?? { x: options.x, y: options.y, width: 0, height: 10 }
             anchor = {
-                left: x,
-                top: y,
+                left: x - (options.contextMenu ? 4: 0),
+                top: y - (options.contextMenu ? 4: 0),
                 width: width ?? 0,
                 height: height ?? 10,
                 arrow: options.contextMenu ? 'none' : null
