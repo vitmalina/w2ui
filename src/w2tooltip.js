@@ -576,8 +576,8 @@ class Tooltip {
             while (evt?.originalEvent) { evt = evt.originalEvent }
             let { x, y, width, height } = evt ?? { x: options.x, y: options.y, width: 0, height: 10 }
             anchor = {
-                left: x,
-                top: y,
+                left: x - (options.contextMenu ? 4: 0),
+                top: y - (options.contextMenu ? 4: 0),
                 width: width ?? 0,
                 height: height ?? 10,
                 arrow: options.contextMenu ? 'none' : null

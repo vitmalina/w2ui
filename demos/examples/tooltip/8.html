@@ -12,18 +12,23 @@
         onmousemove="showWithMouse(event)" onmouseleave="hideTooltip()">
     Move over to see tooltip
 </div>
+<div style="display: inline-block; height: 90px; width: 400px; user-select: none; border: 1px #efefef; color: silver; background-color: #f2f2f2; text-align: center; padding-top: 30px"
+        oncontextmenu="contextMenu(event)">
+    Right click for Context Menu
+</div>
 
-<div style="height: 20px"></div>
-<button class="w2ui-btn" onclick="showAt(window.innerWidth / 2, window.innerHeight / 2)">Show</button>
-<button class="w2ui-btn" onclick="hideTooltip()">Hide</button>
 
 <div style="padding-top: 10px">
     <span id="msg-log">&nbsp;</span>
 </div>
 
+<div style="height: 20px"></div>
+<button class="w2ui-btn" onclick="showAt(Math.random() * window.innerWidth, Math.random() * window.innerHeight); event.stopPropagation()">Show Random</button>
+<button class="w2ui-btn" onclick="hideTooltip()">Hide</button>
+
 <!--CODE-->
 <script type="module">
-import { w2tooltip, query, Tooltip } from '__W2UI_PATH__'
+import { w2tooltip, w2menu, query } from '__W2UI_PATH__'
 
 window.showWithMouse = function(event) {
     w2tooltip.show({
@@ -41,9 +46,32 @@ window.hideTooltip = () => {
 window.showAt = function(x, y) {
     w2tooltip.show({
         name: 'some-pos',
-        html: 'Middle of the Page. No arrow.',
+        html: '<div style="text-align: center">Middle of the Page.<br>No arrow.</div>',
         x, y,
+        hideOn: ['doc-click'],
         arrowSize: 0
     })
 }
+
+window.contextMenu = function(event, type) {
+    let items = [
+        { id: 'frist', text: 'First item', count: 4, icon: 'w2ui-icon-info' },
+        { id: 'second', text: 'Second item', count: 2, icon: 'w2ui-icon-info' },
+        { id: 'page', text: 'Colors', icon: 'w2ui-icon-colors' },
+        { text: '--' },
+        { id: 'delete', text: 'Delete', icon: 'w2ui-icon-cross' },
+    ]
+    w2menu.show({
+        name: 'context-menu',
+        contextMenu: true,
+        items,
+        onSelect(event) {
+            query('#msg-log').html(event.detail.item.text)
+            console.log('select', event);
+        },
+        originalEvent: event
+    })
+    event.preventDefault();
+}
+
 </script>
