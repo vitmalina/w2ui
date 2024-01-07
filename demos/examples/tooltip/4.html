@@ -71,13 +71,13 @@ query('button.action').on('click', event => {
         showMenu(event.target, options)
     }
     if (options.method == "showMenu2") {
-        showMenu(event.target, options)
+        showMenu2(event.target, options)
     }
     if (options.method == "showMenu3") {
-        showMenu(event.target, options)
+        showMenu3(event.target, options)
     }
     if (options.method == "showMenu4") {
-        showMenu(event.target, options)
+        showMenu4(event.target, options)
     }
 })
 
@@ -119,11 +119,11 @@ function showMenu2(el) {
         position,
         hideOn: ['doc-click', 'select', 'blur'],
         items: [
-            { id: 1, text: 'Item 1', icon: 'fa fa-star', removable: true },
-            { id: 2, text: 'Item 2', icon: 'fa fa-star-o', removable: true },
-            { id: 3, text: 'Item 3', icon: 'fa fa-camera', checked: true, removable: true },
-            { id: 4, text: 'Item 4', icon: 'fa fa-star', removable: true },
-            { id: 5, text: 'Item 5', icon: 'fa fa-star-o', removable: true },
+            { id: 1, text: 'Item 1', icon: 'fa fa-star' },
+            { id: 2, text: 'Item 2', icon: 'fa fa-star-o' },
+            { id: 3, text: 'Item 3', icon: 'fa fa-camera', checked: true },
+            { id: 4, text: 'Item 4', icon: 'fa fa-star' },
+            { id: 5, text: 'Item 5', icon: 'fa fa-star-o' },
         ]
     })
     .remove(event => {
@@ -144,12 +144,12 @@ function showMenu3(el) {
         position,
         hideOn: ['doc-click', 'select', 'blur'],
         items: [
-            { id: 1, text: 'Item 1', icon: 'fa fa-star', removable: true },
-            { id: 2, text: 'Item 2', icon: 'fa fa-star-o', removable: true },
-            { id: 3, text: 'Item 3', icon: 'fa fa-camera', removable: true },
-            { id: 4, text: 'Item 4', icon: 'fa fa-star', removable: true },
-            { id: 5, text: 'Item 5', icon: 'fa fa-star-o', removable: true },
-            { id: 6, text: 'Item 6', icon: 'fa fa-camera', removable: true },
+            { id: 1, text: 'Item 1', icon: 'fa fa-star' },
+            { id: 2, text: 'Item 2', icon: 'fa fa-star-o' },
+            { id: 3, text: 'Item 3', icon: 'fa fa-camera' },
+            { id: 4, text: 'Item 4', icon: 'fa fa-star' },
+            { id: 5, text: 'Item 5', icon: 'fa fa-star-o' },
+            { id: 6, text: 'Item 6', icon: 'fa fa-camera' },
         ]
     })
     .remove(event => {

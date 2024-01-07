@@ -1,0 +1,49 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Show Anywhere</h1>
+        You can show tooltip anywhere on the screen or have it move with the mouse.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div style="display: inline-block; height: 90px; width: 400px; user-select: none; border: 1px #efefef; color: silver; background-color: #f2f2f2; text-align: center; padding-top: 30px"
+        onmousemove="showWithMouse(event)" onmouseleave="hideTooltip()">
+    Move over to see tooltip
+</div>
+
+<div style="height: 20px"></div>
+<button class="w2ui-btn" onclick="showAt(window.innerWidth / 2, window.innerHeight / 2)">Show</button>
+<button class="w2ui-btn" onclick="hideTooltip()">Hide</button>
+
+<div style="padding-top: 10px">
+    <span id="msg-log">&nbsp;</span>
+</div>
+
+<!--CODE-->
+<script type="module">
+import { w2tooltip, query, Tooltip } from '__W2UI_PATH__'
+
+window.showWithMouse = function(event) {
+    w2tooltip.show({
+        name: 'some-pos',
+        html: 'Some HTML or text',
+        x: event.pageX,
+        y: event.pageY
+    })
+}
+
+window.hideTooltip = () => {
+    w2tooltip.hide('some-pos')
+}
+
+window.showAt = function(x, y) {
+    w2tooltip.show({
+        name: 'some-pos',
+        html: 'Middle of the Page. No arrow.',
+        x, y,
+        arrowSize: 0
+    })
+}
+</script>
