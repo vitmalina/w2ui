@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (12/30/2023, 11:12:53 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (1/7/2024, 8:26:55 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -4065,9 +4065,12 @@ class Tooltip {
         delete options.anchor
         // define tooltip
         let name = (options.name ? options.name : anchor?.id)
-        if (anchor == document || anchor == document.body || options.contextMenu) {
+        if (anchor == document || anchor == null) {
             anchor = document.body
-            name = 'context-menu'
+        }
+        if (options.contextMenu) {
+            anchor = document.body
+            name = name ?? 'context-menu'
         }
         if (!name) {
             name = 'noname-' + Object.keys(Tooltip.active).length
@@ -4501,13 +4504,19 @@ class Tooltip {
             : Array.isArray(options.position) ? options.position : options.position.split('|')
         let isVertical = ['top', 'bottom'].includes(position[0])
         let content = overlay.box.getBoundingClientRect()
-        let anchor = overlay.anchor.getBoundingClientRect()
+        let anchor = overlay.anchor?.getBoundingClientRect?.()
         if (overlay.anchor == document.body) {
             // context menu
             let evt = options.originalEvent
-            while (evt.originalEvent) { evt = evt.originalEvent }
-            let { x, y, width, height } = evt
-            anchor = { left: x - 2, top: y - 4, width, height, arrow: 'none' }
+            while (evt?.originalEvent) { evt = evt.originalEvent }
+            let { x, y, width, height } = evt ?? { x: options.x, y: options.y, width: 0, height: 10 }
+            anchor = {
+                left: x,
+                top: y,
+                width: width ?? 0,
+                height: height ?? 10,
+                arrow: options.contextMenu ? 'none' : null
+            }
         }
         let arrowSize = options.arrowSize
         if (anchor.arrow == 'none') arrowSize = 0
