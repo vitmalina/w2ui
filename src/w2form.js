@@ -1324,7 +1324,9 @@ class w2form extends w2base {
                     break
                 case 'html':
                 case 'empty':
-                    input = (field && field.html ? (field.html.html || '') + (field.html.text || '') : '')
+                    input = `<div id="${field.field}" name="${field.field}" ${field.html.attr + tabindex_str} class="w2ui-input ${field.html.class ?? ''}">`+
+                                (field && field.html ? (field.html.html || '') + (field.html.text || '') : '') +
+                            '</div>'
                     break
 
             }
