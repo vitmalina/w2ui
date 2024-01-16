@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (1/7/2024, 9:20:27 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (1/16/2024, 10:44:40 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -20876,7 +20876,9 @@ class w2form extends w2base {
                     break
                 case 'html':
                 case 'empty':
-                    input = (field && field.html ? (field.html.html || '') + (field.html.text || '') : '')
+                    input = `<div id="${field.field}" name="${field.field}" ${field.html.attr + tabindex_str} class="w2ui-input ${field.html.class ?? ''}">`+
+                                (field && field.html ? (field.html.html || '') + (field.html.text || '') : '') +
+                            '</div>'
                     break
             }
             if (group !== '') {
