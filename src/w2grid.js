@@ -2765,6 +2765,15 @@ class w2grid extends w2base {
             this.last.label = search.label
         }
         el.attr('placeholder', w2utils.lang('Search') + ' ' + w2utils.lang(search.label || search.caption || search.field, true))
+
+        // if there is pre-selected search
+        if (this.searchSelected) {
+            query(this.box).find(`#grid_${this.name}_search_all`).val(' ').prop('readOnly', true)
+            query(this.box).find(`#grid_${this.name}_search_name`).show().find('.name-text').html(this.searchSelected.text)
+        } else {
+            query(this.box).find(`#grid_${this.name}_search_all`).prop('readOnly', false)
+            query(this.box).find(`#grid_${this.name}_search_name`).hide().find('.name-text').html('')
+        }
     }
 
     // clears records and related params
@@ -2969,9 +2978,9 @@ class w2grid extends w2base {
             // default behavior
             if (response.status && response.status != 200) {
                 response.json().then((data) => {
-                  self.error(response.status + ': ' + data.message ?? response.statusText)
+                    self.error(response.status + ': ' + data.message ?? response.statusText)
                 }).catch(() => {
-                  self.error(response.status + ': ' + response.statusText)
+                    self.error(response.status + ': ' + response.statusText)
                 })
             } else {
                 console.log('ERROR: Server communication failed.',
@@ -3772,8 +3781,10 @@ class w2grid extends w2base {
             if (query(event.target).closest('td').hasClass('w2ui-col-select')) fselect = true
             // clear other if necessary
             if (((!event.ctrlKey && !event.shiftKey && !event.metaKey && !fselect) || !this.multiSelect) && !this.showSelectColumn) {
-                if (this.selectType != 'row' && !last.columns[ind]?.includes(column)) flag = false
-                    this.selectNone(true) // no need to trigger select event
+                if (this.selectType != 'row' && !last.columns[ind]?.includes(column)) {
+                    flag = false
+                }
+                this.selectNone(true) // no need to trigger select event
                 if (flag === true && sel.length == 1) {
                     this.unselect({ recid: recid, column: column })
                 } else {
@@ -5278,9 +5289,9 @@ class w2grid extends w2base {
                 let ind = this.getSearch(sd.field, true)
                 let sf = this.searches[ind]
                 let display
-                if (Array.isArray(sd.value)) {
+                if (sf.type == 'enum' && Array.isArray(sd.value)) {
                     display = `<span class="grid-search-count">${sd.value.length}</span>`
-                } else if (sf && sf.type == 'list') {
+                } else if (sf?.type == 'list') {
                     display = !!sd.text && sd.text !== sd.value ? `: ${sd.text}` : `: ${sd.value}`
                 } else {
                     display = `: ${sd.value}`
