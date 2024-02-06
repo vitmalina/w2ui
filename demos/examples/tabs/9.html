@@ -54,10 +54,9 @@ new w2tabs({
         let tab = this.get(event.target)
         query("#log2").html(`Dragging "${tab.text}"`)
         event.done(() => {
-            query("#log2").html(`Moved "${tab.text}" from position "${event.indexFrom}" to "${event.indexTo}".`)
+            query("#log2").html(`Moved "${tab.text}" from position "${event.detail.indexFrom}" to "${event.detail.indexTo}".`)
             this.show('add')
         })
-        console.log(event)
     }
 })
 </script>

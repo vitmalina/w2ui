@@ -472,15 +472,13 @@ class w2tabs extends w2base {
                     'left': self.last.moving.$tab.get(0).getBoundingClientRect().left - self.last.moving.parentX
                 })
                 query(self.box).find('.w2ui-tab-close').show()
-                setTimeout(() => {
-                    $ghost.remove()
-                    $tab.css({ opacity: self.last.moving.opacity })
-                    // self.render()
-                    if (self.last.reordering) {
-                        edata.finish({ indexTo: self.last.moving.index })
-                    }
-                    self.last.reordering = false
-                }, 100)
+                $ghost.remove()
+                $tab.css({ opacity: self.last.moving.opacity })
+                // self.render()
+                if (self.last.reordering) {
+                    edata.finish({ indexTo: self.last.moving.index })
+                }
+                self.last.reordering = false
             })
     }
 
@@ -638,7 +636,6 @@ class w2tabs extends w2base {
                 this.resize()
             } else {
                 $tab.css({ opacity: 0 })
-
                 // first insert tab on the right to get its proper dimentions
                 query(this.box).find('#tabs_tabs_right').before($tab.get(0))
                 let $tmp  = query(this.box).find('#' + $tab.attr('id'))
