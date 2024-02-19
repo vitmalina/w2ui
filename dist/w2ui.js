@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (2/6/2024, 2:25:02 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (2/19/2024, 12:04:48 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -2411,13 +2411,13 @@ class Utils {
         return ret
     }
     getStrWidth(str, styles, raw) {
-        query('body').append(`
-            <div id="_tmp_width" style="position: absolute; top: -9000px; ${styles || ''}">
-                ${raw ? str : this.encodeTags(str)}
-            </div>`)
-        let width = query('#_tmp_width')[0].clientWidth
-        query('#_tmp_width').remove()
-        return width
+        let div = query('body > #_tmp_width')
+        if (div.length === 0) {
+            query('body').append('<div id="_tmp_width" style="position: absolute; top: -9000px;"></div>')
+        }
+        div.html(raw ? str : this.encodeTags(str))
+            .attr('style', `position: absolute; top: -9000px; ${styles || ''}`)
+        return div[0].clientWidth
     }
     execTemplate(str, replace_obj) {
         if (typeof str !== 'string' || !replace_obj || typeof replace_obj !== 'object') {
@@ -7068,6 +7068,12 @@ class w2toolbar extends w2base {
                     w2tooltip.hide(this.name + '-drop')
                     return
                 } else {
+                    /**
+                     * Need to clear all previous event listeners, since tooltip name is reused and it finds the old configuration and
+                     * extends it. If events are not cleared, it would trigger old listeners too.
+                     */
+                    let overlay = w2tooltip.get(this.name + '-drop')
+                    overlay?.listeners?.splice(0)
                     // timeout is needed to make sure previous overlay hides
                     setTimeout(() => {
                         let hideDrop = (id, btn) => {
@@ -13077,6 +13083,8 @@ class w2grid extends w2base {
         let last_search = this.last.search
         let hasHiddenSearches = false
         let overlay = query(`#w2overlay-${this.name}-search-overlay`)
+        // if emty sting, same as no search
+        if (value === '') value = null
         // add hidden searches
         for (let i = 0; i < this.searches.length; i++) {
             if (!this.searches[i].hidden || this.searches[i].value == null) continue
@@ -14876,7 +14884,7 @@ class w2grid extends w2base {
         if (this.show.columnMenu) {
             w2menu.show({
                 type: 'check',
-                anchor: document.body,
+                contextMenu: true,
                 originalEvent: event,
                 items: this.initColumnOnOff()
             })
@@ -15544,7 +15552,7 @@ class w2grid extends w2base {
         // default action
         if (this.contextMenu?.length > 0) {
             w2menu.show({
-                anchor: document.body,
+                contextMenu: true,
                 originalEvent: event,
                 items: this.contextMenu
             })
@@ -16235,7 +16243,7 @@ class w2grid extends w2base {
                 let ind = this.getSearch(sd.field, true)
                 let sf = this.searches[ind]
                 let display
-                if (sf.type == 'enum' && Array.isArray(sd.value)) {
+                if (sf?.type == 'enum' && Array.isArray(sd.value)) {
                     display = `<span class="grid-search-count">${sd.value.length}</span>`
                 } else if (sf?.type == 'list') {
                     display = !!sd.text && sd.text !== sd.value ? `: ${sd.text}` : `: ${sd.value}`
