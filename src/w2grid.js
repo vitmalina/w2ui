@@ -2040,6 +2040,8 @@ class w2grid extends w2base {
         let last_search = this.last.search
         let hasHiddenSearches = false
         let overlay = query(`#w2overlay-${this.name}-search-overlay`)
+        // if emty sting, same as no search
+        if (value === '') value = null
         // add hidden searches
         for (let i = 0; i < this.searches.length; i++) {
             if (!this.searches[i].hidden || this.searches[i].value == null) continue
@@ -5289,7 +5291,7 @@ class w2grid extends w2base {
                 let ind = this.getSearch(sd.field, true)
                 let sf = this.searches[ind]
                 let display
-                if (sf.type == 'enum' && Array.isArray(sd.value)) {
+                if (sf?.type == 'enum' && Array.isArray(sd.value)) {
                     display = `<span class="grid-search-count">${sd.value.length}</span>`
                 } else if (sf?.type == 'list') {
                     display = !!sd.text && sd.text !== sd.value ? `: ${sd.text}` : `: ${sd.value}`
