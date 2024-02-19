@@ -3884,7 +3884,7 @@ class w2grid extends w2base {
         if (this.show.columnMenu) {
             w2menu.show({
                 type: 'check',
-                anchor: document.body,
+                contextMenu: true,
                 originalEvent: event,
                 items: this.initColumnOnOff()
             })
@@ -4573,7 +4573,7 @@ class w2grid extends w2base {
         // default action
         if (this.contextMenu?.length > 0) {
             w2menu.show({
-                anchor: document.body,
+                contextMenu: true,
                 originalEvent: event,
                 items: this.contextMenu
             })
