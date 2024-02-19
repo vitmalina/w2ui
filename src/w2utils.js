@@ -1493,13 +1493,13 @@ class Utils {
     }
 
     getStrWidth(str, styles, raw) {
-        query('body').append(`
-            <div id="_tmp_width" style="position: absolute; top: -9000px; ${styles || ''}">
-                ${raw ? str : this.encodeTags(str)}
-            </div>`)
-        let width = query('#_tmp_width')[0].clientWidth
-        query('#_tmp_width').remove()
-        return width
+        let div = query('body > #_tmp_width')
+        if (div.length === 0) {
+            query('body').append('<div id="_tmp_width" style="position: absolute; top: -9000px;"></div>')
+        }
+        div.html(raw ? str : this.encodeTags(str))
+            .attr('style', `position: absolute; top: -9000px; ${styles || ''}`)
+        return div[0].clientWidth
     }
 
     execTemplate(str, replace_obj) {
