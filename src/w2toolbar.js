@@ -820,7 +820,7 @@ class w2toolbar extends w2base {
                     <div id="tb_${this.name}_item_${item.id}" class="${classes.join(' ')} ${(item.class ? item.class : '')}"
                         style="${(item.hidden ? 'display: none' : '')} ${item.type == 'label' ? (item.style ?? '') : ''}"
                         ${!item.disabled
-                            ? `data-click='["click","${item.id}"]'
+                            ? `data-click='["click","${item.id}", "event"]'
                                data-mouseenter='["mouseAction", "event", "this", "Enter", "${item.id}"]'
                                data-mouseleave='["mouseAction", "event", "this", "Leave", "${item.id}"]'
                                data-mousedown='["mouseAction", "event", "this", "Down", "${item.id}"]'
