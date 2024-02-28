@@ -1496,9 +1496,9 @@ class Utils {
         let div = query('body > #_tmp_width')
         if (div.length === 0) {
             query('body').append('<div id="_tmp_width" style="position: absolute; top: -9000px;"></div>')
+            div = query('body > #_tmp_width')
         }
-        div.html(raw ? str : this.encodeTags(str))
-            .attr('style', `position: absolute; top: -9000px; ${styles || ''}`)
+        div.html(raw ? str : this.encodeTags(str)).attr('style', `position: absolute; top: -9000px; ${styles || ''}`)
         return div[0].clientWidth
     }
 

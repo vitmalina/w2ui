@@ -428,6 +428,7 @@ class w2toolbar extends w2base {
                      * extends it. If events are not cleared, it would trigger old listeners too.
                      */
                     let overlay = w2tooltip.get(this.name + '-drop')
+                    if (overlay?.displayed) overlay.hide()
                     overlay?.listeners?.splice(0)
 
                     // timeout is needed to make sure previous overlay hides
