@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (2/19/2024, 12:04:48 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (2/29/2024, 8:15:52 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -2414,9 +2414,9 @@ class Utils {
         let div = query('body > #_tmp_width')
         if (div.length === 0) {
             query('body').append('<div id="_tmp_width" style="position: absolute; top: -9000px;"></div>')
+            div = query('body > #_tmp_width')
         }
-        div.html(raw ? str : this.encodeTags(str))
-            .attr('style', `position: absolute; top: -9000px; ${styles || ''}`)
+        div.html(raw ? str : this.encodeTags(str)).attr('style', `position: absolute; top: -9000px; ${styles || ''}`)
         return div[0].clientWidth
     }
     execTemplate(str, replace_obj) {
@@ -7073,6 +7073,7 @@ class w2toolbar extends w2base {
                      * extends it. If events are not cleared, it would trigger old listeners too.
                      */
                     let overlay = w2tooltip.get(this.name + '-drop')
+                    if (overlay?.displayed) overlay.hide()
                     overlay?.listeners?.splice(0)
                     // timeout is needed to make sure previous overlay hides
                     setTimeout(() => {
@@ -16589,7 +16590,7 @@ class w2grid extends w2base {
                   '    <div id="grid_'+ this.name +'_footer" class="w2ui-grid-footer"></div>'+
                   '    <textarea id="grid_'+ this.name +'_focus" class="w2ui-grid-focus-input" '+
                             (this.tabIndex ? 'tabindex="' + this.tabIndex + '"' : '')+
-                            (w2utils.isIOS ? 'readonly' : '') +'></textarea>'+ // readonly needed on android not to open keyboard
+                            (w2utils.isMobile ? 'readonly' : '') +'></textarea>'+ // readonly needed on android not to open keyboard
                   '</div>')
         if (this.selectType != 'row') query(this.box).addClass('w2ui-ss')
         if (query(this.box).length > 0) query(this.box)[0].style.cssText += this.style
