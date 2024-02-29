@@ -5648,7 +5648,7 @@ class w2grid extends w2base {
                   '    <div id="grid_'+ this.name +'_footer" class="w2ui-grid-footer"></div>'+
                   '    <textarea id="grid_'+ this.name +'_focus" class="w2ui-grid-focus-input" '+
                             (this.tabIndex ? 'tabindex="' + this.tabIndex + '"' : '')+
-                            (w2utils.isIOS ? 'readonly' : '') +'></textarea>'+ // readonly needed on android not to open keyboard
+                            (w2utils.isMobile ? 'readonly' : '') +'></textarea>'+ // readonly needed on android not to open keyboard
                   '</div>')
         if (this.selectType != 'row') query(this.box).addClass('w2ui-ss')
         if (query(this.box).length > 0) query(this.box)[0].style.cssText += this.style
