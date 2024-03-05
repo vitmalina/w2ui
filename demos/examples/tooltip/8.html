@@ -55,9 +55,18 @@ window.showAt = function(x, y) {
 
 window.contextMenu = function(event, type) {
     let items = [
-        { id: 'frist', text: 'First item', count: 4, icon: 'w2ui-icon-info' },
+        { id: 'frist', text: 'First item', icon: 'w2ui-icon-empty' },
+        { text: '--' },
+        { id: 'page', text: 'Colors', count: 4, icon: 'w2ui-icon-colors' },
         { id: 'second', text: 'Second item', count: 2, icon: 'w2ui-icon-info' },
-        { id: 'page', text: 'Colors', icon: 'w2ui-icon-colors' },
+        { text: '--' },
+        { id: 'sub', text: 'Insert', icon: 'w2ui-icon-empty',
+            items: [
+                { id: 'sub-1', text: 'Button', icon: 'w2ui-icon-settings' },
+                { id: 'sub-2', text: 'Label', icon: 'w2ui-icon-pencil' },
+                { id: 'sub-3', text: 'Image', icon: 'w2ui-icon-paste' },
+            ]
+        },
         { text: '--' },
         { id: 'delete', text: 'Delete', icon: 'w2ui-icon-cross' },
     ]
