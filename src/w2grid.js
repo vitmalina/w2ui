@@ -3786,10 +3786,10 @@ class w2grid extends w2base {
                 if (this.selectType != 'row' && !last.columns[ind]?.includes(column)) {
                     flag = false
                 }
-                this.selectNone(true) // no need to trigger select event
                 if (flag === true && sel.length == 1) {
                     this.unselect({ recid: recid, column: column })
                 } else {
+                    this.selectNone(true) // no need to trigger select event
                     this.select({ recid: recid, column: column })
                 }
             } else {
