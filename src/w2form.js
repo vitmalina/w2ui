@@ -1705,8 +1705,14 @@ class w2form extends w2base {
                     name: this.name + '_' + field.name + '_tb',
                     items,
                     onClick(event) {
+                        let value = event.detail.item.id
+                        let edata = self.trigger('change', { target: field.name, field: field.name, value, originalEvent: event })
+                        if (edata.isCancelled === true) {
+                            return
+                        }
                         self.record[field.name] = event.detail.item.id
                         self.setFieldValue(field.name, event.detail.item.id)
+                        edata.finish()
                     }
                 })
                 field.$el
@@ -1721,14 +1727,14 @@ class w2form extends w2base {
                     })
                     .on('keydown.form-input', event => {
                         let ind = query(event.target).prop('_index')
-                        switch(event.key) {
+                        switch (event.key) {
                             case 'ArrowLeft': {
                                 if (ind > 0) ind--
                                 query(`#${field.name}-tb .w2ui-tb-button`)
                                     .removeClass('over')
                                     .eq(ind)
                                     .addClass('over')
-                                    query(event.target).prop('_index', ind)
+                                query(event.target).prop('_index', ind)
                                 break
                             }
                             case 'ArrowRight': {
