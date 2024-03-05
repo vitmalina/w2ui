@@ -1685,7 +1685,7 @@ class MenuTooltip extends Tooltip {
             while (_overlay.options.parentOverlay) {
                 _overlay = _overlay.options.parentOverlay
             }
-            this.menuClick(_overlay, evt, parseInt(evt.detail.index), parents)
+            this.menuClick(_overlay, evt.detail.originalEvent, parseInt(evt.detail.index), parents)
         })
         // indicates if user cursor is over sub menu
         setTimeout(() => {
