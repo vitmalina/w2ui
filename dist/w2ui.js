@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (3/4/2024, 6:28:27 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (3/5/2024, 7:57:51 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -5585,7 +5585,7 @@ class MenuTooltip extends Tooltip {
             while (_overlay.options.parentOverlay) {
                 _overlay = _overlay.options.parentOverlay
             }
-            this.menuClick(_overlay, evt, parseInt(evt.detail.index), parents)
+            this.menuClick(_overlay, evt.detail.originalEvent, parseInt(evt.detail.index), parents)
         })
         // indicates if user cursor is over sub menu
         setTimeout(() => {
