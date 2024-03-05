@@ -369,6 +369,7 @@
             background-color: @dropdown-item-odd-background-color;
         }
 
+        &.expanded,
         &:hover {
             background-color: #eaeaea;
         }
@@ -534,8 +535,7 @@
         padding: 0 3px;
     }
 
-    .expanded,
-    .collapsed {
+    .has-sub-menu {
         .menu-extra span {
             position: relative; // needed for :after to be absolute
             border-color: transparent;
@@ -550,20 +550,15 @@
                 border-left: 5px solid #808080;
                 border-top: 5px solid transparent;
                 border-bottom: 5px solid transparent;
-                transform: rotateZ(-90deg);
+                transform: rotateZ(0deg);
                 pointer-events: none;
                 margin-left: -2px;
-                margin-top: 3px;
+                margin-top: 4px;
             }
             &:hover {
                 border-color: transparent;
                 background-color: transparent;
             }
-        }
-    }
-    .collapsed {
-        .menu-extra span:after {
-            transform: rotateZ(90deg);
         }
     }
 }
@@ -572,6 +567,7 @@
 .w2ui-overlay .w2ui-overlay-body.w2ui-dark {
     .w2ui-menu-item {
         color: #d9d9d9;
+        &.expanded,
         &:hover {
             background-color: #51545a;
         }
@@ -598,8 +594,7 @@
         border-top: 1px solid #434444;
         border-bottom: 1px solid #434444;
     }
-    .w2ui-menu .expanded .menu-extra span:after,
-    .w2ui-menu .collapsed .menu-extra span:after {
+    .w2ui-menu .has-sub-menu .menu-extra span:after {
         border-left: 5px solid #eaeaea;
     }
 }

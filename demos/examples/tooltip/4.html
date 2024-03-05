@@ -16,9 +16,11 @@
 <!--CODE-->
 <style>
     #some-div {
-        width: 200px;
+        display: inline-block;
+        width: 300px;
         text-align: center;
-        padding: 10px;
+        padding: 5px;
+        margin: 10px 0px;
         border: 1px solid #efefef;
         border-radius: 4px;
         background-color: #f8f8f5;
@@ -30,9 +32,11 @@
     <button class="w2ui-btn action" data-value='{ "method": "showMenu2" }'>Radio Menu</button>
     <button class="w2ui-btn action" data-value='{ "method": "showMenu3" }'>Check Menu</button>
     <button class="w2ui-btn action" data-value='{ "method": "showMenu4" }'>Groups of Radio</button>
+
+    <div id="some-div">&nbsp;</div>
 </div>
 
-<div style="height: 50px"></div>
+<div style="height: 20px"></div>
 
 <div style="width: 200px; float: left">
     Position:
@@ -90,22 +94,41 @@ function showMenu(el, options = {}) {
         position,
         hideOn: ['doc-click', 'select', 'blur'],
         items: [
-            { id: 1, text: 'Item 1', icon: 'fa fa-star' },
+            { id: 'ind-1', text: 'Item 1', icon: 'fa fa-star' },
             { id: 'sub', text: 'Sub Menu', icon: 'fa fa-star',
                 items: [
-                    { id: 1, text: 'Item 1', icon: 'fa fa-star' },
-                    { id: 2, text: 'Item 2', icon: 'fa fa-star-o' },
-                    { id: 3, text: 'Item 3', icon: 'fa fa-camera' }
+                    { id: 'sub-1', text: 'Item 1', icon: 'fa fa-star' },
+                    { id: 'sub-2', text: 'Item 2', icon: 'fa fa-star-o' },
+                    { id: 'sub-3', text: 'Item 3', icon: 'fa fa-camera' },
+                    { id: 'sub-sub', text: 'Sub Sub Menu', icon: 'fa fa-star',
+                        items: [
+                            { id: 'sub-sub-1', text: 'Item 1', icon: 'fa fa-star' },
+                            { id: 'sub-sub-2', text: 'Item 2', icon: 'fa fa-star-o' },
+                            { id: 'sub-sub-3', text: 'Item 3', icon: 'fa fa-camera' }
+                        ]
+                    },
+                    { id: 'sub-4', text: 'Item 4', icon: 'fa fa-star-o' },
+                    { id: 'sub-5', text: 'Item 5', icon: 'fa fa-camera' },
                 ]
             },
-            { id: 2, text: 'Item 2', icon: 'fa fa-star-o' },
-            { id: 3, text: 'Item 3', icon: 'fa fa-camera' },
+            { id: 'ind-2', text: 'Item 2', icon: 'fa fa-star-o' },
+            { id: 'ind-3', text: 'Item 3', icon: 'fa fa-camera' },
+            { id: 'sub-b', text: 'Sub Menu', icon: 'fa fa-star',
+                items: [
+                    { id: 'sub-b-1', text: 'Item 1a', icon: 'fa fa-star' },
+                    { id: 'sub-b-2', text: 'Item 2b', icon: 'fa fa-star-o' },
+                    { id: 'sub-b-3', text: 'Item 3c', icon: 'fa fa-camera' }
+                ]
+            },
             { text: '--' },
-            { id: 4, text: 'Item 4', icon: 'fa fa-table' },
+            { id: 'ind-4', text: 'Item 4', icon: 'fa fa-table' },
         ]
     }, options))
     .select((event) => {
-        query('#some-div').val(event.detail.item.text)
+        query('#some-div').html(`
+            id: <span style="color: gray">${event.detail.item.id}</span>, &nbsp;&nbsp;&nbsp;
+            text: <span style="color: gray">${event.detail.item.text}</span>
+        `)
     });
 }
 
@@ -130,7 +153,10 @@ function showMenu2(el) {
         w2utils.notify(`Item removed: ${event.detail.item.text}`)
     })
     .select((event) => {
-        query('#some-div').val(event.detail.item.text)
+        query('#some-div').html(`
+            id: <span style="color: gray">${event.detail.item.id}</span>, &nbsp;&nbsp;&nbsp;
+            text: <span style="color: gray">${event.detail.item.text}</span>
+        `)
     });
 }
 
@@ -160,7 +186,7 @@ function showMenu3(el) {
             prev += (prev != '' ? ', ' : '') + curr.text
             return prev
          }, '')
-        query('#some-div').val(sel)
+         query('#some-div').html(sel)
     });
 }
 
@@ -187,7 +213,7 @@ function showMenu4(el) {
             prev += (prev != '' ? ', ' : '') + curr.text
             return prev
          }, '')
-        query('#some-div').val(sel)
+        query('#some-div').html(sel)
     });
 }
 
