@@ -5399,7 +5399,7 @@ class w2grid extends w2base {
                     .toggleClass('w2ui-record-hover', event.type == 'mouseover')
             })
         }
-        if (w2utils.isIOS) {
+        if (w2utils.isMobile) {
             records.append(frecords)
                 .on('click', { delegate: 'tr' }, (event) => {
                     let index = query(event.delegate).attr('index') // don't read recid directly as it could be a number or a string

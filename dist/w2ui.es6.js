@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (3/5/2024, 8:55:30 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (3/5/2024, 10:05:18 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -5015,9 +5015,9 @@ class ColorTooltip extends Tooltip {
                 }
             })
         // color sliders events
-        let mDown = `${!w2utils.isIOS ? 'mousedown' : 'touchstart'}.w2color`
-        let mUp   = `${!w2utils.isIOS ? 'mouseup' : 'touchend'}.w2color`
-        let mMove = `${!w2utils.isIOS ? 'mousemove' : 'touchmove'}.w2color`
+        let mDown = `${!w2utils.isMobile ? 'mousedown' : 'touchstart'}.w2color`
+        let mUp   = `${!w2utils.isMobile ? 'mouseup' : 'touchend'}.w2color`
+        let mMove = `${!w2utils.isMobile ? 'mousemove' : 'touchmove'}.w2color`
         query(overlay.box).find('.palette, .rainbow, .alpha')
             .off('.w2color')
             .on(`${mDown}.w2color`, mouseDown)
@@ -5331,7 +5331,7 @@ class MenuTooltip extends Tooltip {
                 let dt = event.delegate.dataset
                 this.menuDown(overlay, event, dt.index, dt.parents)
             })
-            .on((w2utils.isIOS ? 'touchStart' : 'click') + '.w2menu', { delegate: '.w2ui-menu-item' }, event => {
+            .on((w2utils.isMobile ? 'touchStart' : 'click') + '.w2menu', { delegate: '.w2ui-menu-item' }, event => {
                 let dt = event.delegate.dataset
                 this.menuClick(overlay, event, parseInt(dt.index), dt.parents)
             })
@@ -8937,7 +8937,7 @@ class w2sidebar extends w2base {
                 <div class="w2ui-sidebar-top"></div>
                 <input id="sidebar_${this.name}_focus" ${(this.tabIndex ? 'tabindex="' + this.tabIndex + '"' : '')}
                     style="position: absolute; top: 0; right: 0; width: 1px; z-index: -1; opacity: 0"
-                    ${(w2utils.isIOS ? 'readonly' : '')}/>
+                    ${(w2utils.isMobile ? 'readonly' : '')}/>
                 <div class="w2ui-sidebar-body"></div>
                 <div class="w2ui-sidebar-bottom"></div>
             </div>`)
@@ -16397,7 +16397,7 @@ class w2grid extends w2base {
                     .toggleClass('w2ui-record-hover', event.type == 'mouseover')
             })
         }
-        if (w2utils.isIOS) {
+        if (w2utils.isMobile) {
             records.append(frecords)
                 .on('click', { delegate: 'tr' }, (event) => {
                     let index = query(event.delegate).attr('index') // don't read recid directly as it could be a number or a string

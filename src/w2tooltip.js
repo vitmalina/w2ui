@@ -1099,9 +1099,9 @@ class ColorTooltip extends Tooltip {
             })
 
         // color sliders events
-        let mDown = `${!w2utils.isIOS ? 'mousedown' : 'touchstart'}.w2color`
-        let mUp   = `${!w2utils.isIOS ? 'mouseup' : 'touchend'}.w2color`
-        let mMove = `${!w2utils.isIOS ? 'mousemove' : 'touchmove'}.w2color`
+        let mDown = `${!w2utils.isMobile ? 'mousedown' : 'touchstart'}.w2color`
+        let mUp   = `${!w2utils.isMobile ? 'mouseup' : 'touchend'}.w2color`
+        let mMove = `${!w2utils.isMobile ? 'mousemove' : 'touchmove'}.w2color`
         query(overlay.box).find('.palette, .rainbow, .alpha')
             .off('.w2color')
             .on(`${mDown}.w2color`, mouseDown)
@@ -1427,7 +1427,7 @@ class MenuTooltip extends Tooltip {
                 let dt = event.delegate.dataset
                 this.menuDown(overlay, event, dt.index, dt.parents)
             })
-            .on((w2utils.isIOS ? 'touchStart' : 'click') + '.w2menu', { delegate: '.w2ui-menu-item' }, event => {
+            .on((w2utils.isMobile ? 'touchStart' : 'click') + '.w2menu', { delegate: '.w2ui-menu-item' }, event => {
                 let dt = event.delegate.dataset
                 this.menuClick(overlay, event, parseInt(dt.index), dt.parents)
             })
