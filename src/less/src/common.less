@@ -380,6 +380,7 @@ input[type="checkbox"].w2ui-toggle {
 */
 
 #w2ui-notify {
+    pointer-events: none; // it should not be blocking events unless it is on the message
     position: absolute;
     display: flex;
     flex-direction: column;
@@ -390,6 +391,7 @@ input[type="checkbox"].w2ui-toggle {
     z-index: 10000;
     overflow: hidden;
     > div {
+        pointer-events: all;
         position: relative;
         background-color: #292828ba;
         color: #ffffff;
