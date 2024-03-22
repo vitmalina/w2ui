@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (3/22/2024, 2:13:25 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (3/22/2024, 4:11:26 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -8450,7 +8450,8 @@ class w2sidebar extends w2base {
                     let ind1 = Math.min(this.selected.map(sel => chain.indexOf(sel))) // first item in selection
                     let ind2 = chain.indexOf(id)
                     for (let i = Math.min(ind1, ind2); i < chain.length && i <= Math.max(ind1, ind2); i++) {
-                        if (!this.selected.includes(chain[i])) {
+                        let node = this.get(chain[i])
+                        if (!this.selected.includes(chain[i]) && node.hidden != true) {
                             this.select(chain[i])
                         }
                     }

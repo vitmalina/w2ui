@@ -666,7 +666,8 @@ class w2sidebar extends w2base {
                     let ind1 = Math.min(this.selected.map(sel => chain.indexOf(sel))) // first item in selection
                     let ind2 = chain.indexOf(id)
                     for (let i = Math.min(ind1, ind2); i < chain.length && i <= Math.max(ind1, ind2); i++) {
-                        if (!this.selected.includes(chain[i])) {
+                        let node = this.get(chain[i])
+                        if (!this.selected.includes(chain[i]) && node.hidden != true) {
                             this.select(chain[i])
                         }
                     }
