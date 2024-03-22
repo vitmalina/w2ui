@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (3/19/2024, 12:27:06 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (3/22/2024, 2:07:57 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -1050,6 +1050,7 @@ class Utils {
         this.isIOS = /(iphone|ipod|ipad)/i.test(navigator.platform)
         this.isAndroid = /(android)/i.test(navigator.userAgent)
         this.isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
+        this.isFirefox = /(Firefox)/i.test(navigator.userAgent)
         // Formatters: Primarily used in grid
         this.formatters = {
             'number'(value, params) {
@@ -8828,7 +8829,7 @@ class w2sidebar extends w2base {
         node.addClass('w2ui-editing')
         text.addClass('w2ui-focus')
             .css('pointer-events', 'all')
-            .attr('contenteditable', 'plaintext-only')
+            .attr('contenteditable', w2utils.isFirefox ? 'yes' : 'plaintext-only')
             .on('blur.node-editing', event => {
                 // timeout is needed to add to the end of the event loop
                 setTimeout(_rename, 0)

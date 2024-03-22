@@ -48,6 +48,7 @@ class Utils {
         this.isIOS = /(iphone|ipod|ipad)/i.test(navigator.platform)
         this.isAndroid = /(android)/i.test(navigator.userAgent)
         this.isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
+        this.isFirefox = /(Firefox)/i.test(navigator.userAgent)
 
         // Formatters: Primarily used in grid
         this.formatters = {

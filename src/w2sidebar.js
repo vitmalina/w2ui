@@ -1063,7 +1063,7 @@ class w2sidebar extends w2base {
         node.addClass('w2ui-editing')
         text.addClass('w2ui-focus')
             .css('pointer-events', 'all')
-            .attr('contenteditable', 'plaintext-only')
+            .attr('contenteditable', w2utils.isFirefox ? 'yes' : 'plaintext-only')
             .on('blur.node-editing', event => {
                 // timeout is needed to add to the end of the event loop
                 setTimeout(_rename, 0)
