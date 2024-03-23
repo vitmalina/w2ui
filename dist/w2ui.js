@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (3/22/2024, 4:11:26 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (3/22/2024, 5:30:58 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -9202,7 +9202,16 @@ class w2sidebar extends w2base {
                         <div id="node_${nd.id}_sub" style="${nd.style}; ${!nd.hidden && nd.expanded ? '' : 'display: none;'}"></div>`
                 }
             } else {
-                if (nd.selected && !nd.disabled) obj.selected = nd.id
+                if (nd.selected && !nd.disabled) {
+                    if (obj.multi) {
+                        obj.selected ??= []
+                        if (!obj.selected.includes(nd.id)) {
+                            obj.selected.push(nd.id)
+                        }
+                    } else {
+                        obj.selected = nd.id
+                    }
+                }
                 // icon or image
                 let image = ''
                 if (icon) {

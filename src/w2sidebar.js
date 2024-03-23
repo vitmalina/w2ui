@@ -1448,7 +1448,16 @@ class w2sidebar extends w2base {
                         <div id="node_${nd.id}_sub" style="${nd.style}; ${!nd.hidden && nd.expanded ? '' : 'display: none;'}"></div>`
                 }
             } else {
-                if (nd.selected && !nd.disabled) obj.selected = nd.id
+                if (nd.selected && !nd.disabled) {
+                    if (obj.multi) {
+                        obj.selected ??= []
+                        if (!obj.selected.includes(nd.id)) {
+                            obj.selected.push(nd.id)
+                        }
+                    } else {
+                        obj.selected = nd.id
+                    }
+                }
                 // icon or image
                 let image = ''
                 if (icon) {
