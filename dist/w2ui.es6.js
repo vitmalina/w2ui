@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (3/22/2024, 5:30:58 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (3/28/2024, 5:15:00 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -20771,7 +20771,11 @@ class w2form extends w2base {
             if (edata2.isCancelled === true) return
             // default behavior
             if (response.status && response.status != 200) {
-                self.error(response.status + ': ' + response.statusText)
+                response.json().then((data) => {
+                    self.error(response.status + ': ' + data.message ?? response.statusText)
+                }).catch(() => {
+                    self.error(response.status + ': ' + response.statusText)
+                })
             } else {
                 console.log('ERROR: Server request failed.', response, '. ',
                     'Expected Response:', { error: false, record: { field1: 1, field2: 'item' }},
