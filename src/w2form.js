@@ -1138,7 +1138,11 @@ class w2form extends w2base {
             if (edata2.isCancelled === true) return
             // default behavior
             if (response.status && response.status != 200) {
-                self.error(response.status + ': ' + response.statusText)
+                response.json().then((data) => {
+                    self.error(response.status + ': ' + data.message ?? response.statusText)
+                }).catch(() => {
+                    self.error(response.status + ': ' + response.statusText)
+                })
             } else {
                 console.log('ERROR: Server request failed.', response, '. ',
                     'Expected Response:', { error: false, record: { field1: 1, field2: 'item' }},
