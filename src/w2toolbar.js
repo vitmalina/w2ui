@@ -878,7 +878,7 @@ class w2toolbar extends w2base {
                 if (val != null && String(val).trim() !== '' && item.spinner) {
                     let step = item.spinner?.step ?? 1
                     let prec = item.spinner.precision ?? String(step).split('.')[1]?.length ?? 0
-                    val = val.toFixed(prec)
+                    val = isNaN(val) ? val : val.toFixed(prec)
                 }
                 html = `<div id="tb_${this.name}_item_${item.id}" class="w2ui-tb-input w2ui-eaction ${classes.join(' ')}"
                             style="${(item.hidden ? 'display: none' : '')}; ${(item.style ? item.style : '')}"
