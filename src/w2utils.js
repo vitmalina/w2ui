@@ -44,7 +44,7 @@ class Utils {
 
         // some internal variables
         this.isMac = /Mac/i.test(navigator.platform)
-        this.isMobile = /(iphone|ipod|ipad|mobile|android)/i.test(navigator.userAgent)
+        this.isMobile = /(iphone|ipod|mobile|android)/i.test(navigator.userAgent)
         this.isIOS = /(iphone|ipod|ipad)/i.test(navigator.platform)
         this.isAndroid = /(android)/i.test(navigator.userAgent)
         this.isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent)

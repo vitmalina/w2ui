@@ -453,7 +453,8 @@ query(async function () {
                     }
                     let w2ui_js  = 'https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.es6.min.js'
                     let w2ui_css = 'https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.css'
-                    if (document.location.hostname == 'localhost') {
+                    let host = document.location.hostname
+                    if (host == 'localhost' || host.startsWith('192.168.') || host.startsWith('10.')) {
                         w2ui_js  = '../src/w2compat.js'
                         w2ui_css = '../dist/w2ui.css'
                     }

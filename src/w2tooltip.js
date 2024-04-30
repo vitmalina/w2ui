@@ -1418,16 +1418,22 @@ class MenuTooltip extends Tooltip {
     }
 
     initControls(overlay) {
+        let mdown = 'mousedown'
+        let mclick = 'click'
+        if (w2utils.isMobile) {
+            mdown = 'touchstart'
+            mclick = 'touchend'
+        }
         query(overlay.box).find('.w2ui-menu:not(.w2ui-sub-menu)')
             .off('.w2menu')
             .on('contextmenu.w2menu', event => {
                 event.preventDefault() // prevent browser context menu
             })
-            .on('mouseDown.w2menu', { delegate: '.w2ui-menu-item' }, event => {
+            .on(`${mdown}.w2menu`, { delegate: '.w2ui-menu-item' }, event => {
                 let dt = event.delegate.dataset
                 this.menuDown(overlay, event, dt.index, dt.parents)
             })
-            .on((w2utils.isMobile ? 'touchStart' : 'click') + '.w2menu', { delegate: '.w2ui-menu-item' }, event => {
+            .on(`${mclick}.w2menu`, { delegate: '.w2ui-menu-item' }, event => {
                 let dt = event.delegate.dataset
                 this.menuClick(overlay, event, parseInt(dt.index), dt.parents)
             })
