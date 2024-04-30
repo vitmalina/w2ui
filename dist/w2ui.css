@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (3/28/2024, 5:15:00 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (4/30/2024, 12:29:16 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -422,7 +422,7 @@ input[type="checkbox"].w2ui-toggle.green:checked + div > div {
 */
 #w2ui-notify {
   pointer-events: none;
-  position: absolute;
+  position: fixed;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -985,6 +985,8 @@ button.w2ui-btn:disabled {
   border-radius: 5px;
   overflow-x: hidden;
   cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
 }
 .w2ui-menu .w2ui-menu-item {
   display: flex;

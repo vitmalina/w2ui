@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (3/28/2024, 5:15:00 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (4/30/2024, 12:38:53 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -1046,7 +1046,7 @@ class Utils {
         this.hasLocalStorage = testLocalStorage()
         // some internal variables
         this.isMac = /Mac/i.test(navigator.platform)
-        this.isMobile = /(iphone|ipod|ipad|mobile|android)/i.test(navigator.userAgent)
+        this.isMobile = /(iphone|ipod|mobile|android)/i.test(navigator.userAgent)
         this.isIOS = /(iphone|ipod|ipad)/i.test(navigator.platform)
         this.isAndroid = /(android)/i.test(navigator.userAgent)
         this.isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
@@ -1133,6 +1133,7 @@ class Utils {
             },
             'password'(value, params) {
                 let ret = ''
+                if (!value) return ret
                 for (let i = 0; i < value.length; i++) {
                     ret += '*'
                 }
@@ -5323,16 +5324,22 @@ class MenuTooltip extends Tooltip {
         }
     }
     initControls(overlay) {
+        let mdown = 'mousedown'
+        let mclick = 'click'
+        if (w2utils.isMobile) {
+            mdown = 'touchstart'
+            mclick = 'touchend'
+        }
         query(overlay.box).find('.w2ui-menu:not(.w2ui-sub-menu)')
             .off('.w2menu')
             .on('contextmenu.w2menu', event => {
                 event.preventDefault() // prevent browser context menu
             })
-            .on('mouseDown.w2menu', { delegate: '.w2ui-menu-item' }, event => {
+            .on(`${mdown}.w2menu`, { delegate: '.w2ui-menu-item' }, event => {
                 let dt = event.delegate.dataset
                 this.menuDown(overlay, event, dt.index, dt.parents)
             })
-            .on((w2utils.isMobile ? 'touchStart' : 'click') + '.w2menu', { delegate: '.w2ui-menu-item' }, event => {
+            .on(`${mclick}.w2menu`, { delegate: '.w2ui-menu-item' }, event => {
                 let dt = event.delegate.dataset
                 this.menuClick(overlay, event, parseInt(dt.index), dt.parents)
             })
@@ -7556,7 +7563,7 @@ class w2toolbar extends w2base {
                 if (val != null && String(val).trim() !== '' && item.spinner) {
                     let step = item.spinner?.step ?? 1
                     let prec = item.spinner.precision ?? String(step).split('.')[1]?.length ?? 0
-                    val = val.toFixed(prec)
+                    val = isNaN(val) ? val : val.toFixed(prec)
                 }
                 html = `<div id="tb_${this.name}_item_${item.id}" class="w2ui-tb-input w2ui-eaction ${classes.join(' ')}"
                             style="${(item.hidden ? 'display: none' : '')}; ${(item.style ? item.style : '')}"
