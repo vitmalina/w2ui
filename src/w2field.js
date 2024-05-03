@@ -78,11 +78,8 @@ class w2field extends w2base {
             console.log('ERROR: Cannot init w2field on empty subject')
             return
         }
-        if (el._w2field) {
-            el._w2field.reset() // will remove all previous events
-        } else {
-            el._w2field = this
-        }
+        el._w2field?.reset?.() // will remove all previous events
+        el._w2field = this
         this.el = el
         this.init()
     }
@@ -789,6 +786,7 @@ class w2field extends w2base {
             query(this.helpers[key]).remove()
         })
         this.helpers = {}
+        delete this.el._w2field
     }
 
     clean(val) {

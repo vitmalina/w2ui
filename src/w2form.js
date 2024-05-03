@@ -394,9 +394,8 @@ class w2form extends w2base {
             if (!Array.isArray(previous)) previous = []
         }
         // lists
-        let selected = el._w2field?.selected // drop downs and other w2field objects
+        let selected = field.w2field?.selected // drop downs and other w2field objects
         if (['list', 'enum', 'file'].includes(field.type) && selected) {
-            // TODO: check when w2field is refactored
             let nv = selected
             let cv = previous
             if (Array.isArray(nv)) {
@@ -1583,7 +1582,6 @@ class w2form extends w2base {
             field.$el = query(this.box).find(`[name='${String(field.name).replace(/\\/g, '\\\\')}']`)
             field.el  = field.$el.get(0)
             if (field.el) field.el.id = field.name
-            // TODO: check
             if (field.w2field) {
                 field.w2field.reset()
             }
@@ -1593,7 +1591,7 @@ class w2form extends w2base {
                     let value = self.getFieldValue(field.field)
                     // clear error class
                     if (['enum', 'file'].includes(field.type)) {
-                        let helper = field.el._w2field?.helpers?.multi
+                        let helper = field.w2field?.helpers?.multi
                         query(helper).removeClass('w2ui-error')
                     }
                     if (this._previous != null) {
