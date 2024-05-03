@@ -43,10 +43,11 @@ let toolbar = new w2toolbar({
     items: [
         { type: 'label', id: 'item1', text: 'Static Text', icon: 'w2ui-icon-colors', tooltip: 'Still can have tooltips' },
         { type: 'break' },
-        { type: 'input', id: 'name', placeholder: 'Enter Name', tooltip: 'Text input', style: 'width: 100px' },
+        { type: 'input', id: 'name', placeholder: 'Enter Name', tooltip: 'Text input' },
         { type: 'break' },
         { type: 'input', id: 'size', text: 'Size', tooltip: 'Font Size', value: 12,
-            spinner: {
+            input: {
+                spinner: true,
                 style: 'width: 110px',
                 min: 0,
                 max: 100,
@@ -57,7 +58,8 @@ let toolbar = new w2toolbar({
         },
         { type: 'break' },
         { type: 'input', id: 'spacing', text: 'Spacing', tooltip: 'Line Spacing', value: 1,
-            spinner: {
+            input: {
+                spinner: true,
                 style: 'text-align: center; width: 85px',
                 min: 0.1,
                 max: 10,
@@ -65,15 +67,31 @@ let toolbar = new w2toolbar({
             }
         },
         { type: 'break' },
-        { type: 'input', id: 'date', text: 'Date', value: '', placeholder: 'Enter Date',
-            style: 'width: 100px' // see onRender, where it attaches date tooltip
-        }
+        { type: 'input', id: 'date', text: 'Date', value: '', placeholder: 'Start Date',
+            input: {
+                style: 'width: 80px'
+            }
+        },
+        { type: 'break' },
+        { type: 'input', id: 'range', caption: 'Range', value: 1,
+            input: {
+                style: 'width: 120px',
+                attrs: 'type="range" min="0.2" max="5.0" step="0.01"'
+            },
+        },
+        { type: 'break' },
+        { type: 'input', id: 'text', placeholder: 'Type...', tooltip: 'Text input', input: { style: 'width: 90px' } },
+        { type: 'button', id: 'btn', icon: 'fa fa-phone' }
+
     ],
     onClick(event) {
         w2utils.notify(`Label "${event.detail.item.text}" clicked`)
     },
     onChange(event) {
         w2utils.notify(`Input "${event.detail.item.id}" changed to "${event.detail.value}"`)
+    },
+    onInput(event) {
+        w2utils.notify(`Input "${event.detail.item.id}" is changing "${event.detail.value}"`)
     },
     async onRender(event) {
         await event.complete

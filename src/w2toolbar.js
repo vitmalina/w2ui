@@ -874,27 +874,34 @@ class w2toolbar extends w2base {
             case 'input': {
                 let ph = item.placeholder
                 let val = item.value
+                // For backword compatibility
+                if (item.spinner && typeof item.spinner == 'object') {
+                    item.input ??= {}
+                    Object.assign(item.input, item.spinner, { spinner: true })
+                }
                 // round to step
-                if (val != null && String(val).trim() !== '' && item.spinner) {
-                    let step = item.spinner?.step ?? 1
-                    let prec = item.spinner.precision ?? String(step).split('.')[1]?.length ?? 0
+                if (val != null && String(val).trim() !== '' && item.input?.spinner) {
+                    let step = item.input?.step ?? 1
+                    let prec = item.input?.precision ?? String(step).split('.')[1]?.length ?? 0
                     val = isNaN(val) ? val : val.toFixed(prec)
                 }
                 html = `<div id="tb_${this.name}_item_${item.id}" class="w2ui-tb-input w2ui-eaction ${classes.join(' ')}"
                             style="${(item.hidden ? 'display: none' : '')}; ${(item.style ? item.style : '')}"
                         >
                             <span class="w2ui-input-label">${item.text ?? ''}</span>
-                            ${item.spinner
+                            ${item.input?.spinner
                                 ? `<span class="w2ui-spinner-dec w2ui-eaction" data-click='["spinner", "${item.id}", "dec", "event"]'> – </span>`
                                 : ''}
-                            <input class="w2ui-toolbar-input w2ui-eaction ${item.spinner ? 'w2ui-has-spinner' : ''}"
-                                ${ph ? `placeholder="${ph}"` : ''} style="${item.spinner?.style ?? ''}" value="${val ?? ''}${item.spinner?.suffix ?? ''}"
+                            <input class="w2ui-toolbar-input w2ui-eaction ${item.input?.spinner ? 'w2ui-has-spinner' : ''}"
+                                ${ph ? `placeholder="${ph}"` : ''} style="${item.input?.style ?? ''}"
+                                value="${val ?? ''}${item.input?.suffix ?? ''}" ${item.input?.attrs ?? ''}
+                                data-input='["change", "${item.id}", "this", true]'
                                 data-change='["change", "${item.id}", "this"]'
                                 data-keydown='["spinner", "${item.id}", "key", "event"]'
                                 data-mouseenter='["mouseAction", "event", "this", "Enter", "${item.id}"]'
                                 data-mouseleave='["mouseAction", "event", "this", "Leave", "${item.id}"]'
                             >
-                            ${item.spinner
+                            ${item.input?.spinner
                                 ? `<span class="w2ui-spinner-inc w2ui-eaction" data-click='["spinner", "${item.id}", "inc", "event"]'> + </span>`
                                 : ''}
                         </div>`
@@ -954,7 +961,7 @@ class w2toolbar extends w2base {
         }
     }
 
-    change(id, value) {
+    change(id, value, dynamic) {
         let it = this.get(id)
         let input = query(this.box).find('#tb_'+ this.name +'_item_'+ w2utils.escapeId(id)).find('input.w2ui-toolbar-input')
         if (value instanceof HTMLInputElement) {
@@ -980,7 +987,7 @@ class w2toolbar extends w2base {
         }
 
         // event beofre
-        let edata = this.trigger('change', { target: id, id, value, item: it })
+        let edata = this.trigger(dynamic ? 'input' : 'change', { target: id, id, value, item: it })
         if (edata.isCancelled) {
             return
         }
