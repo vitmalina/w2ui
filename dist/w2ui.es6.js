@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (4/30/2024, 12:38:53 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (5/3/2024, 4:12:47 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -7559,27 +7559,34 @@ class w2toolbar extends w2base {
             case 'input': {
                 let ph = item.placeholder
                 let val = item.value
+                // For backword compatibility
+                if (item.spinner && typeof item.spinner == 'object') {
+                    item.input ??= {}
+                    Object.assign(item.input, item.spinner, { spinner: true })
+                }
                 // round to step
-                if (val != null && String(val).trim() !== '' && item.spinner) {
-                    let step = item.spinner?.step ?? 1
-                    let prec = item.spinner.precision ?? String(step).split('.')[1]?.length ?? 0
+                if (val != null && String(val).trim() !== '' && item.input?.spinner) {
+                    let step = item.input?.step ?? 1
+                    let prec = item.input?.precision ?? String(step).split('.')[1]?.length ?? 0
                     val = isNaN(val) ? val : val.toFixed(prec)
                 }
                 html = `<div id="tb_${this.name}_item_${item.id}" class="w2ui-tb-input w2ui-eaction ${classes.join(' ')}"
                             style="${(item.hidden ? 'display: none' : '')}; ${(item.style ? item.style : '')}"
                         >
                             <span class="w2ui-input-label">${item.text ?? ''}</span>
-                            ${item.spinner
+                            ${item.input?.spinner
                                 ? `<span class="w2ui-spinner-dec w2ui-eaction" data-click='["spinner", "${item.id}", "dec", "event"]'> – </span>`
                                 : ''}
-                            <input class="w2ui-toolbar-input w2ui-eaction ${item.spinner ? 'w2ui-has-spinner' : ''}"
-                                ${ph ? `placeholder="${ph}"` : ''} style="${item.spinner?.style ?? ''}" value="${val ?? ''}${item.spinner?.suffix ?? ''}"
+                            <input class="w2ui-toolbar-input w2ui-eaction ${item.input?.spinner ? 'w2ui-has-spinner' : ''}"
+                                ${ph ? `placeholder="${ph}"` : ''} style="${item.input?.style ?? ''}"
+                                value="${val ?? ''}${item.input?.suffix ?? ''}" ${item.input?.attrs ?? ''}
+                                data-input='["change", "${item.id}", "this", true]'
                                 data-change='["change", "${item.id}", "this"]'
                                 data-keydown='["spinner", "${item.id}", "key", "event"]'
                                 data-mouseenter='["mouseAction", "event", "this", "Enter", "${item.id}"]'
                                 data-mouseleave='["mouseAction", "event", "this", "Leave", "${item.id}"]'
                             >
-                            ${item.spinner
+                            ${item.input?.spinner
                                 ? `<span class="w2ui-spinner-inc w2ui-eaction" data-click='["spinner", "${item.id}", "inc", "event"]'> + </span>`
                                 : ''}
                         </div>`
@@ -7637,7 +7644,7 @@ class w2toolbar extends w2base {
             this.change(id, (it.value ?? 0) + inc)
         }
     }
-    change(id, value) {
+    change(id, value, dynamic) {
         let it = this.get(id)
         let input = query(this.box).find('#tb_'+ this.name +'_item_'+ w2utils.escapeId(id)).find('input.w2ui-toolbar-input')
         if (value instanceof HTMLInputElement) {
@@ -7662,7 +7669,7 @@ class w2toolbar extends w2base {
             value = value.toFixed(prec)
         }
         // event beofre
-        let edata = this.trigger('change', { target: id, id, value, item: it })
+        let edata = this.trigger(dynamic ? 'input' : 'change', { target: id, id, value, item: it })
         if (edata.isCancelled) {
             return
         }
@@ -20057,9 +20064,8 @@ class w2form extends w2base {
             if (!Array.isArray(previous)) previous = []
         }
         // lists
-        let selected = el._w2field?.selected // drop downs and other w2field objects
+        let selected = field.w2field?.selected // drop downs and other w2field objects
         if (['list', 'enum', 'file'].includes(field.type) && selected) {
-            // TODO: check when w2field is refactored
             let nv = selected
             let cv = previous
             if (Array.isArray(nv)) {
@@ -21210,7 +21216,6 @@ class w2form extends w2base {
             field.$el = query(this.box).find(`[name='${String(field.name).replace(/\\/g, '\\\\')}']`)
             field.el  = field.$el.get(0)
             if (field.el) field.el.id = field.name
-            // TODO: check
             if (field.w2field) {
                 field.w2field.reset()
             }
@@ -21220,7 +21225,7 @@ class w2form extends w2base {
                     let value = self.getFieldValue(field.field)
                     // clear error class
                     if (['enum', 'file'].includes(field.type)) {
-                        let helper = field.el._w2field?.helpers?.multi
+                        let helper = field.w2field?.helpers?.multi
                         query(helper).removeClass('w2ui-error')
                     }
                     if (this._previous != null) {
@@ -21778,11 +21783,8 @@ class w2field extends w2base {
             console.log('ERROR: Cannot init w2field on empty subject')
             return
         }
-        if (el._w2field) {
-            el._w2field.reset() // will remove all previous events
-        } else {
-            el._w2field = this
-        }
+        el._w2field?.reset?.() // will remove all previous events
+        el._w2field = this
         this.el = el
         this.init()
     }
@@ -22474,6 +22476,7 @@ class w2field extends w2base {
             query(this.helpers[key]).remove()
         })
         this.helpers = {}
+        delete this.el._w2field
     }
     clean(val) {
         // issue #499

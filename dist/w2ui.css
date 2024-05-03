@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (4/30/2024, 12:29:16 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (5/3/2024, 10:43:48 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -314,6 +314,94 @@ input[type="checkbox"].w2ui-toggle.green:checked:focus + div {
 }
 input[type="checkbox"].w2ui-toggle.green:checked + div > div {
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), 0 0 0 1px #00a23f;
+}
+input[type=range] {
+  height: 5px;
+  -webkit-appearance: none;
+  margin: 10px 0 0 0;
+  width: 120px;
+  border: none !important;
+  background-color: transparent !important;
+}
+input[type=range]:focus {
+  outline: none !important;
+}
+input[type=range]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 4px;
+  cursor: pointer;
+  box-shadow: 0px 0px 0px #000000;
+  background: #E8E8E8;
+  border-radius: 0px;
+  border: 0px solid #000000;
+}
+input[type=range]::-webkit-slider-thumb {
+  box-shadow: 0px 0px 0px #000000;
+  border: 1px solid #2290D9;
+  height: 13px;
+  width: 13px;
+  border-radius: 25px;
+  background: #D0DBF2;
+  cursor: pointer;
+  -webkit-appearance: none;
+  margin-top: -5px;
+}
+input[type=range]:focus::-webkit-slider-runnable-track {
+  background: #E8E8E8;
+}
+input[type=range]::-moz-range-track {
+  width: 100%;
+  height: 4px;
+  cursor: pointer;
+  box-shadow: 0px 0px 0px #000000;
+  background: #E8E8E8;
+  border-radius: 0px;
+  border: 0px solid #000000;
+}
+input[type=range]::-moz-range-thumb {
+  box-shadow: 0px 0px 0px #000000;
+  border: 1px solid #2290D9;
+  height: 13px;
+  width: 13px;
+  border-radius: 25px;
+  background: #D0DBF2;
+  cursor: pointer;
+}
+input[type=range]::-ms-track {
+  width: 100%;
+  height: 4px;
+  cursor: pointer;
+  background: transparent;
+  border-color: transparent;
+  color: transparent;
+}
+input[type=range]::-ms-fill-lower {
+  background: #E8E8E8;
+  border: 0px solid #000000;
+  border-radius: 0px;
+  box-shadow: 0px 0px 0px #000000;
+}
+input[type=range]::-ms-fill-upper {
+  background: #E8E8E8;
+  border: 0px solid #000000;
+  border-radius: 0px;
+  box-shadow: 0px 0px 0px #000000;
+}
+input[type=range]::-ms-thumb {
+  margin-top: 1px;
+  box-shadow: 0px 0px 0px #000000;
+  border: 1px solid #2290D9;
+  height: 13px;
+  width: 13px;
+  border-radius: 25px;
+  background: #D0DBF2;
+  cursor: pointer;
+}
+input[type=range]:focus::-ms-fill-lower {
+  background: #E8E8E8;
+}
+input[type=range]:focus::-ms-fill-upper {
+  background: #E8E8E8;
 }
 /*************************************************
 * ---- Common Classes ----
@@ -3898,17 +3986,21 @@ textarea.w2ui-error {
 .w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-input .w2ui-input-label {
   color: #474a51;
 }
-.w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-input input:not([type=button]):not([type=submit]):not([type=checkbox]):not([type=radio]) {
-  width: 100%;
+.w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-input input:not([type=button]):not([type=submit]):not([type=checkbox]):not([type=radio]):not([type=range]) {
+  width: 100px;
   height: 26px;
   padding: 5px;
 }
-.w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-input input:not([type=button]):not([type=submit]):not([type=checkbox]):not([type=radio]):focus {
+.w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-input input:not([type=button]):not([type=submit]):not([type=checkbox]):not([type=radio]):not([type=range]):focus {
   outline-color: #549eff;
 }
-.w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-input input:not([type=button]):not([type=submit]):not([type=checkbox]):not([type=radio]).w2ui-has-spinner {
+.w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-input input:not([type=button]):not([type=submit]):not([type=checkbox]):not([type=radio]):not([type=range]).w2ui-has-spinner {
   width: 95px;
   padding: 5px 30px;
+}
+.w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-input input[type=range] {
+  position: relative;
+  top: 5px;
 }
 .w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-input .w2ui-spinner-dec,
 .w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-input .w2ui-spinner-inc {
