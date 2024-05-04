@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (5/3/2024, 4:12:47 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (5/3/2024, 4:41:35 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -1829,12 +1829,12 @@ class Utils {
         let pWidth = el.scrollWidth
         let pHeight = el.scrollHeight
         // if it is body and only has absolute elements, its height will be 0, need to lock entire window
+        let style = `height: ${pHeight}px; width: ${pWidth}px`
         if (el.tagName == 'BODY') {
-            if (pWidth < innerWidth) pWidth = innerWidth
-            if (pHeight < innerHeight) pHeight = innerHeight
+            style = 'position: fixed; right: 0; bottom: 0;'
         }
         query(box).prepend(
-            `<div class="w2ui-lock" style="height: ${pHeight}px; width: ${pWidth}px"></div>` +
+            `<div class="w2ui-lock" style="${style}"></div>` +
             '<div class="w2ui-lock-msg"></div>'
         )
         let $lock = query(box).find('.w2ui-lock')
@@ -3144,6 +3144,7 @@ class Dialog extends w2base {
             actions: null,      // actions object
             style: '',          // style of the message div
             speed: 0.3,
+            blockPage: true,
             modal: false,
             maximized: false,   // this is a flag to show the state - to open the popup maximized use openMaximized instead
             keyboard: true,     // will close popup on esc if not modal
@@ -3279,10 +3280,12 @@ class Dialog extends w2base {
             if (edata.isCancelled === true) return
             this.status = 'opening'
             // output message
-            w2utils.lock(document.body, {
-                opacity: 0.3,
-                onClick: options.modal ? null : () => { this.close() }
-            })
+            if (options.blockPage) {
+                w2utils.lock(document.body, {
+                    opacity: 0.3,
+                    onClick: options.modal ? null : () => { this.close() }
+                })
+            }
             // first insert just body
             let styles = `
                 left: ${left}px;
@@ -3291,7 +3294,7 @@ class Dialog extends w2base {
                 height: ${parseInt(options.height)}px;
                 transition: ${options.speed}s
             `
-            msg = `<div id="w2ui-popup" class="w2ui-popup w2ui-anim-open animating" style="${w2utils.stripSpaces(styles)}"></div>`
+            msg = `<div id="w2ui-popup" class="w2ui-popup w2ui-anim-open animating ${!options.blockPage ? 'w2ui-non-blocking' : ''}" style="${w2utils.stripSpaces(styles)}"></div>`
             query('body').append(msg)
             query('#w2ui-popup')[0]._w2popup = {
                 self: this,
