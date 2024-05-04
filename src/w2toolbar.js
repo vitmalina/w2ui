@@ -22,7 +22,7 @@
  *  - item.icon - can be a function
  *  - item.type = 'label', item.type = 'input'
  *  - item.placeholder
- *  - item.spinner: { style, min, max, step, precision, suffix }
+ *  - item.input: { spinner, style, min, max, step, precision, suffix }
  *  - item.backColor
  */
 
@@ -928,26 +928,26 @@ class w2toolbar extends w2base {
         let inc = 0
         switch (action) {
             case 'inc': {
-                inc = (it.spinner?.step ?? 1)
+                inc = (it.input?.step ?? 1)
                 break
             }
             case 'dec': {
-                inc = -(it.spinner?.step ?? 1)
+                inc = -(it.input?.step ?? 1)
                 break
             }
             case 'key': {
-                if (it.spinner) {
+                if (it.input.spinner || it.input.step != null) {
                     let mult = 1
                     if (event.shiftKey || event.metaKey) mult = 10
                     if (event.altKey) mult = 0.1
                     switch (event.key) {
                         case 'ArrowUp': {
-                            inc = (it.spinner?.step ?? 1) * mult
+                            inc = (it.input?.step ?? 1) * mult
                             event.preventDefault()
                             break
                         }
                         case 'ArrowDown': {
-                            inc = -(it.spinner?.step ?? 1) * mult
+                            inc = -(it.input?.step ?? 1) * mult
                             event.preventDefault()
                             break
                         }
@@ -957,7 +957,7 @@ class w2toolbar extends w2base {
             }
         }
         if (inc !== 0) {
-            this.change(id, (it.value ?? 0) + inc)
+            this.change(id, parseFloat(it.value ?? 0) + inc)
         }
     }
 
@@ -968,21 +968,25 @@ class w2toolbar extends w2base {
             value = value.value
         }
         if (value == null) value = input.val()
-        if (it.spinner) {
+        if (it.input.spinner || it.input.min != null || it.input.max != null || it.input.step != null) {
             value = parseFloat(value)
         }
-        // min/max
-        if (it.spinner?.min != null && it.spinner.min > value) {
-            value = it.spinner.min
+        // remove suffix if it is there
+        if (it.input?.suffix != null && String(value).substr(-it.input.suffix.length) == it.input.suffix) {
+            value = String(value).substr(0, value.length - it.input.suffix.length)
         }
-        if (it.spinner?.max != null && it.spinner.max < value) {
-            value = it.spinner.max
+        // min/max
+        if (it.input?.min != null && it.input.min > value) {
+            value = it.input.min
+        }
+        if (it.input?.max != null && it.input.max < value) {
+            value = it.input.max
         }
         // round to step
-        if (it.spinner) {
-            if (isNaN(value)) value = it.spinner.min ?? 0
-            let step = it.spinner?.step ?? 1
-            let prec = it.spinner.precision ?? String(step).split('.')[1]?.length ?? 0
+        if (it.input.step) {
+            if (isNaN(value)) value = it.input.min ?? 0
+            let step = it.input?.step ?? 1
+            let prec = it.input.precision ?? String(step).split('.')[1]?.length ?? 0
             value = value.toFixed(prec)
         }
 
@@ -991,8 +995,12 @@ class w2toolbar extends w2base {
         if (edata.isCancelled) {
             return
         }
-        it.value = it.spinner ? parseFloat(value) : value
-        input.val(value + (it.spinner?.suffix ?? ''))
+        it.value = value
+        let suffix = ''
+        if (it.input?.suffix != null && String(value).substr(-it.input.suffix.length) != it.input.suffix) {
+            suffix = it.input.suffix
+        }
+        if (!dynamic) input.val(value + suffix)
         // event after
         edata.finish()
     }
