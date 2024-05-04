@@ -1,7 +1,8 @@
 <div class="content">
     <div id="example_title">
         <h1>Resizable Popup</h1>
-        Though you cannot open more then on popup, you can make popups resiable (bototm right corner).
+        Though you cannot open more then on popup, you can make popups resiable (bototm right corner). You can also open popups that
+        does not block underlying page.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
@@ -9,6 +10,12 @@
 
 <!--CODE-->
 <button class="w2ui-btn" onclick="popup()">Open Popup</button>
+<div style="display: inline-block; margin-left: 20px; width: 200px">
+    <label>
+        <input id="lock" type="checkbox" style="position: relative; top: 1px;">
+        Do not block page
+    </label>
+</div>
 
 <!--CODE-->
 <script type="module">
@@ -16,6 +23,7 @@ import { w2popup, query } from '__W2UI_PATH__'
 
 window.popup = function() {
     w2popup.open('Some text', {
+        blockPage: !query('#lock').prop('checked'),
         resizable: true,
     })
 }

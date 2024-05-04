@@ -38,6 +38,7 @@ class Dialog extends w2base {
             actions: null,      // actions object
             style: '',          // style of the message div
             speed: 0.3,
+            blockPage: true,
             modal: false,
             maximized: false,   // this is a flag to show the state - to open the popup maximized use openMaximized instead
             keyboard: true,     // will close popup on esc if not modal
@@ -177,10 +178,12 @@ class Dialog extends w2base {
             if (edata.isCancelled === true) return
             this.status = 'opening'
             // output message
-            w2utils.lock(document.body, {
-                opacity: 0.3,
-                onClick: options.modal ? null : () => { this.close() }
-            })
+            if (options.blockPage) {
+                w2utils.lock(document.body, {
+                    opacity: 0.3,
+                    onClick: options.modal ? null : () => { this.close() }
+                })
+            }
             // first insert just body
             let styles = `
                 left: ${left}px;
@@ -189,7 +192,7 @@ class Dialog extends w2base {
                 height: ${parseInt(options.height)}px;
                 transition: ${options.speed}s
             `
-            msg = `<div id="w2ui-popup" class="w2ui-popup w2ui-anim-open animating" style="${w2utils.stripSpaces(styles)}"></div>`
+            msg = `<div id="w2ui-popup" class="w2ui-popup w2ui-anim-open animating ${!options.blockPage ? 'w2ui-non-blocking' : ''}" style="${w2utils.stripSpaces(styles)}"></div>`
             query('body').append(msg)
             query('#w2ui-popup')[0]._w2popup = {
                 self: this,
