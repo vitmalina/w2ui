@@ -381,6 +381,9 @@ class Query {
             }
             this.each(node => {
                 this._save(node, 'events', [{ event, scope, callback, options }])
+                // fix "[Violation] Added non-passive event listener to a scroll-blocking 'mousewheel' event"
+                options = options || {}
+                options["passive"] = true
                 node.addEventListener(event, callback, options)
             })
         })
