@@ -5470,7 +5470,7 @@ class w2grid extends w2base {
                 // TODO: improve, scroll is not smooth, if scrolled to the end, it takes a while to return
                 let scroll = gridBody.data('scroll')
                 let container = gridBody.find('.w2ui-grid-records')
-                let amount = typeof event.wheelDelta != null ? -event.wheelDelta : (event.detail || event.deltaY)
+                let amount = typeof event.wheelDelta != "undefined" ? -event.wheelDelta : (event.detail || event.deltaY)
                 let newScrollTop = container.prop('scrollTop')
 
                 scroll.lastDelta += amount
