@@ -13,12 +13,12 @@
 </div>
 
 <!--CODE-->
-<button class="w2ui-btn" onclick="popup1()">From JSON</button>
-<button class="w2ui-btn" onclick="popup2()">From HTML</button>
-<button class="w2ui-btn" onclick="popup3()">From File</button>
-<button class="w2ui-btn" onclick="popup4()">From File with options</button>
+<button id="popup1" class="w2ui-btn">From JSON</button>
+<button id="popup2" class="w2ui-btn">From HTML</button>
+<button id="popup3" class="w2ui-btn">From File</button>
+<button id="popup4" class="w2ui-btn">From File with options</button>
 
-<div id="popup1" style="display: none; width: 600px; height: 400px; overflow: hidden">
+<div id="tmpl_popup1" style="display: none; width: 600px; height: 400px; overflow: hidden">
     <div rel="title">
         Popup #1 Title
     </div>
@@ -45,26 +45,41 @@
 <script type="module">
 import { w2popup, w2utils, query } from '__W2UI_PATH__'
 
-window.popup1 = function() {
+let tmpl_popup1
+
+query('#popup1').on('click', popup1)
+query('#popup2').on('click', popup2)
+query('#popup3').on('click', popup3)
+query('#popup4').on('click', popup4)
+
+function popup1() {
     w2popup.open({
         title:'Popup',
         text: 'from JSON structure'
     })
 }
 
-window.popup2 = function() {
-    w2popup.template(query('#popup1')).then(event => {
+function popup2() {
+    if (!tmpl_popup1) {
+        /**
+         * Remember template in the variable and remove it from the DOM. It is needed so that when popup is inserted, there would not
+         * be two copies of same nodes. Otherwise, they overlap and query might return wrong one
+         */
+        tmpl_popup1 = query('#tmpl_popup1')[0]
+        tmpl_popup1.parentNode.removeChild(tmpl_popup1)
+    }
+    w2popup.template(tmpl_popup1).then(event => {
         w2utils.bindEvents(query('#w2ui-popup .w2ui-action'), w2popup)
     })
 }
 
-window.popup3 = function() {
+function popup3() {
     w2popup.load('data/popup1.html').then(event => {
         w2utils.bindEvents(query('#w2ui-popup .w2ui-action'), w2popup)
     })
 }
 
-window.popup4 = function() {
+function popup4() {
     w2popup.load({
         url: 'data/popup1.html',
         showMax: true,

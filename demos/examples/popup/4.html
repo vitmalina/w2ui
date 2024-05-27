@@ -8,13 +8,15 @@
 </div>
 
 <!--CODE-->
-<button class="w2ui-btn" onclick="popup()">Open Popup</button>
+<button class="w2ui-btn" id="popup">Open Popup</button>
 
 <!--CODE-->
 <script type="module">
-import { w2popup } from '__W2UI_PATH__'
+import { w2popup, query } from '__W2UI_PATH__'
 
-window.popup = function() {
+query('#popup').on('click', popup)
+
+function popup() {
     w2popup.open({
         width: 500,
         height: 300,
@@ -31,7 +33,8 @@ window.popup = function() {
         }
     });
 }
-window.lock = function(msg) {
+
+function lock(msg) {
     w2popup.lock(msg, true);
     setTimeout(function () { w2popup.unlock(); }, 1000);
 }

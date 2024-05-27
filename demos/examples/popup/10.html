@@ -8,13 +8,15 @@
 </div>
 
 <!--CODE-->
-<button class="w2ui-btn" onclick="popup()">Open Popup</button>
+<button id="popup" class="w2ui-btn">Open Popup</button>
 
 <!--CODE-->
 <script type="module">
-import { w2popup } from '__W2UI_PATH__'
+import { w2popup, query } from '__W2UI_PATH__'
 
-window.popup = function() {
+query('#popup').on('click', popup)
+
+function popup() {
     w2popup.open('Some text', {
         actions: {
             // function name is used for button text

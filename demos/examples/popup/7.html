@@ -8,26 +8,30 @@
 </div>
 
 <!--CODE-->
-<button class="w2ui-btn" onclick="showAlert()">Alert</button>
-<button class="w2ui-btn" onclick="showConfirm()">Confirm</button>
-<button class="w2ui-btn" onclick="showPrompt()">Prompt 1.5+</button>
+<button id="showAlert" class="w2ui-btn">Alert</button>
+<button id="showConfirm" class="w2ui-btn">Confirm</button>
+<button id="showPrompt" class="w2ui-btn">Prompt 1.5+</button>
 
 <!--CODE-->
 <script type="module">
-import { w2alert, w2confirm, w2prompt, w2utils } from '__W2UI_PATH__'
+import { w2alert, w2confirm, w2prompt, w2utils, query } from '__W2UI_PATH__'
 
-window.showAlert = function() {
+query('#showAlert').on('click', showAlert)
+query('#showConfirm').on('click', showConfirm)
+query('#showPrompt').on('click', showPrompt)
+
+function showAlert() {
     w2alert('message')
         .ok(() => { console.log('ok') })
 }
 
-window.showConfirm = function() {
+function showConfirm() {
     w2confirm('message')
         .yes(() => { console.log('yes') })
         .no(() => { console.log('no') })
 }
 
-window.showPrompt = function() {
+function showPrompt() {
     w2prompt({
         title: w2utils.lang('Notification'),
         width: 400,

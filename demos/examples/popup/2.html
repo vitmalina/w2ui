@@ -9,14 +9,17 @@
 </div>
 
 <!--CODE-->
-<button class="w2ui-btn" onclick="popup1()">Popup with all 3 elements</button>
-<button class="w2ui-btn" onclick="popup2()">Popup with body only</button>
+<button id="popup1" class="w2ui-btn">Popup with all 3 elements</button>
+<button id="popup2" class="w2ui-btn">Popup with body only</button>
 
 <!--CODE-->
 <script type="module">
-import { w2popup } from '__W2UI_PATH__'
+import { w2popup, query } from '__W2UI_PATH__'
 
-window.popup1 = function() {
+query('#popup1').on('click', popup1)
+query('#popup2').on('click', popup2)
+
+function popup1() {
     w2popup.open({
         title: 'Popup Title',
         body: '<div class="w2ui-centered">Popup BODY</div>',
@@ -24,7 +27,7 @@ window.popup1 = function() {
         showMax: true
     })
 }
-window.popup2 = function() {
+function popup2() {
     w2popup.open({
         text: 'Click anywhere outside the popup to hide it.'
     })

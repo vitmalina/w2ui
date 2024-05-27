@@ -10,21 +10,24 @@
 </div>
 
 <!--CODE-->
-<button class="w2ui-btn" onclick="popup1()">Simple popup</button>
-<button class="w2ui-btn" onclick="popup2()">Popup with buttons and event listeners</button>
+<button id="popup1" class="w2ui-btn">Simple popup</button>
+<button id="popup2" class="w2ui-btn">Popup with buttons and event listeners</button>
 
 <!--CODE-->
 <script type="module">
-import { w2popup } from '__W2UI_PATH__'
+import { w2popup, query } from '__W2UI_PATH__'
 
-window.popup1 = function() {
+query('#popup1').on('click', popup1)
+query('#popup2').on('click', popup2)
+
+function popup1() {
     w2popup.open({
         title: 'Popup Title',
         text: 'This is text inside the popup'
     })
 }
 
-window.popup2 = function() {
+function popup2() {
     w2popup.open({
         title: 'Popup Title',
         text: 'This is text inside the popup',

@@ -9,7 +9,7 @@
 </div>
 
 <!--CODE-->
-<button class="w2ui-btn" onclick="popup()">Open Popup</button>
+<button id="popup" class="w2ui-btn">Open Popup</button>
 <div style="display: inline-block; margin-left: 20px; width: 200px">
     <label>
         <input id="lock" type="checkbox" style="position: relative; top: 1px;">
@@ -21,7 +21,9 @@
 <script type="module">
 import { w2popup, query } from '__W2UI_PATH__'
 
-window.popup = function() {
+query('#popup').on('click', popup)
+
+function popup() {
     w2popup.open('Some text', {
         blockPage: !query('#lock').prop('checked'),
         resizable: true,
