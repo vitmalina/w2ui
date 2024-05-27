@@ -1432,6 +1432,10 @@ class MenuTooltip extends Tooltip {
             .on(`${mdown}.w2menu`, { delegate: '.w2ui-menu-item' }, event => {
                 let dt = event.delegate.dataset
                 this.menuDown(overlay, event, dt.index, dt.parents)
+                if (w2utils.isMobile) {
+                    // need it for mobile so that it would not generate onclick (items under menu receive focus)
+                    event.preventDefault()
+                }
             })
             .on(`${mclick}.w2menu`, { delegate: '.w2ui-menu-item' }, event => {
                 let dt = event.delegate.dataset

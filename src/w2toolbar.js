@@ -888,7 +888,7 @@ class w2toolbar extends w2base {
                 if (val != null && String(val).trim() !== '' && item.input?.spinner) {
                     let step = item.input?.step ?? 1
                     let prec = item.input?.precision ?? String(step).split('.')[1]?.length ?? 0
-                    val = isNaN(val) ? val : val.toFixed(prec)
+                    val = isNaN(val) ? val : Number(val).toFixed(prec)
                 }
                 html = `<div id="tb_${this.name}_item_${item.id}" class="w2ui-tb-input w2ui-eaction ${classes.join(' ')}"
                             style="${(item.hidden ? 'display: none' : '')}; ${(item.style ? item.style : '')}"
@@ -992,7 +992,7 @@ class w2toolbar extends w2base {
             if (isNaN(value)) value = it.input.min ?? 0
             let step = it.input?.step ?? 1
             let prec = it.input.precision ?? String(step).split('.')[1]?.length ?? 0
-            value = value.toFixed(prec)
+            value = Number(value).toFixed(prec)
         }
 
         // event beofre
