@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (5/4/2024, 2:52:44 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (5/7/2024, 10:50:36 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -6862,6 +6862,11 @@ class w2toolbar extends w2base {
             if (!w2utils.checkUniqueId(item.id, this.items, 'toolbar', this.name)) return
             // add item
             let newItem = w2utils.extend({}, this.item_template, item)
+            if (newItem.type == 'group' && Array.isArray(newItem.items)) {
+                newItem.items.forEach((it, ind) => {
+                    newItem.items[ind] = w2utils.extend({}, this.item_template, newItem.items[ind])
+                })
+            }
             if (newItem.type == 'menu-check') {
                 if (!Array.isArray(newItem.selected)) newItem.selected = []
                 if (Array.isArray(newItem.items)) {
@@ -7350,7 +7355,7 @@ class w2toolbar extends w2base {
         this.tooltipHide(id)
         // if there is a spacer, then right HTML is not 100%
         if (it.type == 'spacer') {
-            query(this.box).find(`.w2ui-tb-line:nth-child(${it.line}`).find('.w2ui-tb-right').css('width', 'auto')
+            query(this.box).find(`.w2ui-tb-line:nth-child(${it.line ?? 1})`).find('.w2ui-tb-right').css('width', 'auto')
         }
         if (btn.length === 0) {
             let next = parseInt(this.get(id, true)) + 1
