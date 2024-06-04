@@ -5653,8 +5653,9 @@ class w2grid extends w2base {
         if (this.selectType != 'row') query(this.box).addClass('w2ui-ss')
         if (query(this.box).length > 0) query(this.box)[0].style.cssText += this.style
         // render toolbar
-        if (this.toolbar != null) this.toolbar.render(query(this.box).find('#grid_'+ this.name +'_toolbar')[0])
-        this.last.toolbar_height = query(this.box).find(`#grid_${this.name}_toolbar`).prop('offsetHeight')
+        let tb_box = query(this.box).find(`#grid_${this.name}_toolbar`)
+        if (this.toolbar != null) this.toolbar.render(tb_box[0])
+        this.last.toolbar_height = tb_box.prop('offsetHeight')
         // re-init search_all
         if (this.last.field && this.last.field != 'all') {
             let sd = this.searchData
