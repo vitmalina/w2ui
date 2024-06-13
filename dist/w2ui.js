@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (5/7/2024, 10:50:36 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (6/13/2024, 8:03:06 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -5341,6 +5341,10 @@ class MenuTooltip extends Tooltip {
             .on(`${mdown}.w2menu`, { delegate: '.w2ui-menu-item' }, event => {
                 let dt = event.delegate.dataset
                 this.menuDown(overlay, event, dt.index, dt.parents)
+                if (w2utils.isMobile) {
+                    // need it for mobile so that it would not generate onclick (items under menu receive focus)
+                    event.preventDefault()
+                }
             })
             .on(`${mclick}.w2menu`, { delegate: '.w2ui-menu-item' }, event => {
                 let dt = event.delegate.dataset
@@ -7512,7 +7516,7 @@ class w2toolbar extends w2base {
                     || (item.arrow !== false && ['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].includes(item.type)))
                 html = `
                     <div id="tb_${this.name}_item_${item.id}" class="${classes.join(' ')} ${(item.class ? item.class : '')}"
-                        style="${(item.hidden ? 'display: none' : '')} ${item.type == 'label' ? (item.style ?? '') : ''}"
+                        style="${(item.hidden ? 'display: none;' : '')} ${item.type == 'label' ? (item.style ?? '') + ';' : ''}"
                         ${!item.disabled
                             ? `data-click='["click","${item.id}", "event"]'
                                data-mouseenter='["mouseAction", "event", "this", "Enter", "${item.id}"]'
@@ -7576,7 +7580,7 @@ class w2toolbar extends w2base {
                 if (val != null && String(val).trim() !== '' && item.input?.spinner) {
                     let step = item.input?.step ?? 1
                     let prec = item.input?.precision ?? String(step).split('.')[1]?.length ?? 0
-                    val = isNaN(val) ? val : val.toFixed(prec)
+                    val = isNaN(val) ? val : Number(val).toFixed(prec)
                 }
                 html = `<div id="tb_${this.name}_item_${item.id}" class="w2ui-tb-input w2ui-eaction ${classes.join(' ')}"
                             style="${(item.hidden ? 'display: none' : '')}; ${(item.style ? item.style : '')}"
@@ -7678,7 +7682,7 @@ class w2toolbar extends w2base {
             if (isNaN(value)) value = it.input.min ?? 0
             let step = it.input?.step ?? 1
             let prec = it.input.precision ?? String(step).split('.')[1]?.length ?? 0
-            value = value.toFixed(prec)
+            value = Number(value).toFixed(prec)
         }
         // event beofre
         let edata = this.trigger(dynamic ? 'input' : 'change', { target: id, id, value, item: it })
@@ -13368,7 +13372,7 @@ class w2grid extends w2base {
                         if (['date', 'time', 'datetime'].indexOf(search.type) != -1) op = 'is'
                         if (['list', 'enum'].indexOf(search.type) != -1) {
                             op = 'is'
-                            let tmp = el._w2field.get()
+                            let tmp = el._w2field?.get()
                             if (tmp && Object.keys(tmp).length > 0) val = tmp.id; else val = ''
                         }
                         if (search.type == 'int' && value !== '') {
@@ -16508,7 +16512,7 @@ class w2grid extends w2base {
                 // TODO: improve, scroll is not smooth, if scrolled to the end, it takes a while to return
                 let scroll = gridBody.data('scroll')
                 let container = gridBody.find('.w2ui-grid-records')
-                let amount = typeof event.wheelDelta != null ? -event.wheelDelta : (event.detail || event.deltaY)
+                let amount = typeof event.wheelDelta != "undefined" ? -event.wheelDelta : (event.detail || event.deltaY)
                 let newScrollTop = container.prop('scrollTop')
                 scroll.lastDelta += amount
                 amount = Math.round(scroll.lastDelta)
@@ -16683,8 +16687,9 @@ class w2grid extends w2base {
         if (this.selectType != 'row') query(this.box).addClass('w2ui-ss')
         if (query(this.box).length > 0) query(this.box)[0].style.cssText += this.style
         // render toolbar
-        if (this.toolbar != null) this.toolbar.render(query(this.box).find('#grid_'+ this.name +'_toolbar')[0])
-        this.last.toolbar_height = query(this.box).find(`#grid_${this.name}_toolbar`).prop('offsetHeight')
+        let tb_box = query(this.box).find(`#grid_${this.name}_toolbar`)
+        if (this.toolbar != null) this.toolbar.render(tb_box[0])
+        this.last.toolbar_height = tb_box.prop('offsetHeight')
         // re-init search_all
         if (this.last.field && this.last.field != 'all') {
             let sd = this.searchData

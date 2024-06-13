@@ -2239,7 +2239,7 @@ class w2grid extends w2base {
                         if (['date', 'time', 'datetime'].indexOf(search.type) != -1) op = 'is'
                         if (['list', 'enum'].indexOf(search.type) != -1) {
                             op = 'is'
-                            let tmp = el._w2field.get()
+                            let tmp = el._w2field?.get()
                             if (tmp && Object.keys(tmp).length > 0) val = tmp.id; else val = ''
                         }
                         if (search.type == 'int' && value !== '') {
