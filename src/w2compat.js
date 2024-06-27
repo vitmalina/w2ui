@@ -151,7 +151,7 @@ import { w2tooltip, w2color, w2menu, w2date, Tooltip } from './w2tooltip.js'
                 options = options ?? {}
                 options.html = text
             }
-            w2tooltip.show(el, options)
+            w2tooltip.show({ anchor: el, ...options })
         })
     }
 
@@ -170,7 +170,7 @@ import { w2tooltip, w2color, w2menu, w2date, Tooltip } from './w2tooltip.js'
                 class: 'w2ui-white',
                 hideOn: ['doc-click']
             })
-            w2tooltip.show(el, options)
+            w2tooltip.show({ anchor: el, ...options })
         })
     }
 
@@ -184,13 +184,13 @@ import { w2tooltip, w2color, w2menu, w2date, Tooltip } from './w2tooltip.js'
             } else {
                 options.items = menu
             }
-            w2menu.show(el, options)
+            w2menu.show({ anchor: el, ...options })
         })
     }
 
     $.fn.w2color = function(options, callBack) {
         return this.each((index, el) => {
-            let tooltip = w2color.show(el, options)
+            let tooltip = w2color.show({ anchor: el, ...options })
             if (typeof callBack == 'function') {
                 tooltip.select(callBack)
             }
