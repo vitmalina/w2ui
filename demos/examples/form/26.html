@@ -19,6 +19,7 @@ let form = new w2form({
     box: '#form',
     name: 'form',
     fields: [
+        { field: 'file_name',  type: 'text', required: true, html: { label: 'File Name', attr: 'style="width: 300px"' } },
         { field: 'file_type', type: 'switch', required: true,
             options: {
                 items: [
@@ -29,9 +30,11 @@ let form = new w2form({
             },
             html: { label: 'File Type', attr1: 'style="width: 300px"' }
         },
-        { field: 'file_name',  type: 'text', required: true, html: { label: 'File Name', attr: 'style="width: 300px"' } },
         { field: 'comments',   type: 'textarea', html: { label: 'Comments', attr: 'style="width: 100%; height: 120px"' } }
     ],
+    onChange(event) {
+        console.log('change', event.detail, this.record)
+    },
     record: {
         file_type: 'HTML',
         file_name: 'name'

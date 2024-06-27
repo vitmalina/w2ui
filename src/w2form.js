@@ -27,6 +27,7 @@
  *  - this.method - for saving only
  *  - added field.html.class
  *  - setValue(..., noRefresh)
+ *  - rememberOriginal()
  */
 
 import { w2base } from './w2base.js'
@@ -346,6 +347,17 @@ class w2form extends w2base {
             this.record[field] = value
             if (!noRefresh) this.setFieldValue(field, value)
             return true
+        }
+    }
+
+    rememberOriginal() {
+        // remember original
+        if (this.original == null) {
+            if (Object.keys(this.record).length > 0) {
+                this.original = w2utils.clone(this.record)
+            } else {
+                this.original = {}
+            }
         }
     }
 
@@ -1296,8 +1308,7 @@ class w2form extends w2base {
                     break
                 }
                 case 'switch': {
-                    input = `<div id="${field.field}-tb" class="w2ui-form-switch ${field.html.class ?? ''}" ${field.html.attr}
-                        style="outline1: 1px solid red !important; height: 34px; margin-top: -5px; padding: 0px; background-color: transparent; position: relative;"></div>
+                    input = `<div id="${field.field}-tb" class="w2ui-form-switch ${field.html.class ?? ''}" ${field.html.attr}></div>
                         <input id="${field.field}" name="${field.field}" ${tabindex_str} class="w2ui-input"
                             style="position: absolute; right: 0; margin-top: -30px; width: 1px; padding: 0; opacity: 0">`
                     break
@@ -1497,6 +1508,15 @@ class w2form extends w2base {
                 }
                 resizeElements()
             }
+            // resize tabs and toolbar if any
+            this.tabs?.resize?.()
+            this.toolbar?.resize?.()
+            // resize switch fields
+            this.fields.forEach(field => {
+                if (field.type == 'switch') {
+                    field.toolbar?.resize?.()
+                }
+            })
 
             function resizeElements() {
                 let headerHeight = (self.header !== '' ? w2utils.getSize(header, 'height') : 0)
@@ -1607,14 +1627,7 @@ class w2form extends w2base {
                     edata2.finish()
                 })
                 .on('input.w2form', function(event) {
-                    // remember original
-                    if (self.original == null) {
-                        if (Object.keys(self.record).length > 0) {
-                            self.original = w2utils.clone(self.record)
-                        } else {
-                            self.original = {}
-                        }
-                    }
+                    self.rememberOriginal()
                     let value = self.getFieldValue(field.field)
                     // save previous for change event
                     if (this._previous == null) {
@@ -1707,25 +1720,30 @@ class w2form extends w2base {
                     name: this.name + '_' + field.name + '_tb',
                     items,
                     onClick(event) {
-                        let value = event.detail.item.id
+                        self.rememberOriginal()
+                        let value = self.getFieldValue(field.name)
+                        value.current = event.detail.item.id
                         let edata = self.trigger('change', { target: field.name, field: field.name, value, originalEvent: event })
                         if (edata.isCancelled === true) {
                             return
                         }
-                        self.record[field.name] = event.detail.item.id
-                        self.setFieldValue(field.name, event.detail.item.id)
+                        self.record[field.name] = value.current
+                        self.setFieldValue(field.name, value.current)
                         edata.finish()
                     }
                 })
+                field.$el.prev().addClass('w2ui-form-switch') // need to add this class, as toolbar render will remove all w2ui-* classes
                 field.$el
                     .off('.form-input')
                     .on('focus.form-input', event => {
                         let ind = field.toolbar.get(field.$el.val(), true)
                         query(event.target).prop('_index', ind)
+                        query(field.toolbar.box).addClass('w2ui-tb-focus')
                     })
                     .on('blur.form-input', event => {
                         query(event.target).removeProp('_index')
                         query(`#${field.name}-tb .w2ui-tb-button`).removeClass('over')
+                        query(field.toolbar.box).removeClass('w2ui-tb-focus')
                     })
                     .on('keydown.form-input', event => {
                         let ind = query(event.target).prop('_index')
@@ -1750,9 +1768,17 @@ class w2form extends w2base {
                             }
                         }
                         if (event.keyCode == 32 || event.keyCode == 13) {
-                            // space or enter - apply selection
-                            let item = field.toolbar.items[ind]
-                            self.setFieldValue(field.name, item.id)
+                            // space or enter - apply selected
+                            self.rememberOriginal()
+                            let value = self.getFieldValue(field.name)
+                            value.current = field.toolbar.items[ind].id
+                            let edata = self.trigger('change', { target: field.name, field: field.name, value, originalEvent: event })
+                            if (edata.isCancelled === true) {
+                                return
+                            }
+                            self.record[field.name] = value.current
+                            self.setFieldValue(field.name, value.current)
+                            edata.finish()
                             query(`#${field.name}-tb .w2ui-tb-button`).removeClass('over')
                         }
                         // do not allow any input, besides a tab
@@ -1901,14 +1927,7 @@ class w2form extends w2base {
                                 }
                             })
                             .on('change.mapChange', function(event) {
-                                // remember original
-                                if (self.original == null) {
-                                    if (Object.keys(self.record).length > 0) {
-                                        self.original = w2utils.clone(self.record)
-                                    } else {
-                                        self.original = {}
-                                    }
-                                }
+                                self.rememberOriginal()
                                 // event before
                                 let { current, previous, original } = self.getFieldValue(field.field)
                                 let $cnt = query(event.target).closest('.w2ui-map-container')
