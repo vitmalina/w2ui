@@ -1,0 +1,112 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Improved Array Fields</h1>
+        Array fields can now have objects and multiple input fields per array item.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="form" style="width: 750px; height: 600px">
+
+</div>
+
+<!--CODE-->
+<script type="module">
+import { w2form, w2ui, w2popup, w2alert, query } from '__W2UI_PATH__'
+
+let form = new w2form({
+    box: '#form',
+    name: 'form',
+    url: 'server/post',
+    record: {
+        array: [
+            { item: 'value1', name: 'name1', checked: false },
+            { item: 'value2', name: 'name2', checked: true, alt: 'alternative' },
+        ],
+        array2: [
+            { item: 'value1', name: 'name1' },
+            { item: 'value2', name: 'name2' },
+        ]
+    },
+    fields : {
+        'array': {
+            type: 'array',
+            html: {
+                group: 'Array of Input Fields',
+                label: 'Objects',
+                span: 4,
+                render(options) {
+                    let { ind } = options
+                    return `
+                        <input type="text" name="item" placeholder="Item..." class="w2ui-input">
+                        <span style="padding: 5px"> = </span>
+                        <input type="text" name="name" placeholder="Name..." class="w2ui-input">
+                        <span style="padding: 5px"> or </span>
+                        <input type="text" name="alt" placeholder="Alternative..." class="w2ui-input">
+                        <input type="checkbox" name="checked" class="w2ui-input" style="position: relative; top: 2px; left: 4px">
+                    `
+                }
+            }
+        },
+        'array2': {
+            type: 'array',
+            html: {
+                label: 'With delete btn',
+                span: 4,
+                render(options) {
+                    let { ind } = options
+                    return `
+                        <input type="text" name="item" placeholder="Item..." class="w2ui-input">
+                        <input type="text" name="name" placeholder="Name..." class="w2ui-input">
+                        <button class="w2ui-btn w2ui-btn-small delete">X</button>
+                    `
+                },
+                onRefresh(event) {
+                    query(event.box).find('button.delete').on('click', evt => {
+                        this.record.array2.splice(event.index, 1)
+                        this.refresh('array2')
+                    })
+                }
+            }
+        },
+        array3: {
+            type: 'array',
+            html: {
+                label: 'Simple',
+                span: 4,
+                value: {
+                    attr: 'placeholder="Type value..." style="width: 250px"',
+                    text: ' - ok'
+                }
+            }
+        }
+    },
+    actions: {
+        Reset() {
+            this.clear();
+        },
+        Save() {
+            if (form.validate().length == 0) {
+                let rec = this.getCleanRecord()
+                w2popup.open({
+                    title: 'Form Data',
+                    with: 600,
+                    height: 550,
+                    body: `<pre>${JSON.stringify(rec, null, 4)}</pre>`,
+                    actions: { Ok: w2popup.close }
+                })
+            }
+        },
+        custom: {
+            text: '<span style="font-size: 16px">←</span> click to see data',
+            class: 'custom-class',
+            style: 'background-image: none; background-color: transparent; border: 0px; margin: 0 0 0 -10px;',
+            onClick() {
+                w2alert('Not me!! The other button')
+            }
+        }
+    }
+})
+</script>
