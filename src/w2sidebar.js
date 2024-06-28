@@ -349,12 +349,12 @@ class w2sidebar extends w2base {
             if (options.foldersFirst === false || (!isAfolder && !isBfolder) || (isAfolder && isBfolder)) {
                 let aText = a.text
                 let bText = b.text
+                if (a.order != null) aText = a.order
+                if (b.order != null) bText = b.order
                 if (!options.caseSensitive) {
                     aText = aText.toLowerCase()
                     bText = bText.toLowerCase()
                 }
-                if (a.order != null) aText = a.order
-                if (b.order != null) bText = b.order
                 let cmp = w2utils.naturalCompare(aText, bText)
                 return (cmp === 1 || cmp === -1) & options.reverse ? -cmp : cmp
             }
