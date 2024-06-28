@@ -814,7 +814,6 @@ class w2form extends w2base {
 
     showErrors() {
         // TODO: check edge cases
-        // -- scroll
         // -- invisible pages
         // -- form refresh
         let errors = this.last.errors
@@ -1930,6 +1929,15 @@ class w2form extends w2base {
                         let container = query(field.el).get(0)?.nextSibling // should be div
                         query(container)
                             .off('.mapChange')
+                            .on('mouseup.mapChange', 'input', function (event) {
+                                /***
+                                 * This hack is needed for the cases when this field is refreshed and focus in bettween of mousedown and mouse up.
+                                 * In such a case, the field will not get focused, but should be as there was mouse click.
+                                 */
+                                if (document.activeElement != event.target) {
+                                    event.target.focus()
+                                }
+                            })
                             .on('keyup.mapChange', 'input', function(event) {
                                 let $div = query(event.target).closest('.w2ui-map-field')
                                 let next = $div.get(0).nextElementSibling
@@ -1950,6 +1958,8 @@ class w2form extends w2base {
                                     event.preventDefault()
                                 }
                                 if (event.keyCode == 40 && next) { // down key
+                                    event.target.blur() // blur is neeeded because because it will trigger change which will re-render fields
+                                    let next = $div.get(0).nextElementSibling // need to query it again because it was re-rendered
                                     query(next).find(`input.${className}, input[name="${event.target.name}"]`).get(0).select()
                                     event.preventDefault()
                                 }
