@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (5/3/2024, 4:41:35 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (6/27/2024, 6:45:36 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -1710,6 +1710,17 @@ button.w2ui-btn:disabled {
   min-height: 28px;
   float: none;
 }
+.w2ui-field .w2ui-form-switch {
+  position: relative;
+  height: 34px;
+  margin-top: -5px;
+  padding: 0px;
+  border-radius: 2px;
+  background-color: transparent;
+}
+.w2ui-field .w2ui-form-switch.w2ui-tb-focus {
+  outline: 1px dashed gray;
+}
 .w2ui-field.w2ui-required > div {
   position: relative;
 }
@@ -3168,7 +3179,7 @@ textarea.w2ui-error {
 }
 .w2ui-popup.w2ui-non-blocking {
   border: 1px solid #c8c8c8;
-  box-shadow: 0px 0px 8px #e4e4e4;
+  box-shadow: 0 0 2px #555;
 }
 .w2ui-popup,
 .w2ui-popup * {
