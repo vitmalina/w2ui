@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (7/2/2024, 6:00:27 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (7/3/2024, 8:33:17 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -7632,7 +7632,7 @@ class w2toolbar extends w2base {
                 break
             }
             case 'key': {
-                if (it.input.spinner || it.input.step != null) {
+                if (it.input?.spinner || it.input?.step != null) {
                     let mult = 1
                     if (event.shiftKey || event.metaKey) mult = 10
                     if (event.altKey) mult = 0.1
@@ -7663,7 +7663,7 @@ class w2toolbar extends w2base {
             value = value.value
         }
         if (value == null) value = input.val()
-        if (it.input.spinner || it.input.min != null || it.input.max != null || it.input.step != null) {
+        if (it.input?.spinner || it.input?.min != null || it.input?.max != null || it.input?.step != null) {
             value = parseFloat(value)
         }
         // remove suffix if it is there
@@ -7678,9 +7678,9 @@ class w2toolbar extends w2base {
             value = it.input.max
         }
         // round to step
-        if (it.input.step) {
+        if (it.input?.step != null) {
             if (isNaN(value)) value = it.input.min ?? 0
-            let step = it.input?.step ?? 1
+            let step = it.input.step ?? 1
             let prec = it.input.precision ?? String(step).split('.')[1]?.length ?? 0
             value = Number(value).toFixed(prec)
         }
