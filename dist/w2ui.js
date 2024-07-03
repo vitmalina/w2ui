@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (6/27/2024, 6:00:52 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (7/2/2024, 5:44:34 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -2418,7 +2418,7 @@ class Utils {
             query('body').append('<div id="_tmp_width" style="position: absolute; top: -9000px;"></div>')
             div = query('body > #_tmp_width')
         }
-        div.html(raw ? str : this.encodeTags(str)).attr('style', `position: absolute; top: -9000px; ${styles || ''}`)
+        div.html(raw ? str : this.encodeTags(str ?? '')).attr('style', `position: absolute; top: -9000px; ${styles || ''}`)
         return div[0].clientWidth
     }
     execTemplate(str, replace_obj) {
@@ -20124,8 +20124,9 @@ class w2form extends w2base {
                 if (typeof field.html?.render == 'function') {
                     current[ind] ??= {}
                     query(div).find('input').each(inp => {
-                        if (inp.name != null && inp.name != '') {
-                            current[ind][inp.name] = inp.type == 'checkbox' ? inp.checked : inp.value
+                        let name = inp.dataset.name ?? inp.name
+                        if (name != null && name != '') {
+                            current[ind][name] = ['checkbox', 'radio'].includes(inp.type) ? inp.checked : inp.value
                         }
                     })
                 } else if (field.type == 'map') {
@@ -21484,7 +21485,8 @@ class w2form extends w2base {
                             // make sure all inputs have names as it is important for array objects
                             if (!field.el._errorDisplayed) {
                                 query.html(html).filter('input').each(inp => {
-                                    if (inp.name == null || inp.name == '') {
+                                    let name = inp.dataset.name ?? inp.name
+                                    if (name == null || name == '') {
                                         console.log(`ERROR: All inputs of the field %c"${field.name}"%c must have name attribute defined. No name for %c${inp.outerHTML}`,
                                             'color: blue', '', 'color: red')
                                     }
@@ -21535,8 +21537,10 @@ class w2form extends w2base {
                             if (typeof field.html?.render == 'function') {
                                 let val = map[key]
                                 fld.find('input').each(inp => {
-                                    let name = inp.name
+                                    let name = inp.dataset.name ?? inp.name // <input data-name="higher priority" name="then">
                                     if (inp.type == 'checkbox') {
+                                        inp.checked = val[name] ?? false
+                                    } else if (inp.type == 'radio') {
                                         inp.checked = val[name] ?? false
                                     } else {
                                         inp.value = val[name] ?? ''
