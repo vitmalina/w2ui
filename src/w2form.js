@@ -434,8 +434,9 @@ class w2form extends w2base {
                 if (typeof field.html?.render == 'function') {
                     current[ind] ??= {}
                     query(div).find('input').each(inp => {
-                        if (inp.name != null && inp.name != '') {
-                            current[ind][inp.name] = inp.type == 'checkbox' ? inp.checked : inp.value
+                        let name = inp.dataset.name ?? inp.name
+                        if (name != null && name != '') {
+                            current[ind][name] = ['checkbox', 'radio'].includes(inp.type) ? inp.checked : inp.value
                         }
                     })
                 } else if (field.type == 'map') {
@@ -1832,7 +1833,8 @@ class w2form extends w2base {
                             // make sure all inputs have names as it is important for array objects
                             if (!field.el._errorDisplayed) {
                                 query.html(html).filter('input').each(inp => {
-                                    if (inp.name == null || inp.name == '') {
+                                    let name = inp.dataset.name ?? inp.name
+                                    if (name == null || name == '') {
                                         console.log(`ERROR: All inputs of the field %c"${field.name}"%c must have name attribute defined. No name for %c${inp.outerHTML}`,
                                             'color: blue', '', 'color: red')
                                     }
@@ -1883,8 +1885,10 @@ class w2form extends w2base {
                             if (typeof field.html?.render == 'function') {
                                 let val = map[key]
                                 fld.find('input').each(inp => {
-                                    let name = inp.name
+                                    let name = inp.dataset.name ?? inp.name // <input data-name="higher priority" name="then">
                                     if (inp.type == 'checkbox') {
+                                        inp.checked = val[name] ?? false
+                                    } else if (inp.type == 'radio') {
                                         inp.checked = val[name] ?? false
                                     } else {
                                         inp.value = val[name] ?? ''

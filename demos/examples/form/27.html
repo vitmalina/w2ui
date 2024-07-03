@@ -28,6 +28,10 @@ let form = new w2form({
         array2: [
             { item: 'value1', name: 'name1' },
             { item: 'value2', name: 'name2' },
+        ],
+        array3: [
+            { item: 'Car', color: 'blue' },
+            { item: 'Tree', color: 'blue' },
         ]
     },
     fields : {
@@ -40,17 +44,32 @@ let form = new w2form({
                 render(options) {
                     let { ind } = options
                     return `
-                        <input type="text" name="item" placeholder="Item..." class="w2ui-input">
+                        <input type="text" data-name="item" placeholder="Item..." class="w2ui-input">
                         <span style="padding: 5px"> = </span>
-                        <input type="text" name="name" placeholder="Name..." class="w2ui-input">
+                        <input type="text" data-name="name" placeholder="Name..." class="w2ui-input">
                         <span style="padding: 5px"> or </span>
-                        <input type="text" name="alt" placeholder="Alternative..." class="w2ui-input">
-                        <input type="checkbox" name="checked" class="w2ui-input" style="position: relative; top: 2px; left: 4px">
+                        <input type="text" data-name="alt" placeholder="Alternative..." class="w2ui-input">
+                        <input type="checkbox" data-name="checked" class="w2ui-input" style="position: relative; top: 2px; left: 4px">
                     `
                 }
             }
         },
         'array2': {
+            type: 'array',
+            html: {
+                label: 'Radio Buttons',
+                span: 4,
+                render(options) {
+                    let { ind } = options
+                    return `
+                        <input type="text" data-name="item" placeholder="Item..." class="w2ui-input">
+                        <input type="text" data-name="color" placeholder="Name..." class="w2ui-input">
+                        <input type="radio" name="group-name" data-name="selected" class="w2ui-input" style="position: relative; top: 2px; left: 4px">
+                    `
+                }
+            }
+        },
+        'array3': {
             type: 'array',
             html: {
                 label: 'With delete btn',
@@ -65,13 +84,13 @@ let form = new w2form({
                 },
                 onRefresh(event) {
                     query(event.box).find('button.delete').on('click', evt => {
-                        this.record.array2.splice(event.index, 1)
-                        this.refresh('array2')
+                        this.record.array3.splice(event.index, 1)
+                        this.refresh('array3')
                     })
                 }
             }
         },
-        array3: {
+        array4: {
             type: 'array',
             html: {
                 label: 'Simple',
