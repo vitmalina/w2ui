@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (7/2/2024, 5:44:34 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (7/2/2024, 6:00:27 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -21502,7 +21502,12 @@ class w2form extends w2base {
                         div.append(`<div class="w2ui-map-field" style="margin-bottom: 5px" data-index="${cnt}">${html}</div>`)
                         if (typeof field.html.render == 'function') {
                             let box = div.find(`[data-index="${cnt}"]`)
-                            box.find(`input`).attr('tabindex', field.html.tabindex)
+                            box.find(`input`).each(el => {
+                                // set only if it is not defined in the HTML
+                                if (query(el).attr('tabindex') == null) {
+                                    query(el).attr('tabindex', field.html.tabindex)
+                                }
+                            })
                             if (typeof field.html.onRefresh == 'function') {
                                 field.html.onRefresh.call(self, { index: cnt, empty, box: box.get(0) })
                             }
