@@ -664,7 +664,7 @@ class w2toolbar extends w2base {
 
         if (btn.length === 0) {
             let next = parseInt(this.get(id, true)) + 1
-            let $next = query(this.box).find(`#tb_${this.name}_item_${w2utils.escapeId(this.items[next] ? this.items[next].id : '')}`)
+            let $next = query(this.box).find(`#tb_${this.name}_item_${w2utils.escapeId(this.items[next] ? this.items[next].id : '--')}`) // "--" is needed or it will insert wrong
             if ($next.length == 0) {
                 $next = query(this.box).find(`.w2ui-tb-line:nth-child(${it.line}`).find('.w2ui-tb-right').before(html)
             } else {
