@@ -1318,8 +1318,10 @@ class w2sidebar extends w2base {
         return options
     }
 
-    refresh(id, noBinding) {
+    refresh(id, options = {}) {
         if (this.box == null) return
+        let body = query(this.box).find(':scope > div > .w2ui-sidebar-body').get(0)
+        let { scrollTop, scrollLeft } = body ?? {}
         let time = Date.now()
         let self = this
         // event before
@@ -1382,7 +1384,8 @@ class w2sidebar extends w2base {
             nodeHTML = getNodeHTML(subNode)
             query(this.box).find(nodeSubId).append(nodeHTML)
             if (subNode.nodes.length !== 0) {
-                this.refresh(subNode.id, true)
+                // TODO: here
+                this.refresh(subNode.id, { recursive: true, })
             } else {
                 // trigger event
                 let edata2 = this.trigger('refresh', { target: subNode.id })
@@ -1397,9 +1400,11 @@ class w2sidebar extends w2base {
             div.scrollLeft = scroll.left
         }
         // bind events
-        if (!noBinding) {
+        if (!options.recursive) {
             let els = query(this.box).find(`${nodeId}, ${nodeId} .w2ui-eaction, ${nodeSubId} .w2ui-eaction`)
             w2utils.bindEvents(els, this)
+            // restore scroll position
+            query(body).prop({ scrollLeft, scrollTop })
         }
         // event after
         edata.finish()
