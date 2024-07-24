@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (7/3/2024, 8:33:17 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (7/24/2024, 4:08:15 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -3971,7 +3971,7 @@ let w2popup = new Dialog()
  * - multiple tooltips to the same anchor
  * - options.contextMenu
  * - options.prefilter - if true, it will show prefiltered items for w2menu, otherwise all
- * - menu.item.help, menu.item.hotkey
+ * - menu.item.help, menu.item.hotkey, menu.item.extra
  */
 
 class Tooltip {
@@ -5526,7 +5526,7 @@ class MenuTooltip extends Tooltip {
                                 <div style="width: ${parseInt(mitem.indent ?? 0)}px"></div>
                                 ${icon_dsp}
                                 <div class="menu-text" colspan="${colspan}">${w2utils.lang(txt)}</div>
-                                <div class="menu-extra">${count_dsp}</div>
+                                <div class="menu-extra">${mitem.extra ?? ''}${count_dsp}</div>
                         </div>`
                     count++
                 } else {
@@ -7363,7 +7363,7 @@ class w2toolbar extends w2base {
         }
         if (btn.length === 0) {
             let next = parseInt(this.get(id, true)) + 1
-            let $next = query(this.box).find(`#tb_${this.name}_item_${w2utils.escapeId(this.items[next] ? this.items[next].id : '')}`)
+            let $next = query(this.box).find(`#tb_${this.name}_item_${w2utils.escapeId(this.items[next] ? this.items[next].id : '--')}`) // "--" is needed or it will insert wrong
             if ($next.length == 0) {
                 $next = query(this.box).find(`.w2ui-tb-line:nth-child(${it.line}`).find('.w2ui-tb-right').before(html)
             } else {
@@ -8183,12 +8183,12 @@ class w2sidebar extends w2base {
             if (options.foldersFirst === false || (!isAfolder && !isBfolder) || (isAfolder && isBfolder)) {
                 let aText = a.text
                 let bText = b.text
+                if (a.order != null) aText = a.order
+                if (b.order != null) bText = b.order
                 if (!options.caseSensitive) {
                     aText = aText.toLowerCase()
                     bText = bText.toLowerCase()
                 }
-                if (a.order != null) aText = a.order
-                if (b.order != null) bText = b.order
                 let cmp = w2utils.naturalCompare(aText, bText)
                 return (cmp === 1 || cmp === -1) & options.reverse ? -cmp : cmp
             }
@@ -9108,8 +9108,10 @@ class w2sidebar extends w2base {
         // return what was not set
         return options
     }
-    refresh(id, noBinding) {
+    refresh(id, options = {}) {
         if (this.box == null) return
+        let body = query(this.box).find(':scope > div > .w2ui-sidebar-body').get(0)
+        let { scrollTop, scrollLeft } = body ?? {}
         let time = Date.now()
         let self = this
         // event before
@@ -9171,7 +9173,8 @@ class w2sidebar extends w2base {
             nodeHTML = getNodeHTML(subNode)
             query(this.box).find(nodeSubId).append(nodeHTML)
             if (subNode.nodes.length !== 0) {
-                this.refresh(subNode.id, true)
+                // TODO: here
+                this.refresh(subNode.id, { recursive: true, })
             } else {
                 // trigger event
                 let edata2 = this.trigger('refresh', { target: subNode.id })
@@ -9186,9 +9189,11 @@ class w2sidebar extends w2base {
             div.scrollLeft = scroll.left
         }
         // bind events
-        if (!noBinding) {
+        if (!options.recursive) {
             let els = query(this.box).find(`${nodeId}, ${nodeId} .w2ui-eaction, ${nodeSubId} .w2ui-eaction`)
             w2utils.bindEvents(els, this)
+            // restore scroll position
+            query(body).prop({ scrollLeft, scrollTop })
         }
         // event after
         edata.finish()
