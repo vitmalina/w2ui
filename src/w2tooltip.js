@@ -9,7 +9,7 @@
  * - multiple tooltips to the same anchor
  * - options.contextMenu
  * - options.prefilter - if true, it will show prefiltered items for w2menu, otherwise all
- * - menu.item.help, menu.item.hotkey
+ * - menu.item.help, menu.item.hotkey, menu.item.extra
  */
 
 import { w2base } from './w2base.js'
@@ -1620,7 +1620,7 @@ class MenuTooltip extends Tooltip {
                                 <div style="width: ${parseInt(mitem.indent ?? 0)}px"></div>
                                 ${icon_dsp}
                                 <div class="menu-text" colspan="${colspan}">${w2utils.lang(txt)}</div>
-                                <div class="menu-extra">${count_dsp}</div>
+                                <div class="menu-extra">${mitem.extra ?? ''}${count_dsp}</div>
                         </div>`
                     count++
                 } else {
