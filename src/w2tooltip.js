@@ -792,6 +792,7 @@ class Tooltip {
 }
 
 class ColorTooltip extends Tooltip {
+    static custom_colors = []
     constructor() {
         super()
         this.palette = [
@@ -970,6 +971,9 @@ class ColorTooltip extends Tooltip {
     // generate HTML with color pallent and controls
     getColorHTML(name, options) {
         let html = `
+            <div class="w2ui-colors-header w2ui-eaction" data-mousedown="startMove|event">
+                Colors
+            </div>
             <div class="w2ui-colors">
                 <div class="w2ui-tab-content tab-1">`
         for (let i = 0; i < this.palette.length; i++) {
@@ -987,6 +991,12 @@ class ColorTooltip extends Tooltip {
             html += '</div>'
             if (i < 2) html += '<div style="height: 8px"></div>'
         }
+        // custom colors
+        html += `
+            <div style="height: 8px"></div>
+            <div class="w2ui-colors-custom">
+                ${this.getCustomColorsHTML(name)}
+            </div>`
         html += '</div>'
         // advanced tab
         html += `
@@ -1029,6 +1039,27 @@ class ColorTooltip extends Tooltip {
                 <div class="w2ui-color-tab w2ui-eaction" data-click="tabClick|2|event|this"><span class="w2ui-icon w2ui-icon-settings"></span></div>
                 <div style="padding: 5px; width: 100%; text-align: right;">
                     ${(typeof options.html == 'string' ? options.html : '')}
+                </div>
+            </div>`
+        return html
+    }
+
+    getCustomColorsHTML(name) {
+        let options = this.get(name)?.options
+        let html = '<div class="w2ui-color-row" style="min-height: 21px">'
+        ColorTooltip.custom_colors.forEach((color, i) => {
+            let border = ''
+            if (color === 'FFFFFF') border = '; border: 1px solid #efefef'
+            html += `
+                <div class="w2ui-color w2ui-eaction ${color === 'TRANSPARENT' ? 'w2ui-no-color' : ''} ${options.color == color ? 'w2ui-selected' : ''}"
+                    style="background-color: #${color + border};" name="${color}" index="c:${i}"
+                    data-mousedown="select|'${color}'|event" data-mouseup="hide|${name}">&nbsp;
+                </div>`
+
+        })
+        html += `
+                <div class="w2ui-color w2ui-color-picker w2ui-eaction" data-click="pickAndSelect|${name}">
+                    <span class="w2ui-icon w2ui-icon-eye-dropper"></span>
                 </div>
             </div>`
         return html
@@ -1235,6 +1266,54 @@ class ColorTooltip extends Tooltip {
                 setColor({ a: parseFloat(Number(x / 150).toFixed(2)) })
             }
         }
+    }
+
+    startMove() {
+        //
+    }
+
+    addCustomColor(color, name) {
+        if (typeof color == 'string' && color.substr(0, 1) == '#' && [7, 9].includes(color.length)) {
+            color = color.substr(1).toUpperCase()
+            let custom = ColorTooltip.custom_colors
+            if (custom.includes(color)) {
+                custom.splice(custom.indexOf(color), 1)
+            }
+            if (custom.length >= 5) {
+                custom.shift() // remove first one
+            }
+            custom.unshift(color)
+            this.updateCustomColors(name)
+        }
+        return color
+    }
+
+    updateCustomColors(name) {
+
+    }
+
+    async pickAndSelect(name) {
+        let color = await this.pickColor()
+        if (typeof color == 'string' && color.substr(0, 1) == '#' && [7, 9].includes(color.length)) {
+            this.addCustomColor(color, name)
+            this.select(color.substr(1), name)
+            this.hide(name)
+        }
+    }
+
+    async pickColor() {
+        if (!window.EyeDropper) {
+            console.error('EyeDropper API is not supported in this browser.')
+            return
+        }
+        let eyeDropper = new EyeDropper()
+        try {
+            const result = await eyeDropper.open()
+            return result.sRGBHex
+        } catch (err) {
+            console.error('Error picking color:', err)
+        }
+        return ''
     }
 }
 

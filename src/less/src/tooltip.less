@@ -115,6 +115,14 @@
 }
 
 /* color overlay */
+.w2ui-colors-header {
+    padding: 4px 11px;
+    border-bottom: 1px solid #dddddd;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: move;
+}
+
 .w2ui-colors {
     padding: 8px;
     padding-bottom: 0px;
@@ -122,7 +130,7 @@
     border-radius: 3px;
     overflow: hidden;
     width: 270px;
-    height: 240px;
+    height: 270px;
 
     * { .box-sizing; }
 
@@ -155,8 +163,10 @@
             }
 
             .w2ui-icon {
-                padding-top: 1px;
-                width: 30px
+                padding-top: 0;
+                margin-top: -2px;
+                width: 30px;
+                height: 21px;
             }
         }
     }
@@ -190,13 +200,39 @@
                     font-size: 14px;
                     text-shadow: 0px 0px 2px #222;
                 }
+                &.w2ui-color-picker {
+                    position: absolute;
+                    right: 11px;
+                    margin-top: 1px;
+                    cursor: pointer;
+                    border: 1px solid #b9b5b5;
+                    width: 28px;
+                    height: 23px;
+                    color: #6e7e9f;
+                    background-color: #e6e3e3;
+                    border-radius: 3px;
+                    &:hover {
+                        color: #444;
+                        outline: 1px solid #888;
+                        border: 1px solid #e0e1e5;
+                        background-color: #e0e1e5;
+                    }
+                    .w2ui-icon {
+                        position: relative;
+                        top: -7px;
+                        left: -2px;
+                        margin: 0;
+                        padding: 0;
+                        font-size: 14px;
+                        height: 20px;
+                    }
+                }
             }
-
         }
     }
 
     .w2ui-tab-content.tab-2 {
-        height: 184px;
+        height: 213px;
         padding: 1px 2px;
 
         .palette {
