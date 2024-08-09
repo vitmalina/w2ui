@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (8/8/2024, 4:48:00 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (8/9/2024, 5:26:30 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -759,6 +759,9 @@ button.w2ui-btn:disabled {
 .w2ui-overlay * {
   box-sizing: border-box;
 }
+.w2ui-overlay .w2ui-draggable {
+  cursor: move;
+}
 .w2ui-overlay .w2ui-overlay-body {
   display: inline-block;
   border-radius: 4px;
@@ -875,6 +878,7 @@ button.w2ui-btn:disabled {
   overflow: hidden;
   width: 270px;
   height: 270px;
+  user-select: none;
 }
 .w2ui-colors * {
   -webkit-box-sizing: border-box;
@@ -991,14 +995,14 @@ button.w2ui-btn:disabled {
   position: relative;
   width: 150px;
   height: 12px;
-  margin: 10px 0px 0px 0px;
+  margin: 12px 0px 0px 0px;
   background: linear-gradient(90deg, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%);
 }
 .w2ui-colors .w2ui-tab-content.tab-2 .alpha {
   position: relative;
   width: 150px;
   height: 12px;
-  margin: 20px 0px 0px 0px;
+  margin: 14px 0px 0px 0px;
   background-color: #fff;
   background-image: linear-gradient(45deg, #bbb 25%, transparent 25%, transparent 75%, #bbb 75%, #bbb), linear-gradient(45deg, #bbb 25%, transparent 25%, transparent 75%, #bbb 75%, #bbb);
   background-size: 12px 12px;
@@ -1035,6 +1039,15 @@ button.w2ui-btn:disabled {
   background-color: #ffffff;
   box-shadow: 0px 0px 1px white;
   transform: translateX(-1px);
+}
+.w2ui-colors .w2ui-tab-content.tab-2 input.final {
+  font-size: 12px;
+  border-radius: 2px;
+  border: 1px solid #ccc;
+  width: 100px;
+  padding: 4px;
+  color: #333;
+  margin-top: 14px;
 }
 .w2ui-colors .w2ui-tab-content.tab-2 .color-info {
   float: right;
@@ -1074,14 +1087,43 @@ button.w2ui-btn:disabled {
   color: #333;
 }
 .w2ui-colors .w2ui-tab-content.tab-2 .color-info .color-part.opacity {
-  margin: 11px 0px 0px 8px;
+  margin: 6px 0px 0px 8px;
 }
 .w2ui-colors .w2ui-tab-content.tab-2 .color-info .color-part.opacity span {
   width: 42px;
+  margin-left: 0px;
+  margin-top: 5px;
 }
 .w2ui-colors .w2ui-tab-content.tab-2 .color-info .color-part.opacity input {
   width: 38px;
+  margin-left: 6px;
   text-align: center;
+}
+.w2ui-colors .w2ui-tab-content.tab-2 .w2ui-color-picker {
+  position: relative;
+  left: 5px;
+  top: 9px;
+  display: inline-block;
+  cursor: pointer;
+  border: 1px solid #b9b5b5;
+  width: 28px;
+  height: 24px;
+  color: #6e7e9f;
+  background-color: #e6e3e3;
+  border-radius: 3px;
+}
+.w2ui-colors .w2ui-tab-content.tab-2 .w2ui-color-picker:hover {
+  color: #444;
+  outline: 1px solid #888;
+  border: 1px solid #e0e1e5;
+  background-color: #e0e1e5;
+}
+.w2ui-colors .w2ui-tab-content.tab-2 .w2ui-color-picker .w2ui-icon {
+  position: relative;
+  top: -3px;
+  left: 3px;
+  font-size: 14px;
+  height: 20px;
 }
 /* menu overlay */
 .w2ui-menu-top,

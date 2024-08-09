@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (8/8/2024, 4:50:36 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (8/9/2024, 7:46:56 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -3984,6 +3984,7 @@ class Tooltip {
             style           : '',       // additional style for the overlay
             class           : '',       // add class for w2ui-tooltip-body
             position        : 'top|bottom',   // can be left, right, top, bottom
+            draggable       : false,    // if true, then tooltip can be move with mouse
             align           : '',       // can be: both, both:XX left, right, both, top, bottom
             anchor          : null,     // element it is attached to, if anchor is body, then it is context menu
             contextMenu     : false,    // if true, then it is context menu
@@ -4254,7 +4255,7 @@ class Tooltip {
                 .find('.w2ui-overlay-body')
                 .attr('style', (options.style || '') + '; ' + overlayStyles)
                 .removeClass() // removes all classes
-                .addClass('w2ui-overlay-body ' + options.class)
+                .addClass('w2ui-overlay-body ' + options.class + (options.draggable ? ' w2ui-draggable' : ''))
                 .html(options.html)
             this.resize(overlay.name)
         } else {
@@ -4267,11 +4268,12 @@ class Tooltip {
                 `<div id="${overlay.id}" name="${name}" style="display: none; pointer-events: none" class="w2ui-overlay"
                         data-click="stop" data-focusin="stop">
                     <style></style>
-                    <div class="w2ui-overlay-body ${options.class}" style="${options.style || ''}; ${overlayStyles}">
+                    <div class="w2ui-overlay-body w2ui-eaction ${options.class} ${options.draggable ? 'w2ui-draggable' : ''}"
+                            style="${options.style || ''}; ${overlayStyles}" ${options.draggable ? 'data-mousedown="startDrag|event"' : ''}>
                         ${options.html}
                     </div>
                 </div>`)
-            overlay.box = query('#'+w2utils.escapeId(overlay.id))[0]
+            overlay.box = query('#' + w2utils.escapeId(overlay.id))[0]
             overlay.displayed = true
             let names = query(overlay.anchor).data('tooltipName') ?? []
             names.push(name)
@@ -4318,6 +4320,8 @@ class Tooltip {
          * or it will trigger onmouseout, onmouseleave and other events.
          */
         setTimeout(() => { query(overlay.box).css({ 'pointer-events': 'auto' }).data('ready', 'yes') }, 100)
+        // bind events
+        w2utils.bindEvents(query(overlay.box).find('.w2ui-eaction'), this)
         delete overlay.needsUpdate
         // expose overlay to DOM element
         overlay.box.overlay = overlay
@@ -4720,6 +4724,37 @@ class Tooltip {
             }
         }
     }
+    startDrag(event) {
+        let initial
+        let el = query(event.target).closest('.w2ui-overlay')
+        initial = {
+            el,
+            x: parseFloat(el.css('left')),
+            y: parseFloat(el.css('top')),
+            pageX: event.pageX,
+            pageY: event.pageY,
+        }
+        query('html')
+            .off('.w2color')
+            .on('mousemove.w2color', mouseMove)
+            .on('mouseup.w2color', mouseUp)
+        function mouseUp(event) {
+            query('html').off('.w2color')
+        }
+        function mouseMove(event) {
+            let divX = event.pageX - initial.pageX
+            let divY = event.pageY - initial.pageY
+            initial.el.css({
+                left: initial.x + divX + 'px',
+                top: initial.y + divY + 'px'
+            })
+            if (!initial._removed) {
+                initial._removed = true
+                initial.el.find(':scope > .w2ui-overlay-body')
+                    .removeClass('w2ui-arrow-right w2ui-arrow-left w2ui-arrow-top w2ui-arrow-bottom')
+            }
+        }
+    }
 }
 class ColorTooltip extends Tooltip {
     static custom_colors = []
@@ -4896,7 +4931,7 @@ class ColorTooltip extends Tooltip {
     // generate HTML with color pallent and controls
     getColorHTML(name, options) {
         let html = `
-            <div class="w2ui-colors-header w2ui-eaction" data-mousedown="startMove|event">
+            <div class="w2ui-colors-header w2ui-eaction" data-mousedown="startDrag|event">
                 Colors
             </div>
             <div class="w2ui-colors">
@@ -4955,6 +4990,13 @@ class ColorTooltip extends Tooltip {
                 <div class="alpha" name="alpha">
                     <div class="alpha-bg"></div>
                     <div class="value2 move-x"></div>
+                </div>
+                <div class="final" name="final">
+                    <span style="text-align: right"> Hex </span>
+                    <input class="w2ui-input final" name="hex" tabindex="107" style="width: 70px" readonly>
+                    <div class="w2ui-color w2ui-color-picker w2ui-eaction" data-click="pickAndUse|${name}">
+                        <span class="w2ui-icon w2ui-icon-eye-dropper"></span>
+                    </div>
                 </div>
             </div>`
         // color tabs on the bottom
@@ -5055,6 +5097,7 @@ class ColorTooltip extends Tooltip {
         query(overlay.box).find('.palette, .rainbow, .alpha')
             .off('.w2color')
             .on(`${mDown}.w2color`, mouseDown)
+        this.setColor = setColor
         return
         function setColor(color, fullUpdate, initial) {
             if (color.h != null) hsv.h = color.h
@@ -5062,15 +5105,15 @@ class ColorTooltip extends Tooltip {
             if (color.v != null) hsv.v = color.v
             if (color.a != null) { rgb.a = color.a; hsv.a = color.a }
             rgb = w2utils.hsv2rgb(hsv)
-            let newColor = 'rgba('+ rgb.r +','+ rgb.g +','+ rgb.b +','+ rgb.a +')'
-            let cl       = [
+            let rgba = 'rgba('+ rgb.r +','+ rgb.g +','+ rgb.b +','+ rgb.a +')'
+            let cl = [
                 Number(rgb.r).toString(16).toUpperCase(),
                 Number(rgb.g).toString(16).toUpperCase(),
                 Number(rgb.b).toString(16).toUpperCase(),
                 (Math.round(Number(rgb.a)*255)).toString(16).toUpperCase()
             ]
             cl.forEach((item, ind) => { if (item.length === 1) cl[ind] = '0' + item })
-            newColor = cl[0] + cl[1] + cl[2] + cl[3]
+            let newColor = cl[0] + cl[1] + cl[2] + cl[3]
             if (rgb.a === 1) {
                 newColor = cl[0] + cl[1] + cl[2]
             }
@@ -5080,6 +5123,8 @@ class ColorTooltip extends Tooltip {
                     if (rgb[el.name] != null) el.value = rgb[el.name]
                     if (hsv[el.name] != null) el.value = hsv[el.name]
                     if (el.name === 'a') el.value = rgb.a
+                    if (el.name == 'hex') el.value = newColor
+                    if (el.name == 'rgb') el.value = rgba
                 }
             })
             // if it is in pallette
@@ -5129,13 +5174,13 @@ class ColorTooltip extends Tooltip {
             if (el.hasClass('move-x')) el.css({ left: (event.offsetX - offset) + 'px' })
             if (el.hasClass('move-y')) el.css({ top: (event.offsetY - offset) + 'px' })
             initial = {
-                el    : el,
-                x      : event.pageX,
-                y      : event.pageY,
-                width  : el.prop('parentNode').clientWidth,
-                height : el.prop('parentNode').clientHeight,
-                left   : parseInt(el.css('left')),
-                top    : parseInt(el.css('top'))
+                el: el,
+                x: event.pageX,
+                y: event.pageY,
+                width: el.prop('parentNode').clientWidth,
+                height: el.prop('parentNode').clientHeight,
+                left: parseInt(el.css('left')),
+                top: parseInt(el.css('top'))
             }
             mouseMove(event)
             query('html')
@@ -5179,9 +5224,6 @@ class ColorTooltip extends Tooltip {
             }
         }
     }
-    startMove() {
-        //
-    }
     addCustomColor(color, name) {
         if (typeof color == 'string' && color.substr(0, 1) == '#' && [7, 9].includes(color.length)) {
             color = color.substr(1).toUpperCase()
@@ -5197,14 +5239,19 @@ class ColorTooltip extends Tooltip {
         }
         return color
     }
-    updateCustomColors(name) {
-    }
     async pickAndSelect(name) {
         let color = await this.pickColor()
         if (typeof color == 'string' && color.substr(0, 1) == '#' && [7, 9].includes(color.length)) {
             this.addCustomColor(color, name)
             this.select(color.substr(1), name)
             this.hide(name)
+        }
+    }
+    async pickAndUse(name) {
+        let color = await this.pickColor()
+        if (typeof color == 'string' && color.substr(0, 1) == '#' && [7, 9].includes(color.length)) {
+            let hsv = w2utils.rgb2hsv(w2utils.parseColor(color))
+            this.setColor(hsv, true)
         }
     }
     async pickColor() {
