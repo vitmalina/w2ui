@@ -1,0 +1,92 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Draggable Tooltips</h1>
+        Tooltips can be draggable with the mouse. Either whole tooltip is draggable, or you can specify an area to drag by.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<style>
+    #some-div {
+        width: 200px;
+        text-align: center;
+        padding: 10px;
+        border: 1px solid #efefef;
+        border-radius: 4px;
+        background-color: #f8f8f5;
+    }
+</style>
+
+<div style="margin-top: 25px;">
+    <button class="w2ui-btn" onclick="show1()">Show Simple</button>
+    <button class="w2ui-btn" onclick="show2()">With Drag Handel</button>
+</div>
+
+<div style="height: 50px"></div>
+
+<div style="width: 200px; float: left">
+    Position:
+    <div style="padding: 10px; margin-bottom: 20px; line-height: 2">
+        <label><input name="position" type="radio" value="left"> &nbsp;left</label><br>
+        <label><input name="position" type="radio" value="right"> &nbsp;right</label><br>
+        <label><input name="position" type="radio" value="top" checked> &nbsp;top</label><br>
+        <label><input name="position" type="radio" value="bottom"> &nbsp;bottom</label><br>
+        <label><input name="position" type="radio" value="top|bottom"> &nbsp;top or bottom</label><br>
+        <label><input name="position" type="radio" value="right|left"> &nbsp;right or left</label><br>
+    </div>
+</div>
+<div style="width: 300px; float: left">
+    Anchor Alignment (only for TOP/BOTTOM):<br>
+    <div style="padding: 10px; margin-bottom: 20px; line-height: 2; float: left; width: 200px">
+        <label><input name="align" type="radio" value="none" checked> &nbsp;none</label><br>
+        <label><input name="align" type="radio" value="left"> &nbsp;left</label><br>
+        <label><input name="align" type="radio" value="right"> &nbsp;right</label><br>
+        <label><input name="align" type="radio" value="both"> &nbsp;both</label><br>
+    </div>
+</div>
+<div style="clear: both"></div>
+
+<!--CODE-->
+<script type="module">
+import { w2utils, w2tooltip, query } from '__W2UI_PATH__'
+
+let align = 'none';
+let position = 'top';
+
+query('input[name=position]').on('click', event => position = event.target.value )
+query('input[name=align]').on('click', event => align = event.target.value)
+
+function show1() {
+    w2tooltip.show({
+        align,
+        position,
+        draggable: true,
+        name: 'demo-tooltip',
+        anchor: event.target,
+        hideOn: ['doc-click'],
+        html: 'Simple tooltip (drag anywhere)'
+    })
+}
+
+function show2() {
+    w2tooltip.show({
+        align,
+        position,
+        name: 'demo-tooltip',
+        anchor: event.target,
+        class: 'w2ui-white',
+        hideOn: ['doc-click'],
+        html: `
+            <div style="background-color: #dee8f6; padding: 8px 6px; margin: -4px -8px;" class="w2ui-eaction w2ui-draggable" data-mousedown="startDrag|event">
+                Drag Handle
+            </div>
+            <div style="padding: 10px 0; border: 1px solid white; margin: 10px 0;"> Just some text, not draggable by it</div>
+        `
+    })
+
+}
+window.show1 = show1
+window.show2 = show2
+</script>

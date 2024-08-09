@@ -26,6 +26,7 @@ class Tooltip {
             style           : '',       // additional style for the overlay
             class           : '',       // add class for w2ui-tooltip-body
             position        : 'top|bottom',   // can be left, right, top, bottom
+            draggable       : false,    // if true, then tooltip can be move with mouse
             align           : '',       // can be: both, both:XX left, right, both, top, bottom
             anchor          : null,     // element it is attached to, if anchor is body, then it is context menu
             contextMenu     : false,    // if true, then it is context menu
@@ -305,7 +306,7 @@ class Tooltip {
                 .find('.w2ui-overlay-body')
                 .attr('style', (options.style || '') + '; ' + overlayStyles)
                 .removeClass() // removes all classes
-                .addClass('w2ui-overlay-body ' + options.class)
+                .addClass('w2ui-overlay-body ' + options.class + (options.draggable ? ' w2ui-draggable' : ''))
                 .html(options.html)
             this.resize(overlay.name)
         } else {
@@ -318,11 +319,12 @@ class Tooltip {
                 `<div id="${overlay.id}" name="${name}" style="display: none; pointer-events: none" class="w2ui-overlay"
                         data-click="stop" data-focusin="stop">
                     <style></style>
-                    <div class="w2ui-overlay-body ${options.class}" style="${options.style || ''}; ${overlayStyles}">
+                    <div class="w2ui-overlay-body w2ui-eaction ${options.class} ${options.draggable ? 'w2ui-draggable' : ''}"
+                            style="${options.style || ''}; ${overlayStyles}" ${options.draggable ? 'data-mousedown="startDrag|event"' : ''}>
                         ${options.html}
                     </div>
                 </div>`)
-            overlay.box = query('#'+w2utils.escapeId(overlay.id))[0]
+            overlay.box = query('#' + w2utils.escapeId(overlay.id))[0]
             overlay.displayed = true
             let names = query(overlay.anchor).data('tooltipName') ?? []
             names.push(name)
@@ -369,6 +371,10 @@ class Tooltip {
          * or it will trigger onmouseout, onmouseleave and other events.
          */
         setTimeout(() => { query(overlay.box).css({ 'pointer-events': 'auto' }).data('ready', 'yes') }, 100)
+
+        // bind events
+        w2utils.bindEvents(query(overlay.box).find('.w2ui-eaction'), this)
+
         delete overlay.needsUpdate
         // expose overlay to DOM element
         overlay.box.overlay = overlay
@@ -789,6 +795,40 @@ class Tooltip {
             }
         }
     }
+
+    startDrag(event) {
+        let initial
+        let el = query(event.target).closest('.w2ui-overlay')
+        initial = {
+            el,
+            x: parseFloat(el.css('left')),
+            y: parseFloat(el.css('top')),
+            pageX: event.pageX,
+            pageY: event.pageY,
+        }
+        query('html')
+            .off('.w2color')
+            .on('mousemove.w2color', mouseMove)
+            .on('mouseup.w2color', mouseUp)
+
+        function mouseUp(event) {
+            query('html').off('.w2color')
+        }
+
+        function mouseMove(event) {
+            let divX = event.pageX - initial.pageX
+            let divY = event.pageY - initial.pageY
+            initial.el.css({
+                left: initial.x + divX + 'px',
+                top: initial.y + divY + 'px'
+            })
+            if (!initial._removed) {
+                initial._removed = true
+                initial.el.find(':scope > .w2ui-overlay-body')
+                    .removeClass('w2ui-arrow-right w2ui-arrow-left w2ui-arrow-top w2ui-arrow-bottom')
+            }
+        }
+    }
 }
 
 class ColorTooltip extends Tooltip {
@@ -971,7 +1011,7 @@ class ColorTooltip extends Tooltip {
     // generate HTML with color pallent and controls
     getColorHTML(name, options) {
         let html = `
-            <div class="w2ui-colors-header w2ui-eaction" data-mousedown="startMove|event">
+            <div class="w2ui-colors-header w2ui-eaction" data-mousedown="startDrag|event">
                 Colors
             </div>
             <div class="w2ui-colors">
@@ -1225,13 +1265,13 @@ class ColorTooltip extends Tooltip {
             if (el.hasClass('move-x')) el.css({ left: (event.offsetX - offset) + 'px' })
             if (el.hasClass('move-y')) el.css({ top: (event.offsetY - offset) + 'px' })
             initial = {
-                el    : el,
-                x      : event.pageX,
-                y      : event.pageY,
-                width  : el.prop('parentNode').clientWidth,
-                height : el.prop('parentNode').clientHeight,
-                left   : parseInt(el.css('left')),
-                top    : parseInt(el.css('top'))
+                el: el,
+                x: event.pageX,
+                y: event.pageY,
+                width: el.prop('parentNode').clientWidth,
+                height: el.prop('parentNode').clientHeight,
+                left: parseInt(el.css('left')),
+                top: parseInt(el.css('top'))
             }
             mouseMove(event)
             query('html')
@@ -1279,10 +1319,6 @@ class ColorTooltip extends Tooltip {
         }
     }
 
-    startMove() {
-        //
-    }
-
     addCustomColor(color, name) {
         if (typeof color == 'string' && color.substr(0, 1) == '#' && [7, 9].includes(color.length)) {
             color = color.substr(1).toUpperCase()
@@ -1297,10 +1333,6 @@ class ColorTooltip extends Tooltip {
             this.updateCustomColors(name)
         }
         return color
-    }
-
-    updateCustomColors(name) {
-
     }
 
     async pickAndSelect(name) {
