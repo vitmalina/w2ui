@@ -1031,6 +1031,13 @@ class ColorTooltip extends Tooltip {
                     <div class="alpha-bg"></div>
                     <div class="value2 move-x"></div>
                 </div>
+                <div class="final" name="final">
+                    <span style="text-align: right"> Hex </span>
+                    <input class="w2ui-input final" name="hex" tabindex="107" style="width: 70px" readonly>
+                    <div class="w2ui-color w2ui-color-picker w2ui-eaction" data-click="pickAndUse|${name}">
+                        <span class="w2ui-icon w2ui-icon-eye-dropper"></span>
+                    </div>
+                </div>
             </div>`
         // color tabs on the bottom
         html += `
@@ -1136,6 +1143,8 @@ class ColorTooltip extends Tooltip {
         query(overlay.box).find('.palette, .rainbow, .alpha')
             .off('.w2color')
             .on(`${mDown}.w2color`, mouseDown)
+
+        this.setColor = setColor
         return
 
         function setColor(color, fullUpdate, initial) {
@@ -1144,15 +1153,15 @@ class ColorTooltip extends Tooltip {
             if (color.v != null) hsv.v = color.v
             if (color.a != null) { rgb.a = color.a; hsv.a = color.a }
             rgb = w2utils.hsv2rgb(hsv)
-            let newColor = 'rgba('+ rgb.r +','+ rgb.g +','+ rgb.b +','+ rgb.a +')'
-            let cl       = [
+            let rgba = 'rgba('+ rgb.r +','+ rgb.g +','+ rgb.b +','+ rgb.a +')'
+            let cl = [
                 Number(rgb.r).toString(16).toUpperCase(),
                 Number(rgb.g).toString(16).toUpperCase(),
                 Number(rgb.b).toString(16).toUpperCase(),
                 (Math.round(Number(rgb.a)*255)).toString(16).toUpperCase()
             ]
             cl.forEach((item, ind) => { if (item.length === 1) cl[ind] = '0' + item })
-            newColor = cl[0] + cl[1] + cl[2] + cl[3]
+            let newColor = cl[0] + cl[1] + cl[2] + cl[3]
             if (rgb.a === 1) {
                 newColor = cl[0] + cl[1] + cl[2]
             }
@@ -1162,6 +1171,8 @@ class ColorTooltip extends Tooltip {
                     if (rgb[el.name] != null) el.value = rgb[el.name]
                     if (hsv[el.name] != null) el.value = hsv[el.name]
                     if (el.name === 'a') el.value = rgb.a
+                    if (el.name == 'hex') el.value = newColor
+                    if (el.name == 'rgb') el.value = rgba
                 }
             })
             // if it is in pallette
@@ -1298,6 +1309,14 @@ class ColorTooltip extends Tooltip {
             this.addCustomColor(color, name)
             this.select(color.substr(1), name)
             this.hide(name)
+        }
+    }
+
+    async pickAndUse(name) {
+        let color = await this.pickColor()
+        if (typeof color == 'string' && color.substr(0, 1) == '#' && [7, 9].includes(color.length)) {
+            let hsv = w2utils.rgb2hsv(w2utils.parseColor(color))
+            this.setColor(hsv, true)
         }
     }
 
