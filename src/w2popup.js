@@ -821,7 +821,7 @@ function w2prompt(label, title, callBack) {
         options = { label: options }
     }
     if (options.label) {
-        options.focus = 1
+        options.focus = 0 // the  input should be in focus, which is first in the popup
         options.body = (options.textarea
             ? `<div class="w2ui-prompt textarea">
                  <div>${options.label}</div>

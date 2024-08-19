@@ -1330,7 +1330,6 @@ class ColorTooltip extends Tooltip {
                 custom.shift() // remove first one
             }
             custom.unshift(color)
-            this.updateCustomColors(name)
         }
         return color
     }
