@@ -274,17 +274,17 @@ class w2grid extends w2base {
         this.msgEmpty      = '' // if not blank, then it is message when server returns no records
 
         this.buttons = {
-            'reload'   : { type: 'button', id: 'w2ui-reload', icon: 'w2ui-icon-reload', tooltip: 'Reload data in the list' },
-            'columns'  : { type: 'menu-check', id: 'w2ui-column-on-off', icon: 'w2ui-icon-columns', tooltip: 'Show/hide columns',
+            'reload'   : { type: 'button', id: 'w2ui-reload', icon: 'w2ui-icon-reload', tooltip: w2utils.lang('Reload data in the list') },
+            'columns'  : { type: 'menu-check', id: 'w2ui-column-on-off', icon: 'w2ui-icon-columns', tooltip: w2utils.lang('Show/hide columns'),
                 overlay: { align: 'none' }
             },
             'search'   : { type: 'html', id: 'w2ui-search',
                 html: '<div class="w2ui-icon w2ui-icon-search w2ui-search-down w2ui-action" data-click="searchShowFields"></div>'
             },
-            'add'      : { type: 'button', id: 'w2ui-add', text: 'Add New', tooltip: 'Add new record', icon: 'w2ui-icon-plus' },
-            'edit'     : { type: 'button', id: 'w2ui-edit', text: 'Edit', tooltip: 'Edit selected record', icon: 'w2ui-icon-pencil', batch: 1, disabled: true },
-            'delete'   : { type: 'button', id: 'w2ui-delete', text: 'Delete', tooltip: 'Delete selected records', icon: 'w2ui-icon-cross', batch: true, disabled: true },
-            'save'     : { type: 'button', id: 'w2ui-save', text: 'Save', tooltip: 'Save changed records', icon: 'w2ui-icon-check' }
+            'add'      : { type: 'button', id: 'w2ui-add', text: 'Add New', tooltip: w2utils.lang('Add new record'), icon: 'w2ui-icon-plus' },
+            'edit'     : { type: 'button', id: 'w2ui-edit', text: 'Edit', tooltip: w2utils.lang('Edit selected record'), icon: 'w2ui-icon-pencil', batch: 1, disabled: true },
+            'delete'   : { type: 'button', id: 'w2ui-delete', text: 'Delete', tooltip: w2utils.lang('Delete selected records'), icon: 'w2ui-icon-cross', batch: true, disabled: true },
+            'save'     : { type: 'button', id: 'w2ui-save', text: 'Save', tooltip: w2utils.lang('Save changed records'), icon: 'w2ui-icon-check' }
         }
 
         this.operators = { // for search fields
