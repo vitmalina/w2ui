@@ -375,7 +375,7 @@ class w2form extends w2base {
         // clean extra chars
         if (['int', 'float', 'percent', 'money', 'currency'].includes(field.type)) {
             // for float allow "0." and "0.0..." input as valid, otherwise it is not possible to enter .
-            if (field.type == 'int' || /\d+\.(?!0+$)\d+/.test()) {
+            if (field.type == 'int' || /\d+\.(?!0+$)\d+/.test(current)) {
                 current = field.w2field.clean(current)
             }
         }

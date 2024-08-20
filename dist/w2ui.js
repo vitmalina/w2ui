@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (8/20/2024, 10:45:05 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (8/20/2024, 2:48:16 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -20187,7 +20187,7 @@ class w2form extends w2base {
         // clean extra chars
         if (['int', 'float', 'percent', 'money', 'currency'].includes(field.type)) {
             // for float allow "0." and "0.0..." input as valid, otherwise it is not possible to enter .
-            if (field.type == 'int' || /\d+\.(?!0+$)\d+/.test()) {
+            if (field.type == 'int' || /\d+\.(?!0+$)\d+/.test(current)) {
                 current = field.w2field.clean(current)
             }
         }
