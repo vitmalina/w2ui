@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (8/9/2024, 7:46:56 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (8/20/2024, 10:45:05 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -3891,7 +3891,7 @@ function w2prompt(label, title, callBack) {
         options = { label: options }
     }
     if (options.label) {
-        options.focus = 1
+        options.focus = 0 // the  input should be in focus, which is first in the popup
         options.body = (options.textarea
             ? `<div class="w2ui-prompt textarea">
                  <div>${options.label}</div>
@@ -5235,7 +5235,6 @@ class ColorTooltip extends Tooltip {
                 custom.shift() // remove first one
             }
             custom.unshift(color)
-            this.updateCustomColors(name)
         }
         return color
     }
@@ -20187,8 +20186,8 @@ class w2form extends w2base {
         // if (previous == null) previous = ''
         // clean extra chars
         if (['int', 'float', 'percent', 'money', 'currency'].includes(field.type)) {
-            // for float values allow "0." input as valid, otherwise it is nto possible to enter .
-            if (field.type == 'int' || current[current.length -1] != '.') {
+            // for float allow "0." and "0.0..." input as valid, otherwise it is not possible to enter .
+            if (field.type == 'int' || /\d+\.(?!0+$)\d+/.test()) {
                 current = field.w2field.clean(current)
             }
         }
