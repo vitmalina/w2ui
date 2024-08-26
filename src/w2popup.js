@@ -627,8 +627,8 @@ class Dialog extends w2base {
         let sel = 'input, button, select, textarea, [contentEditable], [tabindex], .w2ui-input'
         if (focus != null) {
             let el = isNaN(focus)
-                ? box.find(sel).filter(focus).get(0)
-                : box.find(sel).get(focus)
+                ? box.find(sel).filter(focus).filter(':not([name=hidden-first])').get(0)
+                : box.find(sel).filter(':not([name=hidden-first])').get(focus)
             el?.focus()
         } else {
             let el = box.find('[name=hidden-first]').get(0)
@@ -821,17 +821,17 @@ function w2prompt(label, title, callBack) {
         options = { label: options }
     }
     if (options.label) {
-        options.focus = 0 // the  input should be in focus, which is first in the popup
+        options.focus = 0 // the input should be in focus, which is first in the popup
         options.body = (options.textarea
             ? `<div class="w2ui-prompt textarea">
                  <div>${options.label}</div>
                  <textarea id="w2prompt" class="w2ui-input" ${options.attrs ?? ''}
-                    data-keydown="keydown|event" data-keyup="change|event">${options.value??''}</textarea>
+                    data-keydown="keydown|event" data-keyup="change|event"></textarea>
                </div>`
             : `<div class="w2ui-prompt w2ui-centered">
                  <label>${options.label}</label>
                  <input id="w2prompt" class="w2ui-input" ${options.attrs ?? ''}
-                    data-keydown="keydown|event" data-keyup="change|event" value="${options.value??''}">
+                    data-keydown="keydown|event" data-keyup="change|event">
                </div>`
         )
     }
@@ -852,7 +852,8 @@ function w2prompt(label, title, callBack) {
     } else {
         prom.self.input = query('#w2ui-popup .w2ui-popup-body #w2prompt').get(0)
     }
-    if (options.value !== null) {
+    if (options.value != null) {
+        prom.self.input.value = options.value
         prom.self.input.select()
     }
     prom.change = function (callback) {
