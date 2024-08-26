@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (8/26/2024, 2:01:08 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (8/26/2024, 2:02:27 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -21416,7 +21416,6 @@ class w2form extends w2base {
                 .on('input.w2form', function(event) {
                     self.rememberOriginal()
                     let value = self.getFieldValue(field.field)
-                    console.log(value)
                     // save previous for change event
                     if (this._previous == null) {
                         this._previous = value.previous
