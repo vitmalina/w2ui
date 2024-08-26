@@ -361,7 +361,7 @@ class w2form extends w2base {
         }
     }
 
-    getFieldValue(name) {
+    getFieldValue(name, cleanNumeric) {
         let field = this.get(name)
         if (field == null) return
         let el = field.el
@@ -374,8 +374,8 @@ class w2form extends w2base {
 
         // clean extra chars
         if (['int', 'float', 'percent', 'money', 'currency'].includes(field.type)) {
-            // for float allow "0." and "0.0..." input as valid, otherwise it is not possible to enter .
-            if (field.type == 'int' || /\d+\.(?!0+$)\d+/.test(current)) {
+            // apply numeric cleaning only after the user has completed their input
+            if (cleanNumeric) {
                 current = field.w2field.clean(current)
             }
         }
@@ -1622,7 +1622,7 @@ class w2form extends w2base {
             field.$el
                 .off('.w2form')
                 .on('change.w2form', function(event) {
-                    let value = self.getFieldValue(field.field)
+                    let value = self.getFieldValue(field.field, true)
                     // clear error class
                     if (['enum', 'file'].includes(field.type)) {
                         let helper = field.w2field?.helpers?.multi
@@ -1642,7 +1642,7 @@ class w2form extends w2base {
                 })
                 .on('input.w2form', function(event) {
                     self.rememberOriginal()
-                    let value = self.getFieldValue(field.field)
+                    let value = self.getFieldValue(field.field, false)
                     // save previous for change event
                     if (this._previous == null) {
                         this._previous = value.previous
