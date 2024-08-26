@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (8/20/2024, 2:48:16 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (8/26/2024, 2:01:08 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -11597,17 +11597,17 @@ class w2grid extends w2base {
         this.msgNeedReload = 'Your remote data source record count has changed, reloading from the first record.'
         this.msgEmpty      = '' // if not blank, then it is message when server returns no records
         this.buttons = {
-            'reload'   : { type: 'button', id: 'w2ui-reload', icon: 'w2ui-icon-reload', tooltip: 'Reload data in the list' },
-            'columns'  : { type: 'menu-check', id: 'w2ui-column-on-off', icon: 'w2ui-icon-columns', tooltip: 'Show/hide columns',
+            'reload'   : { type: 'button', id: 'w2ui-reload', icon: 'w2ui-icon-reload', tooltip: w2utils.lang('Reload data in the list') },
+            'columns'  : { type: 'menu-check', id: 'w2ui-column-on-off', icon: 'w2ui-icon-columns', tooltip: w2utils.lang('Show/hide columns'),
                 overlay: { align: 'none' }
             },
             'search'   : { type: 'html', id: 'w2ui-search',
                 html: '<div class="w2ui-icon w2ui-icon-search w2ui-search-down w2ui-action" data-click="searchShowFields"></div>'
             },
-            'add'      : { type: 'button', id: 'w2ui-add', text: 'Add New', tooltip: 'Add new record', icon: 'w2ui-icon-plus' },
-            'edit'     : { type: 'button', id: 'w2ui-edit', text: 'Edit', tooltip: 'Edit selected record', icon: 'w2ui-icon-pencil', batch: 1, disabled: true },
-            'delete'   : { type: 'button', id: 'w2ui-delete', text: 'Delete', tooltip: 'Delete selected records', icon: 'w2ui-icon-cross', batch: true, disabled: true },
-            'save'     : { type: 'button', id: 'w2ui-save', text: 'Save', tooltip: 'Save changed records', icon: 'w2ui-icon-check' }
+            'add'      : { type: 'button', id: 'w2ui-add', text: 'Add New', tooltip: w2utils.lang('Add new record'), icon: 'w2ui-icon-plus' },
+            'edit'     : { type: 'button', id: 'w2ui-edit', text: 'Edit', tooltip: w2utils.lang('Edit selected record'), icon: 'w2ui-icon-pencil', batch: 1, disabled: true },
+            'delete'   : { type: 'button', id: 'w2ui-delete', text: 'Delete', tooltip: w2utils.lang('Delete selected records'), icon: 'w2ui-icon-cross', batch: true, disabled: true },
+            'save'     : { type: 'button', id: 'w2ui-save', text: 'Save', tooltip: w2utils.lang('Save changed records'), icon: 'w2ui-icon-check' }
         }
         this.operators = { // for search fields
             'text'    : ['is', 'begins', 'contains', 'ends'], // could have "in" and "not in"
@@ -20186,10 +20186,7 @@ class w2form extends w2base {
         // if (previous == null) previous = ''
         // clean extra chars
         if (['int', 'float', 'percent', 'money', 'currency'].includes(field.type)) {
-            // for float allow "0." and "0.0..." input as valid, otherwise it is not possible to enter .
-            if (field.type == 'int' || /\d+\.(?!0+$)\d+/.test(current)) {
-                current = field.w2field.clean(current)
-            }
+            current = field.w2field.clean(current)
         }
         // radio list
         if (['radio'].includes(field.type)) {
@@ -21419,6 +21416,7 @@ class w2form extends w2base {
                 .on('input.w2form', function(event) {
                     self.rememberOriginal()
                     let value = self.getFieldValue(field.field)
+                    console.log(value)
                     // save previous for change event
                     if (this._previous == null) {
                         this._previous = value.previous
@@ -21427,7 +21425,7 @@ class w2form extends w2base {
                     let edata2 = self.trigger('input', { target: self.name, field, value, originalEvent: event })
                     if (edata2.isCancelled === true) return
                     // default action
-                    self.setValue(this.name, value.current)
+                    self.setValue(this.name, value.current, true)
                     // event after
                     edata2.finish()
                 })
