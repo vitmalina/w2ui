@@ -1640,7 +1640,6 @@ class w2form extends w2base {
                 .on('input.w2form', function(event) {
                     self.rememberOriginal()
                     let value = self.getFieldValue(field.field)
-                    console.log(value)
                     // save previous for change event
                     if (this._previous == null) {
                         this._previous = value.previous
