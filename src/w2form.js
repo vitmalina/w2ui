@@ -374,10 +374,7 @@ class w2form extends w2base {
 
         // clean extra chars
         if (['int', 'float', 'percent', 'money', 'currency'].includes(field.type)) {
-            // for float allow "0." and "0.0..." input as valid, otherwise it is not possible to enter .
-            if (field.type == 'int' || /\d+\.(?!0+$)\d+/.test(current)) {
-                current = field.w2field.clean(current)
-            }
+            current = field.w2field.clean(current)
         }
         // radio list
         if (['radio'].includes(field.type)) {
@@ -1643,6 +1640,7 @@ class w2form extends w2base {
                 .on('input.w2form', function(event) {
                     self.rememberOriginal()
                     let value = self.getFieldValue(field.field)
+                    console.log(value)
                     // save previous for change event
                     if (this._previous == null) {
                         this._previous = value.previous
@@ -1651,7 +1649,7 @@ class w2form extends w2base {
                     let edata2 = self.trigger('input', { target: self.name, field, value, originalEvent: event })
                     if (edata2.isCancelled === true) return
                     // default action
-                    self.setValue(this.name, value.current)
+                    self.setValue(this.name, value.current, true)
                     // event after
                     edata2.finish()
                 })
