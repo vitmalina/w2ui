@@ -2711,31 +2711,32 @@ class DateTooltip extends Tooltip {
             sdays.unshift(sdays.pop())
         }
 
-        let td = new Date()
+        let DT = new Date()
         let dayLengthMil = 1000 * 60 * 60 * 24
+
         let selected = options.type === 'datetime'
             ? w2utils.isDateTime(options.value, options.format, true)
             : w2utils.isDate(options.value, options.format, true)
         let selected_dsp = w2utils.formatDate(selected)
+
         // normalize date
         if (month == null || year == null) {
-            year  = selected ? selected.getFullYear() : td.getFullYear()
-            month = selected ? selected.getMonth() + 1 : td.getMonth() + 1
+            year  = selected ? selected.getFullYear() : DT.getFullYear()
+            month = selected ? selected.getMonth() + 1 : DT.getMonth() + 1
         }
         if (month > 12) { month -= 12; year++ }
         if (month < 1 || month === 0) { month += 12; year-- }
         if (year/4 == Math.floor(year/4)) { this.daysCount[1] = 29 } else { this.daysCount[1] = 28 }
         options.current = month + '/' + year
-        // start with the required date
-        td = new Date(year, month-1, 1)
-        let weekDay = td.getDay()
-        let weekDays = ''
+
+        let weekDaysHeaderHTML = ''
         let st = w2utils.settings.weekStarts
         for (let i = 0; i < sdays.length; i++) {
             let isSat = (st == 'M' && i == 5) || (st != 'M' && i == 6) ? true : false
             let isSun = (st == 'M' && i == 6) || (st != 'M' && i == 0) ? true : false
-            weekDays += `<div class="w2ui-day w2ui-weekday ${isSat ? 'w2ui-sunday' : ''} ${isSun ? 'w2ui-saturday' : ''}">${sdays[i]}</div>`
+            weekDaysHeaderHTML += `<div class="w2ui-day w2ui-weekday ${isSat ? 'w2ui-sunday' : ''} ${isSun ? 'w2ui-saturday' : ''}">${sdays[i]}</div>`
         }
+
         let html = `
             <div class="w2ui-cal-title">
                 <div class="w2ui-cal-previous">
@@ -2748,26 +2749,29 @@ class DateTooltip extends Tooltip {
                 <span class="arrow-down"></span>
             </div>
             <div class="w2ui-cal-days">
-                ${weekDays}
+                ${weekDaysHeaderHTML}
         `
-        let DT = new Date(`${year}/${month}/1`) // first of month
+
+        // start with the required date
+        DT = new Date(year, month-1, 1)
+
         /**
          * Move to noon, instead of midnight. If not, then the date when time saving happens
          * will be duplicated in the calendar
          */
         DT = new Date(DT.getTime() + dayLengthMil * 0.5)
-        let weekday = DT.getDay()
-        if (w2utils.settings.weekStarts == 'M') weekDay--
-        let DaySat = 6
-        let DaySun = 0
-        if (weekday > 0) {
-            DT = new Date(DT.getTime() - (weekDay * dayLengthMil))
-        } else {
-            DaySat = DaySat + weekDay
-            DaySun = DaySun + weekDay
-            if (DaySat < 0) DaySat = 6 + DaySat + 1
-            if (DaySun < 0) DaySun = 6 + DaySun + 1
+
+        // calendar offset
+        let weekDayOffset = DT.getDay()
+        if (w2utils.settings.weekStarts == 'M') {
+            // offset should be 1 day more, but not negative (Sunday)
+            weekDayOffset = weekDayOffset > 0 ? weekDayOffset - 1 : 6
         }
+
+        // apply the offset for the first day in the calendar
+        DT = new Date(DT.getTime() - (weekDayOffset * dayLengthMil))
+
+        const DaySat = 6, DaySun = 0
         for (let ci = 0; ci < 42; ci++) {
             let className = []
             let dt = `${DT.getFullYear()}/${DT.getMonth()+1}/${DT.getDate()}`
