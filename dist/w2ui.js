@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (8/26/2024, 2:02:27 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (9/4/2024, 10:49:25 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -3705,8 +3705,8 @@ class Dialog extends w2base {
         let sel = 'input, button, select, textarea, [contentEditable], [tabindex], .w2ui-input'
         if (focus != null) {
             let el = isNaN(focus)
-                ? box.find(sel).filter(focus).get(0)
-                : box.find(sel).get(focus)
+                ? box.find(sel).filter(focus).filter(':not([name=hidden-first])').get(0)
+                : box.find(sel).filter(':not([name=hidden-first])').get(focus)
             el?.focus()
         } else {
             let el = box.find('[name=hidden-first]').get(0)
@@ -3891,17 +3891,17 @@ function w2prompt(label, title, callBack) {
         options = { label: options }
     }
     if (options.label) {
-        options.focus = 0 // the  input should be in focus, which is first in the popup
+        options.focus = 0 // the input should be in focus, which is first in the popup
         options.body = (options.textarea
             ? `<div class="w2ui-prompt textarea">
                  <div>${options.label}</div>
                  <textarea id="w2prompt" class="w2ui-input" ${options.attrs ?? ''}
-                    data-keydown="keydown|event" data-keyup="change|event">${options.value??''}</textarea>
+                    data-keydown="keydown|event" data-keyup="change|event"></textarea>
                </div>`
             : `<div class="w2ui-prompt w2ui-centered">
                  <label>${options.label}</label>
                  <input id="w2prompt" class="w2ui-input" ${options.attrs ?? ''}
-                    data-keydown="keydown|event" data-keyup="change|event" value="${options.value??''}">
+                    data-keydown="keydown|event" data-keyup="change|event">
                </div>`
         )
     }
@@ -3922,7 +3922,8 @@ function w2prompt(label, title, callBack) {
     } else {
         prom.self.input = query('#w2ui-popup .w2ui-popup-body #w2prompt').get(0)
     }
-    if (options.value !== null) {
+    if (options.value != null) {
+        prom.self.input.value = options.value
         prom.self.input.select()
     }
     prom.change = function (callback) {
@@ -6585,7 +6586,7 @@ class DateTooltip extends Tooltip {
             days.unshift(days.pop())
             sdays.unshift(sdays.pop())
         }
-        let td = new Date()
+        let DT = new Date()
         let dayLengthMil = 1000 * 60 * 60 * 24
         let selected = options.type === 'datetime'
             ? w2utils.isDateTime(options.value, options.format, true)
@@ -6593,22 +6594,19 @@ class DateTooltip extends Tooltip {
         let selected_dsp = w2utils.formatDate(selected)
         // normalize date
         if (month == null || year == null) {
-            year  = selected ? selected.getFullYear() : td.getFullYear()
-            month = selected ? selected.getMonth() + 1 : td.getMonth() + 1
+            year  = selected ? selected.getFullYear() : DT.getFullYear()
+            month = selected ? selected.getMonth() + 1 : DT.getMonth() + 1
         }
         if (month > 12) { month -= 12; year++ }
         if (month < 1 || month === 0) { month += 12; year-- }
         if (year/4 == Math.floor(year/4)) { this.daysCount[1] = 29 } else { this.daysCount[1] = 28 }
         options.current = month + '/' + year
-        // start with the required date
-        td = new Date(year, month-1, 1)
-        let weekDay = td.getDay()
-        let weekDays = ''
+        let weekDaysHeaderHTML = ''
         let st = w2utils.settings.weekStarts
         for (let i = 0; i < sdays.length; i++) {
             let isSat = (st == 'M' && i == 5) || (st != 'M' && i == 6) ? true : false
             let isSun = (st == 'M' && i == 6) || (st != 'M' && i == 0) ? true : false
-            weekDays += `<div class="w2ui-day w2ui-weekday ${isSat ? 'w2ui-sunday' : ''} ${isSun ? 'w2ui-saturday' : ''}">${sdays[i]}</div>`
+            weekDaysHeaderHTML += `<div class="w2ui-day w2ui-weekday ${isSat ? 'w2ui-sunday' : ''} ${isSun ? 'w2ui-saturday' : ''}">${sdays[i]}</div>`
         }
         let html = `
             <div class="w2ui-cal-title">
@@ -6622,26 +6620,24 @@ class DateTooltip extends Tooltip {
                 <span class="arrow-down"></span>
             </div>
             <div class="w2ui-cal-days">
-                ${weekDays}
+                ${weekDaysHeaderHTML}
         `
-        let DT = new Date(`${year}/${month}/1`) // first of month
+        // start with the required date
+        DT = new Date(year, month-1, 1)
         /**
          * Move to noon, instead of midnight. If not, then the date when time saving happens
          * will be duplicated in the calendar
          */
         DT = new Date(DT.getTime() + dayLengthMil * 0.5)
-        let weekday = DT.getDay()
-        if (w2utils.settings.weekStarts == 'M') weekDay--
-        let DaySat = 6
-        let DaySun = 0
-        if (weekday > 0) {
-            DT = new Date(DT.getTime() - (weekDay * dayLengthMil))
-        } else {
-            DaySat = DaySat + weekDay
-            DaySun = DaySun + weekDay
-            if (DaySat < 0) DaySat = 6 + DaySat + 1
-            if (DaySun < 0) DaySun = 6 + DaySun + 1
+        // calendar offset
+        let weekDayOffset = DT.getDay()
+        if (w2utils.settings.weekStarts == 'M') {
+            // offset should be 1 day more, but not negative (Sunday)
+            weekDayOffset = weekDayOffset > 0 ? weekDayOffset - 1 : 6
         }
+        // apply the offset for the first day in the calendar
+        DT = new Date(DT.getTime() - (weekDayOffset * dayLengthMil))
+        const DaySat = 6, DaySun = 0
         for (let ci = 0; ci < 42; ci++) {
             let className = []
             let dt = `${DT.getFullYear()}/${DT.getMonth()+1}/${DT.getDate()}`
@@ -21976,7 +21972,6 @@ class w2form extends w2base {
  *  - removed jQuery dependency
  *  - enum options.autoAdd
  *  - [numeric, date] - options.autoCorrect to enforce range and validity
- *  - silent only left for files, removed form the rest
  *  - remote source response items => records or just an array
  *  - deprecated "success" field for remote source response
  *  - CSP - fixed inline events
@@ -22056,9 +22051,11 @@ class w2field extends w2base {
                     step: 1,
                     autoFormat: true,
                     autoCorrect: true,
-                    currencyPrefix: w2utils.settings.currencyPrefix,
-                    currencySuffix: w2utils.settings.currencySuffix,
-                    currencyPrecision: w2utils.settings.currencyPrecision,
+                    currency: {
+                        prefix: w2utils.settings.currencyPrefix,
+                        suffix: w2utils.settings.currencySuffix,
+                        precision: w2utils.settings.currencyPrecision
+                    },
                     decimalSymbol: w2utils.settings.decimalSymbol,
                     groupSymbol: w2utils.settings.groupSymbol,
                     arrow: false,
@@ -22070,7 +22067,7 @@ class w2field extends w2base {
                 this.options = w2utils.extend({}, defaults, options)
                 options = this.options // since object is re-created, need to re-assign
                 options.numberRE  = new RegExp('['+ options.groupSymbol + ']', 'g')
-                options.moneyRE   = new RegExp('['+ options.currencyPrefix + options.currencySuffix + options.groupSymbol +']', 'g')
+                options.moneyRE   = new RegExp('['+ options.currency.prefix + options.currency.suffix + options.groupSymbol +']', 'g')
                 options.percentRE = new RegExp('['+ options.groupSymbol + '%]', 'g')
                 // no keyboard support needed
                 if (['text', 'alphanumeric', 'hex', 'bin'].includes(this.type)) {
@@ -22081,7 +22078,7 @@ class w2field extends w2base {
             }
             case 'color': {
                 let size = parseInt(getComputedStyle(this.el)['font-size']) || 12
-                defaults     = {
+                defaults = {
                     prefix      : '#',
                     suffix      : `<div style="width: ${size}px; height: ${size}px; margin-top: -2px;
                                     position: relative; top: 50%; transform: translateY(-50%);">&#160;</div>`,
@@ -22096,14 +22093,14 @@ class w2field extends w2base {
             case 'date': {
                 defaults = {
                     format        : w2utils.settings.dateFormat, // date format
-                    keyboard      : true,
-                    autoCorrect   : true,
-                    start         : null,
-                    end           : null,
-                    blockDates    : [], // array of blocked dates
-                    blockWeekdays : [], // blocked weekdays 0 - sunday, 1 - monday, etc
-                    colored       : {}, // ex: { '3/13/2022': 'bg-color|text-color' }
-                    btnNow        : true
+                    keyboard      : true,   // if true, allows to select date with format
+                    autoCorrect   : true,   // correc date or shows the error
+                    start         : null,   // first date allowed to select
+                    end           : null,   // last date allowed to select
+                    blockDates    : [],     // array of blocked dates
+                    blockWeekdays : [],     // blocked weekdays 0 - sunday, 1 - monday, etc
+                    colored       : {},     // ex: { '3/13/2022': 'bg-color|text-color' }
+                    btnNow        : true    // if true, displays Now button
                 }
                 this.options = w2utils.extend({ type: 'date' }, defaults, options)
                 options = this.options // since object is re-created, need to re-assign
@@ -22113,7 +22110,7 @@ class w2field extends w2base {
                 break
             }
             case 'time': {
-                defaults     = {
+                defaults = {
                     format      : w2utils.settings.timeFormat,
                     keyboard    : true,
                     autoCorrect : true,
@@ -22130,7 +22127,7 @@ class w2field extends w2base {
                 break
             }
             case 'datetime': {
-                defaults     = {
+                defaults = {
                     format        : w2utils.settings.dateFormat + '|' + w2utils.settings.timeFormat,
                     keyboard      : true,
                     autoCorrect   : true,
@@ -22154,39 +22151,42 @@ class w2field extends w2base {
             case 'list':
             case 'combo': {
                 defaults = {
-                    items           : [],
-                    selected        : {},
-                    prefix          : '',
-                    suffix          : '',
-                    openOnFocus     : false,  // if to show overlay onclick or when typing
-                    icon            : null,
-                    iconStyle       : '',
-                    // -- following options implemented in w2tooltip
-                    url             : null,   // remove source for items
-                    recId           : null,   // map retrieved data from url to id, can be string or function
-                    recText         : null,   // map retrieved data from url to text, can be string or function
-                    method          : null,   // default httpMethod
-                    debounce        : 250,    // number of ms to wait before sending server call on search
-                    postData        : {},
-                    minLength       : 1,      // min number of chars when trigger search
-                    cacheMax        : 250,
-                    maxDropHeight   : 350,    // max height for drop down menu
-                    maxDropWidth    : null,   // if null then auto set
-                    minDropWidth    : null,   // if null then auto set
+                    items           : [],       // array of items, can be a function
+                    selected        : {},       // selected item
                     match           : 'begins', // ['contains', 'is', 'begins', 'ends']
-                    align           : 'both', // same width as control
-                    altRows         : true,   // alternate row color
-                    renderDrop      : null,   // render function for drop down item
-                    compare         : null,   // compare function for filtering
-                    filter          : true,   // weather to filter at all
-                    hideSelected    : false,  // hide selected item from drop down
-                    markSearch      : false,
+                    filter          : true,     // weather to filter at all
+                    compare         : null,     // compare function for filtering
+                    prefix          : '',       // prefix for input
+                    suffix          : '',       // sufix for input
+                    icon            : null,     // icon class for selected item
+                    iconStyle       : '',       // icon style for selected item
+                    // -- remote items --
+                    url             : null,     // remove data source for items
+                    method          : null,     // default comes from w2utils.settings.dataType
+                    postData        : {},       // additional data to submit to URL
+                    recId           : null,     // map retrieved data from url to id, can be string or function
+                    recText         : null,     // map retrieved data from url to text, can be string or function
+                    debounce        : 250,      // number of ms to wait before sending server call on search
+                    minLength       : 1,        // min number of chars when trigger search
+                    cacheMax        : 250,
+                    // -- drop items --
+                    renderDrop      : null,     // render function for drop down item
+                    maxDropHeight   : 350,      // max height for drop down menu
+                    maxDropWidth    : null,     // if null then auto set
+                    minDropWidth    : null,     // if null then auto set
+                    // -- misc --
+                    markSearch      : false,    // if true, highlights search phrase
+                    align           : 'both',   // align with the input ['left', 'right', 'both', 'none']
+                    altRows         : true,     // alternate row color for drop itesm
+                    openOnFocus     : false,    // if true, shows drop items on focus
+                    hideSelected    : false,    // hide selected item from drop down
                     msgNoItems      : 'No matches',
                     msgSearch       : 'Type to search...',
-                    onSearch        : null,   // when search needs to be performed
-                    onRequest       : null,   // when request is submitted
-                    onLoad          : null,   // when data is received
-                    onError         : null,    // when data fails to load due to server error or other failure modes
+                    // -- events --
+                    onSearch        : null,     // when search needs to be performed
+                    onRequest       : null,     // when request is submitted
+                    onLoad          : null,     // when data is received
+                    onError         : null,     // when data fails to load due to server error
                 }
                 if (typeof options.items == 'function') {
                     options._items_fun = options.items
@@ -22229,42 +22229,45 @@ class w2field extends w2base {
                     items           : [],    // id, text, tooltip, icon
                     selected        : [],
                     max             : 0,     // max number of selected items, 0 - unlimited
-                    maxItemWidth    : 250,   // max width for a single item
-                    style           : '',    // style for container div
-                    openOnFocus     : false, // if to show overlay onclick or when typing
-                    renderItem      : null,  // render selected item
-                    onMouseEnter    : null,  // when an item is mouse over
-                    onMouseLeave    : null,  // when an item is mouse out
-                    onScroll        : null,   // when div with selected items is scrolled
-                    onClick         : null,  // when an item is clicked
-                    onAdd           : null,  // when an item is added
-                    onNew           : null,  // when new item should be added
-                    onRemove        : null,  // when an item is removed
-                    // -- following options implemented in w2tooltip
+                    match           : 'begins', // ['contains', 'is', 'begins', 'ends']
+                    filter          : true,  // if true, will apply filtering
+                    compare         : null,  // compare function for filtering
+                    // -- remote items --
                     url             : null,  // remove source for items
+                    method          : null,  // default httpMethod
+                    postData        : {},
                     recId           : null,  // map retrieved data from url to id, can be string or function
                     recText         : null,  // map retrieved data from url to text, can be string or function
                     debounce        : 250,   // number of ms to wait before sending server call on search
-                    method          : null,  // default httpMethod
-                    postData        : {},
                     minLength       : 1,     // min number of chars when trigger search
                     cacheMax        : 250,
-                    match           : 'begins', // ['contains', 'is', 'begins', 'ends']
-                    align           : '',    // align drop down related to search field
-                    altRows         : true,  // alternate row color
-                    renderDrop      : null,  // render function for drop down item
+                    // -- item and drop items --
+                    maxItemWidth    : 250,   // max width for a single item
                     maxDropHeight   : 350,   // max height for drop down menu
                     maxDropWidth    : null,  // if null then auto set
-                    markSearch      : false,
-                    compare         : null,  // compare function for filtering
-                    filter          : true,  // alias for compare
-                    hideSelected    : true,  // hide selected item from drop down
+                    renderItem      : null,  // render selected item
+                    renderDrop      : null,  // render function for drop down item
+                    // -- misc --
+                    style           : '',    // style for container div
+                    openOnFocus     : false, // if true, opens drop down on focus
+                    markSearch      : false, // if true, highlights search phrase
+                    align           : 'both',// align with the input ['left', 'right', 'both', 'none']
+                    altRows         : true,  // if ture, will use alternate row colors
+                    hideSelected    : true,  // hide selected items from drop down
                     msgNoItems      : 'No matches',
                     msgSearch       : 'Type to search...',
-                    onSearch        : null,  // when search needs to be performed
-                    onRequest       : null,  // when request is submitted
+                    // -- events --
+                    onAdd           : null,  // when item is selected from drop down
+                    onNew           : null,  // when new item should be added
+                    onRemove        : null,  // when item is removed
+                    onSearch        : null,  // when search is triggered
+                    onClick         : null,  // when item is clicked
+                    onRequest       : null,  // when data is requested
                     onLoad          : null,  // when data is received
-                    onError         : null,  // when data fails to load due to server error or other failure modes
+                    onError         : null,  // when data fails to load due to server error
+                    onScroll        : null,  // when div with selected items is scrolled
+                    onMouseEnter    : null,  // when mouse enters item
+                    onMouseLeave    : null,  // when mouse leaves item
                 }
                 options  = w2utils.extend({}, defaults, options, { suffix: '' })
                 if (typeof options.items == 'function') {
@@ -22283,25 +22286,27 @@ class w2field extends w2base {
                 break
             }
             case 'file': {
-                defaults     = {
-                    selected      : [],
-                    max           : 0,
-                    maxSize       : 0,    // max size of all files, 0 - unlimited
-                    maxFileSize   : 0,    // max size of a single file, 0 -unlimited
-                    maxItemWidth  : 250,  // max width for a single item
-                    maxDropHeight : 350,  // max height for drop down menu
-                    maxDropWidth  : null, // if null then auto set
-                    readContent   : true, // if true, it will readAsDataURL content of the file
-                    silent        : true,
-                    align         : 'both', // same width as control
-                    altRows       : true, // alternate row color
-                    renderItem    : null, // render selected item
-                    style         : '',   // style for container div
-                    onClick       : null, // when an item is clicked
-                    onAdd         : null, // when an item is added
-                    onRemove      : null, // when an item is removed
-                    onMouseEnter  : null, // when an item is mouse over
-                    onMouseLeave  : null  // when an item is mouse out
+                defaults = {
+                    selected      : [],     // array of selected files
+                    max           : 0,      // max number of selected files, 0 - unlim
+                    maxSize       : 0,      // max size of all files, 0 - unlimited
+                    maxFileSize   : 0,      // max size of a single file, 0 -unlimited
+                    renderItem    : null,   // render function fo the selected item
+                    // -- misc --
+                    maxItemWidth  : 250,    // max width for a single item
+                    maxDropHeight : 350,    // max height for drop down menu
+                    maxDropWidth  : null,   // if null then auto set
+                    readContent   : true,   // if true, it will readAsDataURL content of the file
+                    showErrors    : true,   // if not true, will show errors
+                    align         : 'both', // align with the input ['left', 'right', 'both', 'none']
+                    altRows       : true,   // alternate row color for drop itesm
+                    style         : '',     // style for container div
+                    // -- events --
+                    onClick       : null,   // when item is clicked
+                    onAdd         : null,   // when item is added
+                    onRemove      : null,   // when item is removed
+                    onMouseEnter  : null,   // when item is mouse over
+                    onMouseLeave  : null    // when item is mouse out
                 }
                 options = w2utils.extend({}, defaults, options)
                 this.options = options
@@ -22758,8 +22763,8 @@ class w2field extends w2base {
             switch (this.type) {
                 case 'money':
                 case 'currency':
-                    val = w2utils.formatNumber(val, options.currencyPrecision, true)
-                    if (val !== '') val = options.currencyPrefix + val + options.currencySuffix
+                    val = w2utils.formatNumber(val, options.currency.precision, true)
+                    if (val !== '') val = options.currency.prefix + val + options.currency.suffix
                     break
                 case 'percent':
                     val = w2utils.formatNumber(val, options.precision, true)
@@ -23294,8 +23299,8 @@ class w2field extends w2base {
                 break
             case 'money':
             case 'currency':
-                if (loose && ['-', this.options.decimalSymbol, this.options.groupSymbol, this.options.currencyPrefix,
-                    this.options.currencySuffix].includes(ch)) {
+                if (loose && ['-', this.options.decimalSymbol, this.options.groupSymbol, this.options.currency.prefix,
+                    this.options.currency.suffix].includes(ch)) {
                     isValid = true
                 } else {
                     isValid = w2utils.isFloat(ch.replace(this.options.moneyRE, ''))
@@ -23655,8 +23660,8 @@ class w2field extends w2base {
         // trigger event
         let edata = this.trigger('add', { target: this.el, file: newItem, total: cnt, totalSize: size, errors })
         if (edata.isCancelled === true) return
-        // if errors and not silent
-        if (options.silent !== true && errors.length > 0) {
+        // if errors
+        if (options.showErrors !== true && errors.length > 0) {
             w2tooltip.show({
                 anchor: this.el,
                 html: 'Errors: ' + errors.join('<br>')
