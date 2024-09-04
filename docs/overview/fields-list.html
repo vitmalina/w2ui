@@ -1,6 +1,7 @@
 <h3>Drop List</h3>
 <p>
-    Regular &lt;select&gt; input is nice, but quite limited. For example, it is hard to use this control on a large set of options. To provide a solution, I have implemented drop down list based on a text input filed but with a dynamic list of options that gets filtered as you type.
+    Regular &lt;select&gt; input is limited. For example, it is hard to use this control on a large set of options. To provide a solution, I have
+    implemented drop down list based on a text input filed but with a dynamic list of options that gets filtered as you type.
 </p>
 <div style="height: 20px"></div>
 
@@ -62,35 +63,44 @@ You can provide various options for numeric fields as second argument. The struc
 
 <textarea class="javascript">
 options = {
-    items           : [],           // array of item objects, can be a function
-    selected        : {},           // selected object
-    url             : null,         // url to pull data from (can support similar format as w2grid)
-    method          : null,         // default comes from w2utils.settings.dataType
-    postData        : {},           // additional data to submit to URL
-    minLength       : 1,            // min search length to trigger reload from URL
-    cacheMax        : 250,          // number of items to cache if retrieved from URL
-    maxDropHeight   : 350,          // max height for drop down menu
-    maxDropWidth    : null,         // max width for drop down menu
-    match           : 'begins',     // ['contains', 'is', 'begins', 'ends']
-    silent          : true,         // indicates if to display error tag
-    icon            : null,         // icon class for selected item
-    iconStyle       : '',           // icon style for selected item
-    onSearch        : null,         // when search needs to be performed
-    onRequest       : null,         // when request is submitted
-    onLoad          : null,         // when data is received
-    onError         : null,         // when data fails to load due to server error or other failure modes
-    onIconClick     : null,         // when icon is clicked
-    renderDrop      : null,         // render function for drop down item
-    compare         : null,         // compare functtion while searching
-    filter          : true,         // filter as user types
-    prefix          : '',           // prefix for control
-    suffix          : '',           // suffix for control
-    msgNoItems      : '',           // message when nothing found, can be a function
-    openOnFocus     : false,        // if to show overlay onclick or when typing
-    markSearch      : false,        // indicated if to mark search string in the drop down
-    recId           : null,         // map retrieved data from url to id, can be string or function
-    recText         : null,         // map retrieved data from url to text, can be string or function
-};
+    items           : [],       // array of items, can be a function
+    selected        : {},       // selected item
+    match           : 'begins', // ['contains', 'is', 'begins', 'ends']
+    filter          : true,     // filter as user types
+    compare         : null,     // compare functtion while searching
+    prefix          : '',       // prefix for input
+    suffix          : '',       // suffix for input
+    icon            : null,     // icon class for selected item
+    iconStyle       : '',       // icon style for selected item
+    // -- remote items --
+    url             : null,     // url to pull data from (can support similar format as w2grid)
+    method          : null,     // default comes from w2utils.settings.dataType
+    postData        : {},       // additional data to submit to URL
+    recId           : null,     // map retrieved data from url to id, can be string or function
+    recText         : null,     // map retrieved data from url to text, can be string or function
+    minLength       : 1,        // min search length to trigger reload from URL
+    debounce        : 250,      // number of ms to wait before sending server call on search
+    cacheMax        : 250,      // number of items to cache if retrieved from URL
+    // -- drop items --
+    renderDrop      : null,     // render function for drop down item
+    maxDropHeight   : 350,      // max height for drop down menu
+    maxDropWidth    : null,     // max width for drop down menu
+    minDropWidth    : null,     // if null then auto set
+    // -- misc --
+    // -- misc --
+    markSearch      : false,    // if true, highlights search phrase
+    align           : 'both',   // align with the input ['left', 'right', 'both', 'none']
+    altRows         : true,     // alternate row color for drop itesm
+    openOnFocus     : false,    // if true, shows drop items on focus
+    hideSelected    : false,    // hide selected item from drop down
+    msgNoItems      : 'No matches',
+    msgSearch       : 'Type to search...',
+    // -- events --
+    onSearch        : null,     // when search needs to be performed
+    onRequest       : null,     // when request is submitted
+    onLoad          : null,     // when data is received
+    onError         : null,     // when data fails to load due to server error
+}
 </textarea>
 
 <h5>Item Object</h5>

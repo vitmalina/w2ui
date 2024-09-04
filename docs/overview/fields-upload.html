@@ -49,22 +49,23 @@ You can provide various options for numeric fields as second argument. The struc
 
 <textarea class="javascript">
 options = {
-    selected        : [],       // selected array
-    max             : 0,        // max number of selected items, 0 - unlim
+    selected        : [],       // array of selected files
+    max             : 0,        // max number of selected files, 0 - unlim
     maxSize         : 0,        // max size of all files, 0 - unlim
-    maxFileSize     : 0,        // max size of a single file, 0 -unlim
-    maxWidth        : 250,      // max width for a single item
-    maxHeight       : 350,      // max height for input control to grow
-    maxDropHeight   : 350,      // max height for drop down menu
-    silent          : true,     // indicates if to display error tag
-    renderItem      : null,     // render selected item
-    readContent     : true,     // read content of the file
+    maxFileSize     : 0,        // max size of a single file, 0 - unlim
+    maxItemWidth    : 250,      // max width for a single item
+    maxDropHeight   : 350,      // max height for drop menu
+    maxDropWidth    : null,     // max width for drop menu, if null then auto set
+    readContent     : true,     // read content of the file (for preview)
+    silent          : true,     // if not true, will show errors
+    align           : 'both',   // same width as the input
+    altRows         : true,     // alternate row color
+    renderItem      : null,     // render selected item, could be a function
     style           : '',       // style for container div
     onClick         : null,     // when an item is clicked
     onAdd           : null,     // when an item is added
     onRemove        : null,     // when an item is removed
-    onMouseOver     : null,     // when an item is mouse over
-    onMouseOut      : null,     // when an item is mouse out
-    onScroll        : null,     // when drop down is scrolled
+    onMouseEnter    : null,     // when an item is mouse over
+    onMouseLeave    : null      // when an item is mouse out
 }
 </textarea>

@@ -1,6 +1,8 @@
 <h3>Numeric Fields</h3>
 <p>
-    Numeric inputs will only allow you to type numbers. They will completely ignore all other characters. Full keyboard support is implemented. Try using up/down arrow keys, ctr + up/down (command + up/down on mac) to increase numbers. When the number is changed it will be validated and formatted (if needed).
+    Numeric inputs will only allow user to type numbers, completely ignoring all other characters. Full keyboard support is implemented.
+    Try using up/down arrow keys, ctr + up/down (cmd + up/down on mac) to increase numbers. When the number is changed it will be validated
+    and formatted (if needed).
 </p>
 <div style="height: 20px"></div>
 
@@ -92,19 +94,20 @@ You can provide various options for numeric fields as second argument. The struc
 options = {
     min                : null,      // min value
     max                : null,      // max value
-    step               : 1,         // step to increment with keyboard
-    autoFormat         : true,      // indicates if to auto format the number
-    currencyPrefix     : w2utils.settings.currencyPrefix,       // symbol for currency prefix
-    currencySuffix     : w2utils.settings.currencySuffix,       // symbol for currency suffix
-    currencyPrecision  : w2utils.settings.currencyPrecision,    // defines precision, default = 2
-    decimalSymbol      : w2utils.settings.decimalSymbol,        // symbol for fractions
-    groupSymbol        : w2utils.settings.groupSymbol,          // symbol for number grouping
-    arrows             : false,     // indicates if to display arrows on the right side
-    transparent        : false,     // allow transparent color in color dialog
-    keyboard           : true,      // indicates if keyboard should be supported
+    step               : 1,         // step when used with keyboard
+    autoFormat         : true,      // if true, formats the numbers, percents, money fields
+    autoCorrect        : true,      // if true, enforces min/max for numbers, dates or show an error
+    currency: {
+        prefix: w2utils.settings.currencyPrefix,
+        suffix: w2utils.settings.currencySuffix,
+        precision: w2utils.settings.currencyPrecision
+    },
+    decimalSymbol      : w2utils.settings.decimalSymbol, // symbol for fractions
+    groupSymbol        : w2utils.settings.groupSymbol,   // symbol for number grouping
+    arrow              : false,     // if true, will show down error line in a drop down field
+    keyboard           : true,      // if true, user can use keyboard arrow to change the number
     precision          : null,      // defines precision for auto format
-    silent             : true,      // indicate if to correct silently or display error tag
-    prefix             : '',        // control prefix
-    suffix             : ''         // control suffix
-};
+    prefix             : '',        // input prefix
+    suffix             : ''         // input suffix
+}
 </textarea>

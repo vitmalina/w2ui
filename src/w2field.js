@@ -110,9 +110,11 @@ class w2field extends w2base {
                     step: 1,
                     autoFormat: true,
                     autoCorrect: true,
-                    currencyPrefix: w2utils.settings.currencyPrefix,
-                    currencySuffix: w2utils.settings.currencySuffix,
-                    currencyPrecision: w2utils.settings.currencyPrecision,
+                    currency: {
+                        prefix: w2utils.settings.currencyPrefix,
+                        suffix: w2utils.settings.currencySuffix,
+                        precision: w2utils.settings.currencyPrecision
+                    },
                     decimalSymbol: w2utils.settings.decimalSymbol,
                     groupSymbol: w2utils.settings.groupSymbol,
                     arrow: false,
@@ -124,7 +126,7 @@ class w2field extends w2base {
                 this.options = w2utils.extend({}, defaults, options)
                 options = this.options // since object is re-created, need to re-assign
                 options.numberRE  = new RegExp('['+ options.groupSymbol + ']', 'g')
-                options.moneyRE   = new RegExp('['+ options.currencyPrefix + options.currencySuffix + options.groupSymbol +']', 'g')
+                options.moneyRE   = new RegExp('['+ options.currency.prefix + options.currency.suffix + options.groupSymbol +']', 'g')
                 options.percentRE = new RegExp('['+ options.groupSymbol + '%]', 'g')
                 // no keyboard support needed
                 if (['text', 'alphanumeric', 'hex', 'bin'].includes(this.type)) {
@@ -208,39 +210,42 @@ class w2field extends w2base {
             case 'list':
             case 'combo': {
                 defaults = {
-                    items           : [],
-                    selected        : {},
-                    prefix          : '',
-                    suffix          : '',
-                    openOnFocus     : false,  // if to show overlay onclick or when typing
-                    icon            : null,
-                    iconStyle       : '',
-                    // -- following options implemented in w2tooltip
-                    url             : null,   // remove source for items
-                    recId           : null,   // map retrieved data from url to id, can be string or function
-                    recText         : null,   // map retrieved data from url to text, can be string or function
-                    method          : null,   // default httpMethod
-                    debounce        : 250,    // number of ms to wait before sending server call on search
-                    postData        : {},
-                    minLength       : 1,      // min number of chars when trigger search
-                    cacheMax        : 250,
-                    maxDropHeight   : 350,    // max height for drop down menu
-                    maxDropWidth    : null,   // if null then auto set
-                    minDropWidth    : null,   // if null then auto set
+                    items           : [],       // array of items, can be a function
+                    selected        : {},       // selected item
                     match           : 'begins', // ['contains', 'is', 'begins', 'ends']
-                    align           : 'both', // same width as control
-                    altRows         : true,   // alternate row color
-                    renderDrop      : null,   // render function for drop down item
-                    compare         : null,   // compare function for filtering
-                    filter          : true,   // weather to filter at all
-                    hideSelected    : false,  // hide selected item from drop down
-                    markSearch      : false,
+                    filter          : true,     // weather to filter at all
+                    compare         : null,     // compare function for filtering
+                    prefix          : '',       // prefix for input
+                    suffix          : '',       // sufix for input
+                    icon            : null,     // icon class for selected item
+                    iconStyle       : '',       // icon style for selected item
+                    // -- remote items --
+                    url             : null,     // remove data source for items
+                    method          : null,     // default comes from w2utils.settings.dataType
+                    postData        : {},       // additional data to submit to URL
+                    recId           : null,     // map retrieved data from url to id, can be string or function
+                    recText         : null,     // map retrieved data from url to text, can be string or function
+                    debounce        : 250,      // number of ms to wait before sending server call on search
+                    minLength       : 1,        // min number of chars when trigger search
+                    cacheMax        : 250,
+                    // -- drop items --
+                    renderDrop      : null,     // render function for drop down item
+                    maxDropHeight   : 350,      // max height for drop down menu
+                    maxDropWidth    : null,     // if null then auto set
+                    minDropWidth    : null,     // if null then auto set
+                    // -- misc --
+                    markSearch      : false,    // if true, highlights search phrase
+                    align           : 'both',   // align with the input ['left', 'right', 'both', 'none']
+                    altRows         : true,     // alternate row color for drop itesm
+                    openOnFocus     : false,    // if true, shows drop items on focus
+                    hideSelected    : false,    // hide selected item from drop down
                     msgNoItems      : 'No matches',
                     msgSearch       : 'Type to search...',
-                    onSearch        : null,   // when search needs to be performed
-                    onRequest       : null,   // when request is submitted
-                    onLoad          : null,   // when data is received
-                    onError         : null,    // when data fails to load due to server error or other failure modes
+                    // -- events --
+                    onSearch        : null,     // when search needs to be performed
+                    onRequest       : null,     // when request is submitted
+                    onLoad          : null,     // when data is received
+                    onError         : null,     // when data fails to load due to server error
                 }
                 if (typeof options.items == 'function') {
                     options._items_fun = options.items
@@ -283,42 +288,45 @@ class w2field extends w2base {
                     items           : [],    // id, text, tooltip, icon
                     selected        : [],
                     max             : 0,     // max number of selected items, 0 - unlimited
-                    maxItemWidth    : 250,   // max width for a single item
-                    style           : '',    // style for container div
-                    openOnFocus     : false, // if to show overlay onclick or when typing
-                    renderItem      : null,  // render selected item
-                    onMouseEnter    : null,  // when an item is mouse over
-                    onMouseLeave    : null,  // when an item is mouse out
-                    onScroll        : null,   // when div with selected items is scrolled
-                    onClick         : null,  // when an item is clicked
-                    onAdd           : null,  // when an item is added
-                    onNew           : null,  // when new item should be added
-                    onRemove        : null,  // when an item is removed
-                    // -- following options implemented in w2tooltip
+                    match           : 'begins', // ['contains', 'is', 'begins', 'ends']
+                    filter          : true,  // if true, will apply filtering
+                    compare         : null,  // compare function for filtering
+                    // -- remote items --
                     url             : null,  // remove source for items
+                    method          : null,  // default httpMethod
+                    postData        : {},
                     recId           : null,  // map retrieved data from url to id, can be string or function
                     recText         : null,  // map retrieved data from url to text, can be string or function
                     debounce        : 250,   // number of ms to wait before sending server call on search
-                    method          : null,  // default httpMethod
-                    postData        : {},
                     minLength       : 1,     // min number of chars when trigger search
                     cacheMax        : 250,
-                    match           : 'begins', // ['contains', 'is', 'begins', 'ends']
-                    align           : '',    // align drop down related to search field
-                    altRows         : true,  // alternate row color
-                    renderDrop      : null,  // render function for drop down item
+                    // -- item and drop items --
+                    maxItemWidth    : 250,   // max width for a single item
                     maxDropHeight   : 350,   // max height for drop down menu
                     maxDropWidth    : null,  // if null then auto set
-                    markSearch      : false,
-                    compare         : null,  // compare function for filtering
-                    filter          : true,  // alias for compare
-                    hideSelected    : true,  // hide selected item from drop down
+                    renderItem      : null,  // render selected item
+                    renderDrop      : null,  // render function for drop down item
+                    // -- misc --
+                    style           : '',    // style for container div
+                    openOnFocus     : false, // if true, opens drop down on focus
+                    markSearch      : false, // if true, highlights search phrase
+                    align           : '',    // align drop down relative to search field
+                    altRows         : true,  // if ture, will use alternate row colors
+                    hideSelected    : true,  // hide selected items from drop down
                     msgNoItems      : 'No matches',
                     msgSearch       : 'Type to search...',
-                    onSearch        : null,  // when search needs to be performed
-                    onRequest       : null,  // when request is submitted
+                    // -- events --
+                    onAdd           : null,  // when item is selected from drop down
+                    onNew           : null,  // when new item should be added
+                    onRemove        : null,  // when item is removed
+                    onSearch        : null,  // when search is triggered
+                    onClick         : null,  // when item is clicked
+                    onRequest       : null,  // when data is requested
                     onLoad          : null,  // when data is received
-                    onError         : null,  // when data fails to load due to server error or other failure modes
+                    onError         : null,  // when data fails to load due to server error
+                    onScroll        : null,  // when div with selected items is scrolled
+                    onMouseEnter    : null,  // when mouse enters item
+                    onMouseLeave    : null,  // when mouse leaves item
                 }
                 options  = w2utils.extend({}, defaults, options, { suffix: '' })
                 if (typeof options.items == 'function') {
@@ -826,8 +834,8 @@ class w2field extends w2base {
             switch (this.type) {
                 case 'money':
                 case 'currency':
-                    val = w2utils.formatNumber(val, options.currencyPrecision, true)
-                    if (val !== '') val = options.currencyPrefix + val + options.currencySuffix
+                    val = w2utils.formatNumber(val, options.currency.precision, true)
+                    if (val !== '') val = options.currency.prefix + val + options.currency.suffix
                     break
                 case 'percent':
                     val = w2utils.formatNumber(val, options.precision, true)
@@ -1374,8 +1382,8 @@ class w2field extends w2base {
                 break
             case 'money':
             case 'currency':
-                if (loose && ['-', this.options.decimalSymbol, this.options.groupSymbol, this.options.currencyPrefix,
-                    this.options.currencySuffix].includes(ch)) {
+                if (loose && ['-', this.options.decimalSymbol, this.options.groupSymbol, this.options.currency.prefix,
+                    this.options.currency.suffix].includes(ch)) {
                     isValid = true
                 } else {
                     isValid = w2utils.isFloat(ch.replace(this.options.moneyRE, ''))
