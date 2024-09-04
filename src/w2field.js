@@ -20,7 +20,6 @@
  *  - removed jQuery dependency
  *  - enum options.autoAdd
  *  - [numeric, date] - options.autoCorrect to enforce range and validity
- *  - silent only left for files, removed form the rest
  *  - remote source response items => records or just an array
  *  - deprecated "success" field for remote source response
  *  - CSP - fixed inline events
@@ -137,7 +136,7 @@ class w2field extends w2base {
             }
             case 'color': {
                 let size = parseInt(getComputedStyle(this.el)['font-size']) || 12
-                defaults     = {
+                defaults = {
                     prefix      : '#',
                     suffix      : `<div style="width: ${size}px; height: ${size}px; margin-top: -2px;
                                     position: relative; top: 50%; transform: translateY(-50%);">&#160;</div>`,
@@ -152,14 +151,14 @@ class w2field extends w2base {
             case 'date': {
                 defaults = {
                     format        : w2utils.settings.dateFormat, // date format
-                    keyboard      : true,
-                    autoCorrect   : true,
-                    start         : null,
-                    end           : null,
-                    blockDates    : [], // array of blocked dates
-                    blockWeekdays : [], // blocked weekdays 0 - sunday, 1 - monday, etc
-                    colored       : {}, // ex: { '3/13/2022': 'bg-color|text-color' }
-                    btnNow        : true
+                    keyboard      : true,   // if true, allows to select date with format
+                    autoCorrect   : true,   // correc date or shows the error
+                    start         : null,   // first date allowed to select
+                    end           : null,   // last date allowed to select
+                    blockDates    : [],     // array of blocked dates
+                    blockWeekdays : [],     // blocked weekdays 0 - sunday, 1 - monday, etc
+                    colored       : {},     // ex: { '3/13/2022': 'bg-color|text-color' }
+                    btnNow        : true    // if true, displays Now button
                 }
                 this.options = w2utils.extend({ type: 'date' }, defaults, options)
                 options = this.options // since object is re-created, need to re-assign
@@ -169,7 +168,7 @@ class w2field extends w2base {
                 break
             }
             case 'time': {
-                defaults     = {
+                defaults = {
                     format      : w2utils.settings.timeFormat,
                     keyboard    : true,
                     autoCorrect : true,
@@ -186,7 +185,7 @@ class w2field extends w2base {
                 break
             }
             case 'datetime': {
-                defaults     = {
+                defaults = {
                     format        : w2utils.settings.dateFormat + '|' + w2utils.settings.timeFormat,
                     keyboard      : true,
                     autoCorrect   : true,
@@ -310,7 +309,7 @@ class w2field extends w2base {
                     style           : '',    // style for container div
                     openOnFocus     : false, // if true, opens drop down on focus
                     markSearch      : false, // if true, highlights search phrase
-                    align           : '',    // align drop down relative to search field
+                    align           : 'both',// align with the input ['left', 'right', 'both', 'none']
                     altRows         : true,  // if ture, will use alternate row colors
                     hideSelected    : true,  // hide selected items from drop down
                     msgNoItems      : 'No matches',
@@ -345,25 +344,27 @@ class w2field extends w2base {
                 break
             }
             case 'file': {
-                defaults     = {
-                    selected      : [],
-                    max           : 0,
-                    maxSize       : 0,    // max size of all files, 0 - unlimited
-                    maxFileSize   : 0,    // max size of a single file, 0 -unlimited
-                    maxItemWidth  : 250,  // max width for a single item
-                    maxDropHeight : 350,  // max height for drop down menu
-                    maxDropWidth  : null, // if null then auto set
-                    readContent   : true, // if true, it will readAsDataURL content of the file
-                    silent        : true,
-                    align         : 'both', // same width as control
-                    altRows       : true, // alternate row color
-                    renderItem    : null, // render selected item
-                    style         : '',   // style for container div
-                    onClick       : null, // when an item is clicked
-                    onAdd         : null, // when an item is added
-                    onRemove      : null, // when an item is removed
-                    onMouseEnter  : null, // when an item is mouse over
-                    onMouseLeave  : null  // when an item is mouse out
+                defaults = {
+                    selected      : [],     // array of selected files
+                    max           : 0,      // max number of selected files, 0 - unlim
+                    maxSize       : 0,      // max size of all files, 0 - unlimited
+                    maxFileSize   : 0,      // max size of a single file, 0 -unlimited
+                    renderItem    : null,   // render function fo the selected item
+                    // -- misc --
+                    maxItemWidth  : 250,    // max width for a single item
+                    maxDropHeight : 350,    // max height for drop down menu
+                    maxDropWidth  : null,   // if null then auto set
+                    readContent   : true,   // if true, it will readAsDataURL content of the file
+                    showErrors    : true,   // if not true, will show errors
+                    align         : 'both', // align with the input ['left', 'right', 'both', 'none']
+                    altRows       : true,   // alternate row color for drop itesm
+                    style         : '',     // style for container div
+                    // -- events --
+                    onClick       : null,   // when item is clicked
+                    onAdd         : null,   // when item is added
+                    onRemove      : null,   // when item is removed
+                    onMouseEnter  : null,   // when item is mouse over
+                    onMouseLeave  : null    // when item is mouse out
                 }
                 options = w2utils.extend({}, defaults, options)
                 this.options = options
@@ -1755,8 +1756,8 @@ class w2field extends w2base {
         // trigger event
         let edata = this.trigger('add', { target: this.el, file: newItem, total: cnt, totalSize: size, errors })
         if (edata.isCancelled === true) return
-        // if errors and not silent
-        if (options.silent !== true && errors.length > 0) {
+        // if errors
+        if (options.showErrors !== true && errors.length > 0) {
             w2tooltip.show({
                 anchor: this.el,
                 html: 'Errors: ' + errors.join('<br>')
