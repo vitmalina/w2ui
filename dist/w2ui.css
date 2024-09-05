@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (8/9/2024, 5:26:30 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (9/5/2024, 10:32:40 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -1194,7 +1194,7 @@ button.w2ui-btn:disabled {
   width: 18px;
   font-size: 14px;
   color: #8D99A7;
-  display: inline-block;
+  display: flex;
   padding-top: 1px;
 }
 .w2ui-menu .w2ui-menu-item .menu-text {
