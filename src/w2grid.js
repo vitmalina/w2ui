@@ -49,6 +49,7 @@
  *  - added columnAutoSize - which resizes column based on text in it
  *  - added grid.replace()
  *  - grid.compareSelection
+ *  - this.showContextMenu(event, { recid, column, index }) - arguments changed
  */
 
 import { w2base } from './w2base.js'
@@ -3881,41 +3882,41 @@ class w2grid extends w2base {
     }
 
     columnContextMenu(field, event) {
-        let edata = this.trigger('columnContextMenu', {target: this.name, field: field, originalEvent: event })
+        let edata = this.trigger('columnContextMenu', { target: this.name, field: field, originalEvent: event })
         if (edata.isCancelled === true) return
-        if (this.show.columnMenu) {
-            w2menu.show({
-                type: 'check',
-                contextMenu: true,
-                originalEvent: event,
-                items: this.initColumnOnOff()
-            })
-            .then(() => {
-                query('#w2overlay-context-menu .w2ui-grid-skip')
-                    .off('.w2ui-grid')
-                    .on('click.w2ui-grid', evt => {
-                        evt.stopPropagation()
-                    })
-                    .on('keypress', evt => {
-                        if (evt.keyCode == 13) {
-                            this.skip(evt.target.value)
-                            this.toolbar.click('w2ui-column-on-off') // close menu
-                        }
-                    })
-            })
-            .select((event) => {
-                let id = event.detail.item.id
-                if (['w2ui-stateSave', 'w2ui-stateReset'].includes(id)) {
-                    this[id.substring(5)]()
-                } else if (id == 'w2ui-skip') {
-                    // empty
-                } else {
-                    this.columnOnOff(event, event.detail.item.id)
-                }
-                clearTimeout(this.last.kbd_timer) // keep grid in focus
-            })
+        // show menu
+        w2menu.show({
+            type: 'check',
+            contextMenu: true,
+            originalEvent: event,
+            items: this.initColumnOnOff()
+        })
+        .then(() => {
+            query('#w2overlay-context-menu .w2ui-grid-skip')
+                .off('.w2ui-grid')
+                .on('click.w2ui-grid', evt => {
+                    evt.stopPropagation()
+                })
+                .on('keypress', evt => {
+                    if (evt.keyCode == 13) {
+                        this.skip(evt.target.value)
+                        this.toolbar.click('w2ui-column-on-off') // close menu
+                    }
+                })
+        })
+        .select((event) => {
+            let id = event.detail.item.id
+            if (['w2ui-stateSave', 'w2ui-stateReset'].includes(id)) {
+                this[id.substring(5)]()
+            } else if (id == 'w2ui-skip') {
+                // empty
+            } else {
+                this.columnOnOff(event, event.detail.item.id)
+            }
             clearTimeout(this.last.kbd_timer) // keep grid in focus
-        }
+        })
+        clearTimeout(this.last.kbd_timer) // keep grid in focus
+        // cancel default
         event.preventDefault()
         edata.finish()
     }
@@ -4545,7 +4546,8 @@ class w2grid extends w2base {
         edata.finish()
     }
 
-    showContextMenu(recid, column, event) {
+    showContextMenu(event, options) {
+        let { recid, index, column } = options
         if (this.last.userSelect == 'text') return
         if (event == null) {
             event = { offsetX: 0, offsetY: 0, target: query(this.box).find(`#grid_${this.name}_rec_${recid}`)[0] }
@@ -4557,7 +4559,7 @@ class w2grid extends w2base {
         // if (w2utils.isFloat(recid)) recid = parseFloat(recid)
         let sel = this.getSelection()
         if (this.selectType == 'row') {
-            if (sel.indexOf(recid) == -1) {
+            if (recid != null && sel.indexOf(recid) == -1) {
                 this.click(recid)
             }
         } else {
@@ -4570,7 +4572,7 @@ class w2grid extends w2base {
             if (!selected && column != null) this.columnClick(this.columns[column].field, event)
         }
         // event before
-        let edata = this.trigger('contextMenu', { target: this.name, originalEvent: event, recid, column })
+        let edata = this.trigger('contextMenu', { target: this.name, originalEvent: event, recid, index, column })
         if (edata.isCancelled === true) return
         // default action
         if (this.contextMenu?.length > 0) {
@@ -5417,11 +5419,11 @@ class w2grid extends w2base {
                     }
                 })
                 .on('contextmenu', { delegate: 'tr' }, (event) => {
-                    let index = query(event.delegate).attr('index') // don't read recid directly as it could be a number or a string
+                    let index = parseInt(query(event.delegate).attr('index')) // don't read recid directly as it could be a number or a string
                     let recid = this.records[index]?.recid
                     let td = query(event.target).closest('td')
                     let column = td.attr('col') ? parseInt(td.attr('col')) : null
-                    this.showContextMenu(recid, column, event)
+                    this.showContextMenu(event, { recid, column, index })
                 })
                 .on('mouseover', { delegate: 'tr' }, (event) => {
                     this.last.rec_out = false
@@ -5491,7 +5493,7 @@ class w2grid extends w2base {
             .off('.body-global')
             // header column click
             .on('click.body-global dblclick.body-global contextmenu.body-global', { delegate: 'td.w2ui-head' }, event => {
-                let col_ind = query(event.delegate).attr('col')
+                let col_ind = parseInt(query(event.delegate).attr('col'))
                 let col = this.columns[col_ind] ?? { field: col_ind } // it could be line number
                 switch (event.type) {
                     case 'click':
@@ -5501,7 +5503,11 @@ class w2grid extends w2base {
                         this.columnDblClick(col.field, event)
                         break
                     case 'contextmenu':
-                        this.columnContextMenu(col.field, event)
+                        if (this.show.columnMenu) {
+                            this.columnContextMenu(col.field, event)
+                        } else {
+                            this.showContextMenu(event, { column: col_ind, recid: null, index: null })
+                        }
                         break
 
                 }
