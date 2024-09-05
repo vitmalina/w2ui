@@ -4566,10 +4566,11 @@ class w2grid extends w2base {
             let selected = false
             // check if any selected sel in the right row/column
             for (let i = 0; i < sel.length; i++) {
-                if (sel[i].recid == recid || sel[i].column == column) selected = true
+                if (sel[i].recid == recid && sel[i].column == column) selected = true
             }
-            if (!selected && recid != null) this.click({ recid: recid, column: column })
-            if (!selected && column != null) this.columnClick(this.columns[column].field, event)
+            if (!selected && recid != null && column === null) this.click({ recid })  // select entire row
+            if (!selected && recid != null && column != null) this.click({ recid, column }) // select entire column
+            if (!selected && recid === null && column != null) this.columnClick(this.columns[column].field, event)
         }
         // event before
         let edata = this.trigger('contextMenu', { target: this.name, originalEvent: event, recid, index, column })
