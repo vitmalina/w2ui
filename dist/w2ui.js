@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (9/5/2024, 11:22:10 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (9/16/2024, 7:28:03 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -15751,13 +15751,17 @@ class w2grid extends w2base {
                 this.click(recid)
             }
         } else {
-            let selected = false
-            // check if any selected sel in the right row/column
-            for (let i = 0; i < sel.length; i++) {
-                if (sel[i].recid == recid || sel[i].column == column) selected = true
-            }
-            if (!selected && recid != null) this.click({ recid: recid, column: column })
-            if (!selected && column != null) this.columnClick(this.columns[column].field, event)
+            let sel_col = false  // any cell in a column
+            let sel_row = false  // any cell in a row
+            let sel_cell = false // this exact cell
+            sel.forEach(rec => {
+                if (rec.recid == recid) sel_row = true
+                if (rec.column == column) sel_col = true
+                if (rec.recid == recid && rec.column == column) sel_cell = true
+            })
+            if (!sel_row && recid != null && column === null) this.click({ recid })  // select entire row
+            if (!sel_col && recid === null && column != null) this.columnClick(this.columns[column].field, event)
+            if (!sel_cell && recid != null && column != null) this.click({ recid, column }) // select a cell
         }
         // event before
         let edata = this.trigger('contextMenu', { target: this.name, originalEvent: event, recid, index, column })
@@ -17186,7 +17190,7 @@ class w2grid extends w2base {
                     let end = newSel[newSel.length - 1]
                     obj.addRange({
                         name: 'selection-preview',
-                        range: [{ recid: start.recid, column: start.column }, { recid: end.recid, column: end.column }],
+                        range: [{ recid: start?.recid, column: start?.column }, { recid: end?.recid, column: end?.column }],
                         class: 'w2ui-selection-preview'
                     })
                     mv.newRange = newSel
