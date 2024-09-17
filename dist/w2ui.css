@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (9/5/2024, 10:32:40 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (9/16/2024, 2:19:01 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -764,15 +764,16 @@ button.w2ui-btn:disabled {
 }
 .w2ui-overlay .w2ui-overlay-body {
   display: inline-block;
-  border-radius: 4px;
+  border-radius: 2px;
   padding: 4px 8px;
   margin: 0px;
   font-size: 13px;
   font-family: OpenSans;
+  box-shadow: 1px 5px 15px #4b4949b3;
   color: white;
-  border: 1px solid #303439;
-  background-color: #5d5f64;
-  text-shadow: 0px 1px 1px #222222;
+  border: 1px solid #555;
+  background-color: #69717a;
+  text-shadow: 0px 1px 1px #444;
   line-height: 1.4;
   letter-spacing: 0.1px;
   overflow: auto;
@@ -1350,7 +1351,7 @@ button.w2ui-btn:disabled {
 }
 .w2ui-overlay .w2ui-overlay-body.w2ui-dark .w2ui-menu-item.expanded,
 .w2ui-overlay .w2ui-overlay-body.w2ui-dark .w2ui-menu-item:hover {
-  background-color: #51545a;
+  background-color: #595d67;
 }
 .w2ui-overlay .w2ui-overlay-body.w2ui-dark .w2ui-menu-item.w2ui-selected {
   color: white;
