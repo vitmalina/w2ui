@@ -24,6 +24,7 @@
  *  - item.placeholder
  *  - item.input: { spinner, style, min, max, step, precision, suffix }
  *  - item.backColor
+ *  - onLiveUpdate - for colors
  */
 
 import { w2base } from './w2base.js'
@@ -50,6 +51,7 @@ class w2toolbar extends w2base {
         this.onRefresh     = null
         this.onResize      = null
         this.onDestroy     = null
+        this.onLiveUpdate  = null
         this.item_template = {
             id: null, // command to be sent to all event handlers
             type: 'button', // button, check, radio, drop, menu, menu-radio, menu-check, break, html, label, input spacer
@@ -501,6 +503,10 @@ class w2toolbar extends w2base {
                                 data: { item: it, btn }
                             }))
                                 .hide(hideDrop(it.id, btn))
+                                .liveUpdate(event => {
+                                    let edata = this.trigger('liveUpdate', { name: this.name, item: it, color: event.detail.color })
+                                    edata.finish()
+                                })
                                 .select(event => {
                                     if (event.detail.color != null) {
                                         this.colorClick({ name: this.name, item: it, color: event.detail.color })
