@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (9/16/2024, 2:19:01 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (10/10/2024, 7:07:35 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -552,7 +552,7 @@ input[type=range]:focus::-ms-fill-upper {
   color: #c3c3c3;
   position: absolute;
   right: 5px;
-  top: 5px;
+  top: 3px;
 }
 #w2ui-notify > div span.w2ui-notify-close:hover {
   background-color: #807e7e;
@@ -3796,8 +3796,12 @@ textarea.w2ui-error {
   transform: rotateZ(90deg);
 }
 .w2ui-sidebar .w2ui-sidebar-body .w2ui-node-flat {
+  min-height: 32px;
+  margin-bottom: 4px;
+}
+.w2ui-sidebar .w2ui-sidebar-body .w2ui-node-flat .w2ui-node-data {
   display: block;
-  padding: 2px 0px;
+  padding: 4px 2px;
   text-align: center;
 }
 .w2ui-sidebar .w2ui-sidebar-body .w2ui-node-flat .w2ui-node-image {
