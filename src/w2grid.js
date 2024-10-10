@@ -4255,7 +4255,7 @@ class w2grid extends w2base {
                 obj.expand(recid, event)
             } else {
                 let next = obj.nextCell(ind, columns[columns.length-1]) // columns is an array of selected columns
-                if (next.index != ind) {
+                if (next?.index != ind) {
                     next = null
                 } else {
                     next = next.colIndex
@@ -6962,9 +6962,9 @@ class w2grid extends w2base {
          * 0.5 is needed due to imperfection of table layout. There was a very small shift between right border of the column headers
          * and records. I checked it had exact same offset, but still felt like 1px off. This adjustment fixes it.
          */
-        columns.css('left', (fwidth + 0.5) + 'px')
-        records.css('left', fwidth + 'px')
-        summary.css('left', fwidth + 'px')
+        columns.css({ left: fwidth + 'px', 'padding-left': '0.5px' })
+        records.css({ left: fwidth + 'px' })
+        summary.css({ left: fwidth + 'px' })
 
         // resize columns
         columns.find(':scope > table > tbody > tr:nth-child(1) td')
