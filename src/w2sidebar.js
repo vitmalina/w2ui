@@ -699,10 +699,45 @@ class w2sidebar extends w2base {
                     }
                     setTimeout(() => { window.location.hash = route }, 1)
                 }
+                // if sidebar is flat - show menu
+                if (this.flat) {
+                    let items = _getItems(nd.nodes)
+                    if (items.length > 0) {
+                        this.flatMenu(newNode, items)
+                    }
+
+                    function _getItems(nodes) {
+                        let items = nodes.map(it => {
+                            let items = it.nodes.length > 0 ? _getItems(it.nodes) : null
+                            return { id: it.id, text: it.text, icon: it.icon, items }
+                        })
+                        return items
+                    }
+                }
             }
             // event after
             edata.finish()
         }, 1)
+    }
+
+    flatMenu(el, items) {
+        let self = this
+        let $el = query(el).find('.w2ui-node-data')
+        w2menu.show({
+            anchor: $el.get(0),
+            name: this.name + '_flat-menu',
+            items,
+            // class: 'w2ui-dark',
+            position: 'right|left',
+            onSelect(event) {
+                self.unselect()
+                self.click(event.detail.item.id, event.detail.originalEvent)
+            },
+            onHide(event) {
+                self.unselect()
+            }
+        })
+        w2tooltip.hide(this.name + '_tooltip')
     }
 
     focus(event) {
@@ -1123,9 +1158,11 @@ class w2sidebar extends w2base {
         // default action
         if (nd.disabled && !edata.allowOnDisabled) return
         if (this.menu.length > 0) {
+            w2menu.hide(this.name + '_menu') // hide previous if any needed when other item's menu is shown
             w2menu.show({
                 name: this.name + '_menu',
                 anchor: document.body,
+                contextMenu: true,
                 items: this.menu,
                 originalEvent: event
             })
@@ -1156,6 +1193,24 @@ class w2sidebar extends w2base {
         // default action
         this.flat = !this.flat
         this.refresh()
+        if (this.flat) {
+            // collapse all unless it is a group
+            this.nodes.forEach(node => {
+                if (!node.group) {
+                    this.collapse(node.id)
+                    this.collapseAll(node.id) // sub items too
+                }
+            })
+            this.unselect() // unselects all
+        } else {
+            // expand all unless it is a group
+            this.nodes.forEach(node => {
+                if (!node.group) {
+                    this.expand(node.id)
+                    this.expandAll(node.id) // sub items too
+                }
+            })
+        }
         // event after
         edata.finish()
     }
@@ -1547,14 +1602,14 @@ class w2sidebar extends w2base {
                     <div class="w2ui-node-sub" id="node_${nd.id}_sub" style="${nd.style}; ${!nd.hidden && nd.expanded ? '' : 'display: none;'}"></div>`
                 if (obj.flat) {
                     html = `
-                        <div id="node_${nd.id}" class="${classes.join(' ')}" data-id="${nd.id}" style="${nd.hidden ? 'display: none;' : ''}"
+                        <div id="node_${nd.id}" class="${classes.join(' ')} w2ui-node-flat" data-id="${nd.id}" style="${nd.hidden ? 'display: none;' : ''}"
                             data-click="click|${nd.id}|event"
                             data-dblclick="dblClick|${nd.id}|event"
                             data-contextmenu="contextMenu|${nd.id}|event"
                             data-mouseEnter="mouseAction|Enter|this|${nd.id}|event|tooltip"
                             data-mouseLeave="mouseAction|Leave|this|${nd.id}|event|tooltip"
                         >
-                            <div class="w2ui-node-data w2ui-node-flat">${image}</div>
+                            <div class="w2ui-node-data">${image}</div>
                         </div>
                         <div class="w2ui-node-sub" id="node_${nd.id}_sub" style="${nd.style}; ${!nd.hidden && nd.expanded ? '' : 'display: none;'}"></div>`
                 }
@@ -1575,7 +1630,7 @@ class w2sidebar extends w2base {
             let tooltip = text + (node.count || node.count === 0
                 ? ' - <span class="w2ui-node-badge w2ui-node-count">'+ node.count +'</span>'
                 : '')
-            if (action == 'Leave') tooltip = ''
+            if (action == 'Leave' || this.selected == node.id) tooltip = ''
             this.tooltip(anchor, tooltip)
         }
         if (type == 'handle') {
