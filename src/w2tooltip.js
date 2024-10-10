@@ -1105,7 +1105,7 @@ class ColorTooltip extends Tooltip {
 
         })
         html += `
-                <div class="w2ui-color w2ui-color-picker w2ui-eaction" data-click="pickAndSelect|${name}">
+                <div class="w2ui-color w2ui-color-picker w2ui-eaction" data-click="pickAndSelect|${name}|event">
                     <span class="w2ui-icon w2ui-icon-eye-dropper"></span>
                 </div>
             </div>`
@@ -1327,19 +1327,22 @@ class ColorTooltip extends Tooltip {
                 custom.splice(custom.indexOf(color), 1)
             }
             if (custom.length >= 5) {
-                custom.shift() // remove first one
+                custom.pop() // removes last one
             }
             custom.unshift(color)
         }
         return color
     }
 
-    async pickAndSelect(name) {
+    async pickAndSelect(name, event) {
         let color = await this.pickColor()
         if (typeof color == 'string' && color.substr(0, 1) == '#' && [7, 9].includes(color.length)) {
             this.addCustomColor(color, name)
+            let cnt = query(event.target).closest('.w2ui-colors-custom')
+            cnt.html(this.getCustomColorsHTML(name))
+            w2utils.bindEvents(cnt.find('.w2ui-eaction'), this)
             this.select(color.substr(1), name)
-            this.hide(name)
+            // this.hide(name)
         }
     }
 
