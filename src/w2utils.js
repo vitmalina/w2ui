@@ -52,42 +52,50 @@ class Utils {
 
         // Formatters: Primarily used in grid
         this.formatters = {
-            'number'(value, params) {
+            'number'(record, extra) {
+                let { value, params } = extra
                 if (parseInt(params) > 20) params = 20
                 if (parseInt(params) < 0) params = 0
                 if (value == null || value === '') return ''
                 return w2utils.formatNumber(parseFloat(value), params, true)
             },
 
-            'float'(value, params) {
+            'float'(record, extra) {
+                let { value, params } = extra
                 return w2utils.formatters.number(value, params)
             },
 
-            'int'(value, params) {
+            'int'(record, extra) {
+                let { value, params } = extra
                 return w2utils.formatters.number(value, 0)
             },
 
-            'money'(value, params) {
+            'money'(record, extra) {
+                let { value, params } = extra
                 if (value == null || value === '') return ''
                 let data = w2utils.formatNumber(Number(value), w2utils.settings.currencyPrecision)
                 return (w2utils.settings.currencyPrefix || '') + data + (w2utils.settings.currencySuffix || '')
             },
 
-            'currency'(value, params) {
+            'currency'(record, extra) {
+                let { value, params } = extra
                 return w2utils.formatters.money(value, params)
             },
 
-            'percent'(value, params) {
+            'percent'(record, extra) {
+                let { value, params } = extra
                 if (value == null || value === '') return ''
                 return w2utils.formatNumber(value, params || 1) + '%'
             },
 
-            'size'(value, params) {
+            'size'(record, extra) {
+                let { value, params } = extra
                 if (value == null || value === '') return ''
                 return w2utils.formatSize(parseInt(value))
             },
 
-            'date'(value, params) {
+            'date'(record, extra) {
+                let { value, params } = extra
                 if (params === '') params = w2utils.settings.dateFormat
                 if (value == null || value === 0 || value === '') return ''
                 let dt = w2utils.isDateTime(value, params, true)
@@ -95,7 +103,8 @@ class Utils {
                 return '<span title="'+ dt +'">' + w2utils.formatDate(dt, params) + '</span>'
             },
 
-            'datetime'(value, params) {
+            'datetime'(record, extra) {
+                let { value, params } = extra
                 if (params === '') params = w2utils.settings.datetimeFormat
                 if (value == null || value === 0 || value === '') return ''
                 let dt = w2utils.isDateTime(value, params, true)
@@ -103,7 +112,8 @@ class Utils {
                 return '<span title="'+ dt +'">' + w2utils.formatDateTime(dt, params) + '</span>'
             },
 
-            'time'(value, params) {
+            'time'(record, extra) {
+                let { value, params } = extra
                 if (params === '') params = w2utils.settings.timeFormat
                 if (params === 'h12') params = 'hh:mi pm'
                 if (params === 'h24') params = 'h24:mi'
@@ -113,7 +123,8 @@ class Utils {
                 return '<span title="'+ dt +'">' + w2utils.formatTime(value, params) + '</span>'
             },
 
-            'timestamp'(value, params) {
+            'timestamp'(record, extra) {
+                let { value, params } = extra
                 if (params === '') params = w2utils.settings.datetimeFormat
                 if (value == null || value === 0 || value === '') return ''
                 let dt = w2utils.isDateTime(value, params, true)
@@ -121,7 +132,8 @@ class Utils {
                 return dt.toString ? dt.toString() : ''
             },
 
-            'gmt'(value, params) {
+            'gmt'(record, extra) {
+                let { value, params } = extra
                 if (params === '') params = w2utils.settings.datetimeFormat
                 if (value == null || value === 0 || value === '') return ''
                 let dt = w2utils.isDateTime(value, params, true)
@@ -129,23 +141,27 @@ class Utils {
                 return dt.toUTCString ? dt.toUTCString() : ''
             },
 
-            'age'(value, params) {
+            'age'(record, extra) {
+                let { value, params } = extra
                 if (value == null || value === 0 || value === '') return ''
                 let dt = w2utils.isDateTime(value, null, true)
                 if (dt === false) dt = w2utils.isDate(value, null, true)
                 return '<span title="'+ dt +'">' + w2utils.age(value) + (params ? (' ' + params) : '') + '</span>'
             },
 
-            'interval'(value, params) {
+            'interval'(record, extra) {
+                let { value, params } = extra
                 if (value == null || value === 0 || value === '') return ''
                 return w2utils.interval(value) + (params ? (' ' + params) : '')
             },
 
-            'toggle'(value, params) {
+            'toggle'(record, extra) {
+                let { value, params } = extra
                 return (value ? w2utils.lang('Yes') : '')
             },
 
-            'password'(value, params) {
+            'password'(record, extra) {
+                let { value, params } = extra
                 let ret = ''
                 if (!value) return ret
                 for (let i = 0; i < value.length; i++) {

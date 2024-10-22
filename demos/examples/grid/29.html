@@ -37,7 +37,8 @@
 <script type="module">
 import { w2grid, w2utils } from '__W2UI_PATH__'
 
-w2utils.formatters.custom_centered = function(value, params, record) {
+w2utils.formatters.custom_centered = function(rec, extra) {
+    let value = extra.value
     if (!value) {
         return 'Bad Date!'
     }

@@ -3293,9 +3293,11 @@ class w2grid extends w2base {
         if (edata.detail.prevValue != null) prevValue = edata.detail.prevValue
         if (value != null) val = value
         let addStyle = (col.style != null ? col.style + ';' : '')
-        if (typeof col.render == 'string'
-                && ['number', 'int', 'float', 'money', 'percent', 'size'].includes(col.render.split(':')[0])) {
-            addStyle += 'text-align: right;'
+        if (typeof col.render == 'string') {
+            let tmp = col.render.replace('|', ':').split(':')
+            if (['number', 'int', 'float', 'money', 'currency', 'percent', 'size'].includes(tmp[0])) {
+                addStyle += 'text-align: right;'
+            }
         }
         // normalize items, if not yet normlized
         if (edit.items.length > 0 && !w2utils.isPlainObject(edit.items[0])) {
@@ -8180,8 +8182,8 @@ class w2grid extends w2base {
         if (data == null) data = ''
         // --> cell TD
         if (typeof col.render == 'string') {
-            let tmp = col.render.toLowerCase().split(':')
-            if (['number', 'int', 'float', 'money', 'currency', 'percent', 'size'].indexOf(tmp[0]) != -1) {
+            let tmp = col.render.replace('|', ':').split(':')
+            if (['number', 'int', 'float', 'money', 'currency', 'percent', 'size'].includes(tmp[0])) {
                 style += 'text-align: right;'
             }
         }
@@ -8367,10 +8369,30 @@ class w2grid extends w2base {
         }
         // if there is a cell renderer
         if (col.render != null && ind !== -1) {
-            if (typeof col.render == 'function' && record != null) {
+            let render = col.render
+            let params
+            // predefined formatters
+            if (typeof render == 'string') {
+                let tmp = col.render.toLowerCase().replace('|', ':').split(':')
+                // formatters
+                let func = w2utils.formatters[tmp[0]]
+                if (col.options && col.options.autoFormat === false) {
+                    func = null
+                }
+                render = func
+                params = tmp[1]
+            }
+            if (typeof render == 'function' && record != null) {
                 let html
                 try {
-                    html = col.render.call(this, record, { self: this, value, index: ind, colIndex: col_ind, summary: !!summary })
+                    html = render.call(this, record, {
+                        self: this,
+                        value, params,
+                        field: this.columns[col_ind].field,
+                        index: ind,
+                        colIndex: col_ind,
+                        summary: !!summary
+                    })
                 } catch (e) {
                     throw new Error(`Render function for column "${col.field}" in grid "${this.name}": -- ` + e.message)
                 }
@@ -8394,29 +8416,11 @@ class w2grid extends w2base {
                 }
             }
             // if it is an object
-            if (typeof col.render == 'object') {
-                let tmp = col.render[value]
+            if (typeof render == 'object') {
+                let tmp = render[value]
                 if (tmp != null && tmp !== '') {
                     value = tmp
                 }
-            }
-            // formatters
-            if (typeof col.render == 'string') {
-                let strInd = col.render.toLowerCase().indexOf(':')
-                let tmp = []
-                if (strInd == -1) {
-                    tmp[0] = col.render.toLowerCase()
-                    tmp[1] = ''
-                } else {
-                    tmp[0] = col.render.toLowerCase().substr(0, strInd)
-                    tmp[1] = col.render.toLowerCase().substr(strInd + 1)
-                }
-                // formatters
-                let func = w2utils.formatters[tmp[0]]
-                if (col.options && col.options.autoFormat === false) {
-                    func = null
-                }
-                value = (typeof func == 'function' ? func(value, tmp[1], record) : '')
             }
         }
         if (value == null) value = ''
