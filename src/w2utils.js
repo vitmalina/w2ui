@@ -691,14 +691,24 @@ class Utils {
         })
     }
 
-    base64encode(input) {
+    base64encode(str) {
         // Fast Native support in Chrome since 2010
-        return btoa(input) // binary to ascii
+        let utf8Bytes = new TextEncoder().encode(str)
+        let binaryString = ''
+        for (let byte of utf8Bytes) {
+            binaryString += String.fromCharCode(byte)
+        }
+        return btoa(binaryString)
     }
 
-    base64decode(input) {
+    base64decode(encodedStr) {
         // Fast Native support in Chrome since 2010
-        return atob(input) // ascii to binary
+        let binaryString = atob(encodedStr)
+        let utf8Bytes = new Uint8Array(binaryString.length)
+        for (let i = 0; i < binaryString.length; i++) {
+            utf8Bytes[i] = binaryString.charCodeAt(i)
+        }
+        return new TextDecoder().decode(utf8Bytes)
     }
 
     async sha256(str) {
