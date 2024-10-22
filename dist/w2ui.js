@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (10/10/2024, 9:19:34 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (10/22/2024, 11:03:32 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -1053,49 +1053,59 @@ class Utils {
         this.isFirefox = /(Firefox)/i.test(navigator.userAgent)
         // Formatters: Primarily used in grid
         this.formatters = {
-            'number'(value, params) {
+            'number'(record, extra) {
+                let { value, params } = extra
                 if (parseInt(params) > 20) params = 20
                 if (parseInt(params) < 0) params = 0
                 if (value == null || value === '') return ''
                 return w2utils.formatNumber(parseFloat(value), params, true)
             },
-            'float'(value, params) {
+            'float'(record, extra) {
+                let { value, params } = extra
                 return w2utils.formatters.number(value, params)
             },
-            'int'(value, params) {
+            'int'(record, extra) {
+                let { value, params } = extra
                 return w2utils.formatters.number(value, 0)
             },
-            'money'(value, params) {
+            'money'(record, extra) {
+                let { value, params } = extra
                 if (value == null || value === '') return ''
                 let data = w2utils.formatNumber(Number(value), w2utils.settings.currencyPrecision)
                 return (w2utils.settings.currencyPrefix || '') + data + (w2utils.settings.currencySuffix || '')
             },
-            'currency'(value, params) {
+            'currency'(record, extra) {
+                let { value, params } = extra
                 return w2utils.formatters.money(value, params)
             },
-            'percent'(value, params) {
+            'percent'(record, extra) {
+                let { value, params } = extra
                 if (value == null || value === '') return ''
                 return w2utils.formatNumber(value, params || 1) + '%'
             },
-            'size'(value, params) {
+            'size'(record, extra) {
+                let { value, params } = extra
                 if (value == null || value === '') return ''
                 return w2utils.formatSize(parseInt(value))
             },
-            'date'(value, params) {
+            'date'(record, extra) {
+                let { value, params } = extra
                 if (params === '') params = w2utils.settings.dateFormat
                 if (value == null || value === 0 || value === '') return ''
                 let dt = w2utils.isDateTime(value, params, true)
                 if (dt === false) dt = w2utils.isDate(value, params, true)
                 return '<span title="'+ dt +'">' + w2utils.formatDate(dt, params) + '</span>'
             },
-            'datetime'(value, params) {
+            'datetime'(record, extra) {
+                let { value, params } = extra
                 if (params === '') params = w2utils.settings.datetimeFormat
                 if (value == null || value === 0 || value === '') return ''
                 let dt = w2utils.isDateTime(value, params, true)
                 if (dt === false) dt = w2utils.isDate(value, params, true)
                 return '<span title="'+ dt +'">' + w2utils.formatDateTime(dt, params) + '</span>'
             },
-            'time'(value, params) {
+            'time'(record, extra) {
+                let { value, params } = extra
                 if (params === '') params = w2utils.settings.timeFormat
                 if (params === 'h12') params = 'hh:mi pm'
                 if (params === 'h24') params = 'h24:mi'
@@ -1104,34 +1114,40 @@ class Utils {
                 if (dt === false) dt = w2utils.isDate(value, params, true)
                 return '<span title="'+ dt +'">' + w2utils.formatTime(value, params) + '</span>'
             },
-            'timestamp'(value, params) {
+            'timestamp'(record, extra) {
+                let { value, params } = extra
                 if (params === '') params = w2utils.settings.datetimeFormat
                 if (value == null || value === 0 || value === '') return ''
                 let dt = w2utils.isDateTime(value, params, true)
                 if (dt === false) dt = w2utils.isDate(value, params, true)
                 return dt.toString ? dt.toString() : ''
             },
-            'gmt'(value, params) {
+            'gmt'(record, extra) {
+                let { value, params } = extra
                 if (params === '') params = w2utils.settings.datetimeFormat
                 if (value == null || value === 0 || value === '') return ''
                 let dt = w2utils.isDateTime(value, params, true)
                 if (dt === false) dt = w2utils.isDate(value, params, true)
                 return dt.toUTCString ? dt.toUTCString() : ''
             },
-            'age'(value, params) {
+            'age'(record, extra) {
+                let { value, params } = extra
                 if (value == null || value === 0 || value === '') return ''
                 let dt = w2utils.isDateTime(value, null, true)
                 if (dt === false) dt = w2utils.isDate(value, null, true)
                 return '<span title="'+ dt +'">' + w2utils.age(value) + (params ? (' ' + params) : '') + '</span>'
             },
-            'interval'(value, params) {
+            'interval'(record, extra) {
+                let { value, params } = extra
                 if (value == null || value === 0 || value === '') return ''
                 return w2utils.interval(value) + (params ? (' ' + params) : '')
             },
-            'toggle'(value, params) {
+            'toggle'(record, extra) {
+                let { value, params } = extra
                 return (value ? w2utils.lang('Yes') : '')
             },
-            'password'(value, params) {
+            'password'(record, extra) {
+                let { value, params } = extra
                 let ret = ''
                 if (!value) return ret
                 for (let i = 0; i < value.length; i++) {
@@ -1637,13 +1653,23 @@ class Utils {
                     : String.fromCharCode(high >> 10 | 0xD800, high & 0x3FF | 0xDC00)
         })
     }
-    base64encode(input) {
+    base64encode(str) {
         // Fast Native support in Chrome since 2010
-        return btoa(input) // binary to ascii
+        let utf8Bytes = new TextEncoder().encode(str)
+        let binaryString = ''
+        for (let byte of utf8Bytes) {
+            binaryString += String.fromCharCode(byte)
+        }
+        return btoa(binaryString)
     }
-    base64decode(input) {
+    base64decode(encodedStr) {
         // Fast Native support in Chrome since 2010
-        return atob(input) // ascii to binary
+        let binaryString = atob(encodedStr)
+        let utf8Bytes = new Uint8Array(binaryString.length)
+        for (let i = 0; i < binaryString.length; i++) {
+            utf8Bytes[i] = binaryString.charCodeAt(i)
+        }
+        return new TextDecoder().decode(utf8Bytes)
     }
     async sha256(str) {
         const utf8 = new TextEncoder().encode(str)
@@ -5024,7 +5050,7 @@ class ColorTooltip extends Tooltip {
                 </div>`
         })
         html += `
-                <div class="w2ui-color w2ui-color-picker w2ui-eaction" data-click="pickAndSelect|${name}">
+                <div class="w2ui-color w2ui-color-picker w2ui-eaction" data-click="pickAndSelect|${name}|event">
                     <span class="w2ui-icon w2ui-icon-eye-dropper"></span>
                 </div>
             </div>`
@@ -5233,18 +5259,21 @@ class ColorTooltip extends Tooltip {
                 custom.splice(custom.indexOf(color), 1)
             }
             if (custom.length >= 5) {
-                custom.shift() // remove first one
+                custom.pop() // removes last one
             }
             custom.unshift(color)
         }
         return color
     }
-    async pickAndSelect(name) {
+    async pickAndSelect(name, event) {
         let color = await this.pickColor()
         if (typeof color == 'string' && color.substr(0, 1) == '#' && [7, 9].includes(color.length)) {
             this.addCustomColor(color, name)
+            let cnt = query(event.target).closest('.w2ui-colors-custom')
+            cnt.html(this.getCustomColorsHTML(name))
+            w2utils.bindEvents(cnt.find('.w2ui-eaction'), this)
             this.select(color.substr(1), name)
-            this.hide(name)
+            // this.hide(name)
         }
     }
     async pickAndUse(name) {
@@ -14245,12 +14274,12 @@ class w2grid extends w2base {
                     processError(resp ?? {})
                     return
                 }
-                self.unlock()
                 resp.json()
                     .catch(processError)
                     .then(data => {
                         this.requestComplete(data, action, callBack, resolve, reject)
                     })
+                    .finally(() => self.unlock())
             })
         if (action == 'load') {
             // event after
@@ -14571,9 +14600,11 @@ class w2grid extends w2base {
         if (edata.detail.prevValue != null) prevValue = edata.detail.prevValue
         if (value != null) val = value
         let addStyle = (col.style != null ? col.style + ';' : '')
-        if (typeof col.render == 'string'
-                && ['number', 'int', 'float', 'money', 'percent', 'size'].includes(col.render.split(':')[0])) {
-            addStyle += 'text-align: right;'
+        if (typeof col.render == 'string') {
+            let tmp = col.render.replace('|', ':').split(':')
+            if (['number', 'int', 'float', 'money', 'currency', 'percent', 'size'].includes(tmp[0])) {
+                addStyle += 'text-align: right;'
+            }
         }
         // normalize items, if not yet normlized
         if (edit.items.length > 0 && !w2utils.isPlainObject(edit.items[0])) {
@@ -19310,8 +19341,8 @@ class w2grid extends w2base {
         if (data == null) data = ''
         // --> cell TD
         if (typeof col.render == 'string') {
-            let tmp = col.render.toLowerCase().split(':')
-            if (['number', 'int', 'float', 'money', 'currency', 'percent', 'size'].indexOf(tmp[0]) != -1) {
+            let tmp = col.render.replace('|', ':').split(':')
+            if (['number', 'int', 'float', 'money', 'currency', 'percent', 'size'].includes(tmp[0])) {
                 style += 'text-align: right;'
             }
         }
@@ -19491,10 +19522,30 @@ class w2grid extends w2base {
         }
         // if there is a cell renderer
         if (col.render != null && ind !== -1) {
-            if (typeof col.render == 'function' && record != null) {
+            let render = col.render
+            let params
+            // predefined formatters
+            if (typeof render == 'string') {
+                let tmp = col.render.toLowerCase().replace('|', ':').split(':')
+                // formatters
+                let func = w2utils.formatters[tmp[0]]
+                if (col.options && col.options.autoFormat === false) {
+                    func = null
+                }
+                render = func
+                params = tmp[1]
+            }
+            if (typeof render == 'function' && record != null) {
                 let html
                 try {
-                    html = col.render.call(this, record, { self: this, value, index: ind, colIndex: col_ind, summary: !!summary })
+                    html = render.call(this, record, {
+                        self: this,
+                        value, params,
+                        field: this.columns[col_ind].field,
+                        index: ind,
+                        colIndex: col_ind,
+                        summary: !!summary
+                    })
                 } catch (e) {
                     throw new Error(`Render function for column "${col.field}" in grid "${this.name}": -- ` + e.message)
                 }
@@ -19518,29 +19569,11 @@ class w2grid extends w2base {
                 }
             }
             // if it is an object
-            if (typeof col.render == 'object') {
-                let tmp = col.render[value]
+            if (typeof render == 'object') {
+                let tmp = render[value]
                 if (tmp != null && tmp !== '') {
                     value = tmp
                 }
-            }
-            // formatters
-            if (typeof col.render == 'string') {
-                let strInd = col.render.toLowerCase().indexOf(':')
-                let tmp = []
-                if (strInd == -1) {
-                    tmp[0] = col.render.toLowerCase()
-                    tmp[1] = ''
-                } else {
-                    tmp[0] = col.render.toLowerCase().substr(0, strInd)
-                    tmp[1] = col.render.toLowerCase().substr(strInd + 1)
-                }
-                // formatters
-                let func = w2utils.formatters[tmp[0]]
-                if (col.options && col.options.autoFormat === false) {
-                    func = null
-                }
-                value = (typeof func == 'function' ? func(value, tmp[1], record) : '')
             }
         }
         if (value == null) value = ''
