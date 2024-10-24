@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (10/22/2024, 11:03:32 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (10/24/2024, 1:59:14 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -1023,7 +1023,7 @@ query.version = Query.version
  *  - added w2utils.confirm()
  *  - added isPlainObject
  *  - added stripSpaces
- *  - implemented marker
+ *  - implemented marker - can now take an element or just html
  *  - cssPrefix - deprecated
  *  - w2utils.debounce
  *  - w2utils.prepareParams
@@ -1054,6 +1054,7 @@ class Utils {
         // Formatters: Primarily used in grid
         this.formatters = {
             'number'(record, extra) {
+                if (extra == undefined) extra = record
                 let { value, params } = extra
                 if (parseInt(params) > 20) params = 20
                 if (parseInt(params) < 0) params = 0
@@ -1061,34 +1062,41 @@ class Utils {
                 return w2utils.formatNumber(parseFloat(value), params, true)
             },
             'float'(record, extra) {
+                if (extra == undefined) extra = record
                 let { value, params } = extra
                 return w2utils.formatters.number(value, params)
             },
             'int'(record, extra) {
+                if (extra == undefined) extra = record
                 let { value, params } = extra
                 return w2utils.formatters.number(value, 0)
             },
             'money'(record, extra) {
+                if (extra == undefined) extra = record
                 let { value, params } = extra
                 if (value == null || value === '') return ''
                 let data = w2utils.formatNumber(Number(value), w2utils.settings.currencyPrecision)
                 return (w2utils.settings.currencyPrefix || '') + data + (w2utils.settings.currencySuffix || '')
             },
             'currency'(record, extra) {
+                if (extra == undefined) extra = record
                 let { value, params } = extra
                 return w2utils.formatters.money(value, params)
             },
             'percent'(record, extra) {
+                if (extra == undefined) extra = record
                 let { value, params } = extra
                 if (value == null || value === '') return ''
                 return w2utils.formatNumber(value, params || 1) + '%'
             },
             'size'(record, extra) {
+                if (extra == undefined) extra = record
                 let { value, params } = extra
                 if (value == null || value === '') return ''
                 return w2utils.formatSize(parseInt(value))
             },
             'date'(record, extra) {
+                if (extra == undefined) extra = record
                 let { value, params } = extra
                 if (params === '') params = w2utils.settings.dateFormat
                 if (value == null || value === 0 || value === '') return ''
@@ -1097,6 +1105,7 @@ class Utils {
                 return '<span title="'+ dt +'">' + w2utils.formatDate(dt, params) + '</span>'
             },
             'datetime'(record, extra) {
+                if (extra == undefined) extra = record
                 let { value, params } = extra
                 if (params === '') params = w2utils.settings.datetimeFormat
                 if (value == null || value === 0 || value === '') return ''
@@ -1105,6 +1114,7 @@ class Utils {
                 return '<span title="'+ dt +'">' + w2utils.formatDateTime(dt, params) + '</span>'
             },
             'time'(record, extra) {
+                if (extra == undefined) extra = record
                 let { value, params } = extra
                 if (params === '') params = w2utils.settings.timeFormat
                 if (params === 'h12') params = 'hh:mi pm'
@@ -1115,6 +1125,7 @@ class Utils {
                 return '<span title="'+ dt +'">' + w2utils.formatTime(value, params) + '</span>'
             },
             'timestamp'(record, extra) {
+                if (extra == undefined) extra = record
                 let { value, params } = extra
                 if (params === '') params = w2utils.settings.datetimeFormat
                 if (value == null || value === 0 || value === '') return ''
@@ -1123,6 +1134,7 @@ class Utils {
                 return dt.toString ? dt.toString() : ''
             },
             'gmt'(record, extra) {
+                if (extra == undefined) extra = record
                 let { value, params } = extra
                 if (params === '') params = w2utils.settings.datetimeFormat
                 if (value == null || value === 0 || value === '') return ''
@@ -1131,6 +1143,7 @@ class Utils {
                 return dt.toUTCString ? dt.toUTCString() : ''
             },
             'age'(record, extra) {
+                if (extra == undefined) extra = record
                 let { value, params } = extra
                 if (value == null || value === 0 || value === '') return ''
                 let dt = w2utils.isDateTime(value, null, true)
@@ -1138,15 +1151,18 @@ class Utils {
                 return '<span title="'+ dt +'">' + w2utils.age(value) + (params ? (' ' + params) : '') + '</span>'
             },
             'interval'(record, extra) {
+                if (extra == undefined) extra = record
                 let { value, params } = extra
                 if (value == null || value === 0 || value === '') return ''
                 return w2utils.interval(value) + (params ? (' ' + params) : '')
             },
             'toggle'(record, extra) {
+                if (extra == undefined) extra = record
                 let { value, params } = extra
                 return (value ? w2utils.lang('Yes') : '')
             },
             'password'(record, extra) {
+                if (extra == undefined) extra = record
                 let { value, params } = extra
                 let ret = ''
                 if (!value) return ret
@@ -2454,6 +2470,9 @@ class Utils {
         return str.replace(/\${([^}]+)?}/g, function($1, $2) { return replace_obj[$2]||$2 })
     }
     marker(el, items, options = { onlyFirst: false, wholeWord: false }) {
+        options.tag ??= 'span'
+        options.class ??= 'w2ui-marker'
+        options.raplace = (matched) => `<${options.tag} class="${options.class}">${matched}</${options.tag}>`
         if (!Array.isArray(items)) {
             if (items != null && items !== '') {
                 items = [items]
@@ -2461,26 +2480,43 @@ class Utils {
                 items = []
             }
         }
-        let ww = options.wholeWord
-        query(el).each(el => {
-            clearMerkers(el)
-            items.forEach(str => {
-                if (typeof str !== 'string') str = String(str)
-                let replaceValue = (matched) => { // mark new
-                    return '<span class="w2ui-marker">' + matched + '</span>'
-                }
-                // escape regex special chars
-                str = str.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&').replace(/&/g, '&amp;')
-                    .replace(/</g, '&gt;').replace(/>/g, '&lt;')
-                let regex  = new RegExp((ww ? '\\b' : '') + str + (ww ? '\\b' : '')+ '(?!([^<]+)?>)',
-                    'i' + (!options.onlyFirst ? 'g' : '')) // only outside tags
-                el.innerHTML = el.innerHTML.replace(regex, replaceValue)
+        if (typeof el == 'string') {
+            _clearMerkers(el)
+            items.forEach(item => {
+                el = _replace(el, item, options.raplace)
             })
-        })
-        function clearMerkers(el) {
-            let markerRE = /\<span class=\"w2ui\-marker\"\>((.|\n|\r)*)\<\/span\>/ig
-            while (el.innerHTML.indexOf('<span class="w2ui-marker"') !== -1) {
-                el.innerHTML = el.innerHTML.replace(markerRE, '$1') // unmark
+        } else {
+            query(el).each(el => {
+                _clearMerkers(el)
+                items.forEach(item => {
+                    el.innerHTML = _replace(el.innerHTML, item, options.raplace)
+                })
+            })
+        }
+        return el
+        function _replace(html, term, replaceWith) {
+            let ww = options.wholeWord
+            if (typeof term !== 'string') term = String(term)
+            // escape regex special chars
+            term = term
+                .replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&gt;')
+                .replace(/>/g, '&lt;')
+            // only outside tags
+            let regex = new RegExp((ww ? '\\b' : '') + term + (ww ? '\\b' : '')+ '(?!([^<]+)?>)', 'i' + (!options.onlyFirst ? 'g' : ''))
+            return html = html.replace(regex, replaceWith)
+        }
+        function _clearMerkers(el) {
+            let markerRE = new RegExp(`<${options.tag}[^>]*class=["']${options.class.replace(/-/g, '\\-')}["'][^>]*>([\\s\\S]*?)<\\/${options.tag}>`, 'ig')
+            if (typeof el == 'string') {
+                while (el.indexOf(`<${options.tag} class="${options.class}"`) !== -1) {
+                    el = el.replace(markerRE, '$1') // unmark
+                }
+            } else {
+                while (el.innerHTML.indexOf(`<${options.tag} class="${options.class}"`) !== -1) {
+                    el.innerHTML = el.innerHTML.replace(markerRE, '$1') // unmark
+                }
             }
         }
     }
@@ -22036,7 +22072,7 @@ class w2form extends w2base {
                 .find('div:not(.w2ui-field-helper) > input, select, textarea, div > label:nth-child(1) > [type=radio]')
                 .filter(':not(.file-input)')
             // find visible (offsetParent == null for any element is not visible)
-            while (inputs[focus].offsetParent == null && inputs.length >= focus) {
+            while (inputs[focus].offsetParent == null && inputs.length > focus) {
                 focus++
             }
             if (inputs[focus]) {

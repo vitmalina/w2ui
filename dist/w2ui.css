@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (10/10/2024, 7:07:35 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (10/24/2024, 1:57:50 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -2695,7 +2695,7 @@ textarea.w2ui-error {
 }
 .w2ui-grid .w2ui-grid-body table td.w2ui-grid-data .w2ui-info {
   position: relative;
-  top: 2px;
+  top: 0px;
   left: -1px;
   font-size: 13px;
   color: #8D99A7;
