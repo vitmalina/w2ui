@@ -36,11 +36,11 @@ new w2field({
 window.update = function () {
     var val = query('#str').val();
     if (w2utils.isFloat(val)) {
-        query('#fNumber').html(w2utils.formatters['number'](val));
-        query('#fNumber2').html(w2utils.formatters['number'](val, 3));
-        query('#fMoney').html(w2utils.formatters['money'](val));
-        query('#fPercent').html(w2utils.formatters['percent'](val));
-        query('#fSize').html(w2utils.formatters['size'](val));
+        query('#fNumber').html(w2utils.formatters.number({ value: val }));
+        query('#fNumber2').html(w2utils.formatters.number({ value: val, params: 3 }));
+        query('#fMoney').html(w2utils.formatters.money({ value: val }));
+        query('#fPercent').html(w2utils.formatters.percent({ value: val }));
+        query('#fSize').html(w2utils.formatters.size({ value: val }));
     } else {
         query('#fNumber').html('--');
         query('#fNumber2').html('--');
@@ -50,13 +50,13 @@ window.update = function () {
     }
     var dt = w2utils.isDate(val, null, true);
     if (dt !== false) {
-        query('#fDate').html(w2utils.formatters['date'](val));
-        query('#fDateTime').html(w2utils.formatters['datetime'](val));
-        query('#fTime').html(w2utils.formatters['time'](val));
-        query('#fGMT').html(w2utils.formatters['gmt'](val));
-        query('#fTimeStamp').html(w2utils.formatters['timestamp'](val));
-        query('#fAge').html(w2utils.formatters['age'](val));
-        query('#fInterval').html(w2utils.formatters['interval'](val));
+        query('#fDate').html(w2utils.formatters.date({ value: val }));
+        query('#fDateTime').html(w2utils.formatters.datetime({ value: val }));
+        query('#fTime').html(w2utils.formatters.time({ value: val }));
+        query('#fGMT').html(w2utils.formatters.gmt({ value: val }));
+        query('#fTimeStamp').html(w2utils.formatters.timestamp({ value: val }));
+        query('#fAge').html(w2utils.formatters.age({ value: val }));
+        query('#fInterval').html(w2utils.formatters.interval({ value: val }));
     } else {
         query('#fDate').html('--');
         query('#fDateTime').html('--');

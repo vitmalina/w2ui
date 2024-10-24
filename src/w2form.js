@@ -2169,7 +2169,7 @@ class w2form extends w2base {
                 .find('div:not(.w2ui-field-helper) > input, select, textarea, div > label:nth-child(1) > [type=radio]')
                 .filter(':not(.file-input)')
             // find visible (offsetParent == null for any element is not visible)
-            while (inputs[focus].offsetParent == null && inputs.length >= focus) {
+            while (inputs[focus].offsetParent == null && inputs.length > focus) {
                 focus++
             }
             if (inputs[focus]) {
