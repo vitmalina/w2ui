@@ -928,7 +928,7 @@ class w2sidebar extends w2base {
         // default action
         if (this.editable) {
             this.edit(id)
-        } else {
+        } else if (!this.flat) {
             this.toggle(id)
         }
         // event after
