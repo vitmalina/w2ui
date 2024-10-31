@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (10/24/2024, 1:57:50 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (10/31/2024, 10:55:25 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -749,7 +749,7 @@ button.w2ui-btn:disabled {
 }
 /* general overlay */
 .w2ui-overlay {
-  --tip-size: 8px;
+  --tip-size: 10px;
   position: fixed;
   z-index: 1700;
   opacity: 0;
@@ -769,7 +769,7 @@ button.w2ui-btn:disabled {
   margin: 0px;
   font-size: 13px;
   font-family: OpenSans;
-  box-shadow: 1px 5px 15px #4b4949b3;
+  box-shadow: 0 0 10px #00000042;
   color: white;
   border: 1px solid #555;
   background-color: #69717a;
@@ -784,15 +784,15 @@ button.w2ui-btn:disabled {
   color: #3c3c3c;
   text-shadow: none;
   background-color: #fffde9;
-  border: 1px solid #d2d2d2;
-  box-shadow: 0px 1px 1px 1px #ffffff;
+  border: 1px solid #a0a0a0;
+  box-shadow: 0 0 10px #00000008;
 }
 .w2ui-overlay .w2ui-overlay-body.w2ui-white {
   color: #3c3c3c;
   text-shadow: none;
   background-color: #fafafa;
-  border: 1px solid #cccace;
-  box-shadow: 0px 0px 2px 0px #4b4b4b;
+  border: 1px solid #a0a0a0;
+  box-shadow: 0 2px 15px #00000008;
   outline: 1px solid white;
 }
 .w2ui-overlay .w2ui-overlay-body.w2ui-arrow-right:before {
@@ -1389,7 +1389,7 @@ button.w2ui-btn:disabled {
   color: #3c3c3c;
   text-shadow: none;
   background-color: #fff;
-  box-shadow: 0px 1px 6px 1px #ebeaec;
+  box-shadow: 0 0 10px #00000008;
 }
 .w2ui-calendar .w2ui-cal-title,
 .w2ui-calendar .w2ui-time-title {
@@ -3257,7 +3257,7 @@ textarea.w2ui-error {
   margin: 0px;
   border: 1px solid #777;
   background-color: #fafafa;
-  box-shadow: 0px 0px 25px #555;
+  box-shadow: 0 0 25px #0000005d;
 }
 .w2ui-popup.w2ui-non-blocking {
   border: 1px solid #c8c8c8;
@@ -3402,7 +3402,6 @@ textarea.w2ui-error {
   right: 2px;
   width: 10px;
   height: 10px;
-  box-shadow: 0px 0px 1px white;
   cursor: nwse-resize;
   color: #aaa;
   box-shadow: none;
@@ -3451,7 +3450,7 @@ textarea.w2ui-error {
   z-index: 250;
   background-color: #fcfcfc;
   border: 1px solid #999;
-  box-shadow: 0px 0px 15px #aaa;
+  box-shadow: 0 0 15px #0000003d;
   box-sizing: border-box;
   border-top: 0px;
   border-radius: 0px 0px 6px 6px;
