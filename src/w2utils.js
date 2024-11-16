@@ -19,6 +19,7 @@
  *  - cssPrefix - deprecated
  *  - w2utils.debounce
  *  - w2utils.prepareParams
+ *  - w2utils.getStrHeight
  */
 
 import { w2base } from './w2base.js'
@@ -1544,6 +1545,16 @@ class Utils {
         }
         div.html(raw ? str : this.encodeTags(str ?? '')).attr('style', `position: absolute; top: -9000px; ${styles || ''}`)
         return div[0].clientWidth
+    }
+
+    getStrHeight(str, styles, raw) {
+        let div = query('body > #_tmp_width')
+        if (div.length === 0) {
+            query('body').append('<div id="_tmp_width" style="position: absolute; top: -9000px;"></div>')
+            div = query('body > #_tmp_width')
+        }
+        div.html(raw ? str : this.encodeTags(str ?? '')).attr('style', `position: absolute; top: -9000px; ${styles || ''}`)
+        return div[0].clientHeight
     }
 
     execTemplate(str, replace_obj) {
