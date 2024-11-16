@@ -18,6 +18,7 @@
  *  - added center() // will auto center on window resize
  *  - close(immediate), also refactored if popup is closed when opening
  *  - options.resizable
+ *  - actions in popup can be just html (for example separator)
  */
 
 import { w2base } from './w2base.js'
@@ -144,8 +145,14 @@ class Dialog extends w2base {
                     btnAction = Array.isArray(options.actions) ? handler.text : action
                 }
                 if (typeof handler == 'string') {
-                    btnAction = handler[0].toLowerCase() + handler.substr(1).replace(/\s+/g, '')
-                    options.buttons += `<button class="w2ui-btn w2ui-eaction" name="${action}" data-click='["action","${btnAction}","event"]'>${handler}</button>`
+                    if (handler.trim().startsWith('<')) {
+                        btnAction = 'none'
+                        options.buttons += handler
+
+                    } else {
+                        btnAction = handler[0].toLowerCase() + handler.substr(1).replace(/\s+/g, '')
+                        options.buttons += `<button class="w2ui-btn w2ui-eaction" name="${action}" data-click='["action","${btnAction}","event"]'>${handler}</button>`
+                    }
                 }
                 if (typeof btnAction == 'string') {
                     btnAction = btnAction[0].toLowerCase() + btnAction.substr(1).replace(/\s+/g, '')
