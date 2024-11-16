@@ -156,8 +156,19 @@ class Tooltip {
                 name, options, anchor, self,
                 displayed: false,
                 tmp: {
-                    observeResize: new ResizeObserver(() => {
+                    observeTooltipResize: new ResizeObserver(() => {
                         this.resize(overlay.name)
+                    }),
+                    observeAnchorMove: new MutationObserver((mutations) => {
+                        let target = mutations[0].target // all targets are the same
+                        let currRect = target.getBoundingClientRect()
+                        let lastRect = target._lastBoundingRect
+                        if (!target._lastBoundingRect) {
+                            target._lastBoundingRect = currRect
+                        } else if (currRect.left !== lastRect.left || currRect.top !== lastRect.top) {
+                            this.resize(overlay.name)
+                            target._lastBoundingRect = currRect
+                        }
                     })
                 },
                 hide() {
@@ -358,7 +369,8 @@ class Tooltip {
         addWatchEvents(document.body)
         // first show empty tooltip, so it will popup up in the right position
         query(overlay.box).show()
-        overlay.tmp.observeResize.observe(overlay.box)
+        overlay.tmp.observeTooltipResize.observe(overlay.box)
+        overlay.tmp.observeAnchorMove.observe(overlay.anchor, { attributes: true })
         // observer element removal from DOM
         Tooltip.observeRemove.observe(document.body, { subtree: true, childList: true })
         // then insert html and it will adjust
@@ -459,7 +471,8 @@ class Tooltip {
         // normal processing
         if (!overlay.options._keep) delete Tooltip.active[name]
         let scope = 'tooltip-' + overlay.name
-        overlay.tmp.observeResize?.disconnect()
+        overlay.tmp.observeTooltipResize?.disconnect()
+        overlay.tmp.observeAnchorMove?.disconnect()
         if (overlay.options.watchScroll) {
             query(overlay.options.watchScroll)
                 .off('.w2scroll-' + overlay.name)
@@ -591,6 +604,7 @@ class Tooltip {
         }
         let arrowSize = options.arrowSize
         if (anchor.arrow == 'none') arrowSize = 0
+        if (isNaN(arrowSize)) arrowSize = this.defaults.arrowSize
 
         // space available
         let available = { // tipsize adjustment should be here, not in max.width/max.height
@@ -1821,6 +1835,15 @@ class MenuTooltip extends Tooltip {
             query(event.target).removeClass('expanded')
         })
         .select(evt => {
+            // overlay - is the top overlay, evt.detail.overlay -- current submenu
+            let parents = evt.detail.overlay.options.parents
+            let _overlay = overlay
+            while (_overlay.options.parentOverlay) {
+                _overlay = _overlay.options.parentOverlay
+            }
+            this.menuClick(_overlay, evt.detail.originalEvent, parseInt(evt.detail.index), parents)
+        })
+        .remove(evt => {
             // overlay - is the top overlay, evt.detail.overlay -- current submenu
             let parents = evt.detail.overlay.options.parents
             let _overlay = overlay
