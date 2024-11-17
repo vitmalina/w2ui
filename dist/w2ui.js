@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (10/24/2024, 1:59:21 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (11/17/2024, 9:14:58 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -1027,6 +1027,7 @@ query.version = Query.version
  *  - cssPrefix - deprecated
  *  - w2utils.debounce
  *  - w2utils.prepareParams
+ *  - w2utils.getStrHeight
  */
 
 // variable that holds all w2ui objects
@@ -2463,6 +2464,15 @@ class Utils {
         div.html(raw ? str : this.encodeTags(str ?? '')).attr('style', `position: absolute; top: -9000px; ${styles || ''}`)
         return div[0].clientWidth
     }
+    getStrHeight(str, styles, raw) {
+        let div = query('body > #_tmp_width')
+        if (div.length === 0) {
+            query('body').append('<div id="_tmp_width" style="position: absolute; top: -9000px;"></div>')
+            div = query('body > #_tmp_width')
+        }
+        div.html(raw ? str : this.encodeTags(str ?? '')).attr('style', `position: absolute; top: -9000px; ${styles || ''}`)
+        return div[0].clientHeight
+    }
     execTemplate(str, replace_obj) {
         if (typeof str !== 'string' || !replace_obj || typeof replace_obj !== 'object') {
             return str
@@ -3190,6 +3200,7 @@ var w2utils = new Utils() // eslint-disable-line -- needs to be functional/modul
  *  - added center() // will auto center on window resize
  *  - close(immediate), also refactored if popup is closed when opening
  *  - options.resizable
+ *  - actions in popup can be just html (for example separator)
  */
 
 class Dialog extends w2base {
@@ -3309,8 +3320,13 @@ class Dialog extends w2base {
                     btnAction = Array.isArray(options.actions) ? handler.text : action
                 }
                 if (typeof handler == 'string') {
-                    btnAction = handler[0].toLowerCase() + handler.substr(1).replace(/\s+/g, '')
-                    options.buttons += `<button class="w2ui-btn w2ui-eaction" name="${action}" data-click='["action","${btnAction}","event"]'>${handler}</button>`
+                    if (handler.trim().startsWith('<')) {
+                        btnAction = 'none'
+                        options.buttons += handler
+                    } else {
+                        btnAction = handler[0].toLowerCase() + handler.substr(1).replace(/\s+/g, '')
+                        options.buttons += `<button class="w2ui-btn w2ui-eaction" name="${action}" data-click='["action","${btnAction}","event"]'>${handler}</button>`
+                    }
                 }
                 if (typeof btnAction == 'string') {
                     btnAction = btnAction[0].toLowerCase() + btnAction.substr(1).replace(/\s+/g, '')
@@ -4172,8 +4188,22 @@ class Tooltip {
                 name, options, anchor, self,
                 displayed: false,
                 tmp: {
-                    observeResize: new ResizeObserver(() => {
+                    observeTooltipResize: new ResizeObserver(() => {
                         this.resize(overlay.name)
+                    }),
+                    observeAnchorResize: new ResizeObserver(() => {
+                        this.resize(overlay.name)
+                    }),
+                    observeAnchorMove: new MutationObserver((mutations) => {
+                        let target = mutations[0].target // all targets are the same
+                        let currRect = target.getBoundingClientRect()
+                        let lastRect = target._lastBoundingRect
+                        if (!target._lastBoundingRect) {
+                            target._lastBoundingRect = currRect
+                        } else if (currRect.left !== lastRect.left || currRect.top !== lastRect.top) {
+                            this.resize(overlay.name)
+                            target._lastBoundingRect = currRect
+                        }
                     })
                 },
                 hide() {
@@ -4370,7 +4400,9 @@ class Tooltip {
         addWatchEvents(document.body)
         // first show empty tooltip, so it will popup up in the right position
         query(overlay.box).show()
-        overlay.tmp.observeResize.observe(overlay.box)
+        overlay.tmp.observeTooltipResize.observe(overlay.box)
+        overlay.tmp.observeAnchorResize.observe(overlay.anchor)
+        overlay.tmp.observeAnchorMove.observe(overlay.anchor, { attributes: true })
         // observer element removal from DOM
         Tooltip.observeRemove.observe(document.body, { subtree: true, childList: true })
         // then insert html and it will adjust
@@ -4464,7 +4496,9 @@ class Tooltip {
         // normal processing
         if (!overlay.options._keep) delete Tooltip.active[name]
         let scope = 'tooltip-' + overlay.name
-        overlay.tmp.observeResize?.disconnect()
+        overlay.tmp.observeTooltipResize?.disconnect()
+        overlay.tmp.observeAnchorResize?.disconnect()
+        overlay.tmp.observeAnchorMove?.disconnect()
         if (overlay.options.watchScroll) {
             query(overlay.options.watchScroll)
                 .off('.w2scroll-' + overlay.name)
@@ -4513,19 +4547,26 @@ class Tooltip {
         edata.finish()
     }
     resize(name) {
+        let state = { moved: false, resize: false }
         if (arguments.length == 0) {
             Object.keys(Tooltip.active).forEach(key => {
                 let overlay = Tooltip.active[key]
                 if (overlay.displayed) this.resize(overlay.name)
             })
-            return
+            return { multiple: true }
         }
         let overlay = Tooltip.active[name.replace(/[\s\.#]/g, '_')]
         let pos = this.getPosition(overlay.name)
         let newPos = pos.left + 'x' + pos.top
-        let edata
+        let newSize = pos.width + 'x' + pos.height
+        let edata1, edata2
         if (overlay.tmp.lastPos != newPos) {
-            edata = this.trigger('move', { target: name, overlay, pos })
+            edata1 = this.trigger('move', { target: name, overlay, pos })
+            state.moved = true
+        }
+        if (overlay.tmp.lastSize != newSize) {
+            edata2 = this.trigger('resize', { target: name, overlay, pos })
+            state.moved = true
         }
         query(overlay.box)
             .css({
@@ -4550,10 +4591,15 @@ class Tooltip {
             .closest('.w2ui-overlay')
             .find('style')
             .text(pos.arrow.style)
-        if (overlay.tmp.lastPos != newPos && edata) {
+        if (overlay.tmp.lastPos != newPos && edata1) {
             overlay.tmp.lastPos = newPos
-            edata.finish()
+            edata1.finish()
         }
+        if (overlay.tmp.lastSize != newSize && edata2) {
+            overlay.tmp.lastSize = newSize
+            edata2.finish()
+        }
+        return state
     }
     getPosition(name) {
         let overlay = Tooltip.active[name.replace(/[\s\.#]/g, '_')]
@@ -4592,6 +4638,7 @@ class Tooltip {
         }
         let arrowSize = options.arrowSize
         if (anchor.arrow == 'none') arrowSize = 0
+        if (isNaN(arrowSize)) arrowSize = this.defaults.arrowSize
         // space available
         let available = { // tipsize adjustment should be here, not in max.width/max.height
             top: anchor.top - arrowSize,
@@ -5777,6 +5824,15 @@ class MenuTooltip extends Tooltip {
             query(event.target).removeClass('expanded')
         })
         .select(evt => {
+            // overlay - is the top overlay, evt.detail.overlay -- current submenu
+            let parents = evt.detail.overlay.options.parents
+            let _overlay = overlay
+            while (_overlay.options.parentOverlay) {
+                _overlay = _overlay.options.parentOverlay
+            }
+            this.menuClick(_overlay, evt.detail.originalEvent, parseInt(evt.detail.index), parents)
+        })
+        .remove(evt => {
             // overlay - is the top overlay, evt.detail.overlay -- current submenu
             let parents = evt.detail.overlay.options.parents
             let _overlay = overlay
