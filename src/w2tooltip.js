@@ -159,6 +159,9 @@ class Tooltip {
                     observeTooltipResize: new ResizeObserver(() => {
                         this.resize(overlay.name)
                     }),
+                    observeAnchorResize: new ResizeObserver(() => {
+                        this.resize(overlay.name)
+                    }),
                     observeAnchorMove: new MutationObserver((mutations) => {
                         let target = mutations[0].target // all targets are the same
                         let currRect = target.getBoundingClientRect()
@@ -370,6 +373,7 @@ class Tooltip {
         // first show empty tooltip, so it will popup up in the right position
         query(overlay.box).show()
         overlay.tmp.observeTooltipResize.observe(overlay.box)
+        overlay.tmp.observeAnchorResize.observe(overlay.anchor)
         overlay.tmp.observeAnchorMove.observe(overlay.anchor, { attributes: true })
         // observer element removal from DOM
         Tooltip.observeRemove.observe(document.body, { subtree: true, childList: true })
@@ -472,6 +476,7 @@ class Tooltip {
         if (!overlay.options._keep) delete Tooltip.active[name]
         let scope = 'tooltip-' + overlay.name
         overlay.tmp.observeTooltipResize?.disconnect()
+        overlay.tmp.observeAnchorResize?.disconnect()
         overlay.tmp.observeAnchorMove?.disconnect()
         if (overlay.options.watchScroll) {
             query(overlay.options.watchScroll)
@@ -522,19 +527,26 @@ class Tooltip {
     }
 
     resize(name) {
+        let state = { moved: false, resize: false }
         if (arguments.length == 0) {
             Object.keys(Tooltip.active).forEach(key => {
                 let overlay = Tooltip.active[key]
                 if (overlay.displayed) this.resize(overlay.name)
             })
-            return
+            return { multiple: true }
         }
         let overlay = Tooltip.active[name.replace(/[\s\.#]/g, '_')]
         let pos = this.getPosition(overlay.name)
         let newPos = pos.left + 'x' + pos.top
-        let edata
+        let newSize = pos.width + 'x' + pos.height
+        let edata1, edata2
         if (overlay.tmp.lastPos != newPos) {
-            edata = this.trigger('move', { target: name, overlay, pos })
+            edata1 = this.trigger('move', { target: name, overlay, pos })
+            state.moved = true
+        }
+        if (overlay.tmp.lastSize != newSize) {
+            edata2 = this.trigger('resize', { target: name, overlay, pos })
+            state.moved = true
         }
         query(overlay.box)
             .css({
@@ -560,10 +572,15 @@ class Tooltip {
             .find('style')
             .text(pos.arrow.style)
 
-        if (overlay.tmp.lastPos != newPos && edata) {
+        if (overlay.tmp.lastPos != newPos && edata1) {
             overlay.tmp.lastPos = newPos
-            edata.finish()
+            edata1.finish()
         }
+        if (overlay.tmp.lastSize != newSize && edata2) {
+            overlay.tmp.lastSize = newSize
+            edata2.finish()
+        }
+        return state
     }
 
     getPosition(name) {
