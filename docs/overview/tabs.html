@@ -8,35 +8,35 @@ Below is a simple example how to use tabs. It shows the minimum HTML and JavaScr
 in the example that you link jquery.js, w2ui.js and w2ui.css files.
 
 <textarea class="html">
-<!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" type="text/css" href="http://w2ui.com/src/w2ui-1.5.min.css" />
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script type="text/javascript" src="http://w2ui.com/src/w2ui-1.5.min.js"></script>
+    <link rel="stylesheet" type="text/css"
+        href="https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.css" />
 </head>
 <body>
-    <div id="myTabs"></div>
-    <div id="myTabsContent" style="height: 400px; padding: 10px; border: 1px solid #ccc; border-top: 0px">
+    <div id="tabs"></div>
+    <div id="tabsContent"
+            style="height: 400px; padding: 10px; border: 1px solid #ccc; border-top: 0px">
         tab1
     </div>
 </body>
-<script>
-$(function () {
-    $('#myTabs').w2tabs({
-        name     : 'myTabs',
-        active     : 'tab1',
-        tabs    : [
-            { id: 'tab1', text: 'Tab 1' },
-            { id: 'tab2', text: 'Tab 2' },
-            { id: 'tab3', text: 'Tab 3' },
-            { id: 'tab4', text: 'Tab 4' }
-        ],
-        onClick(event) {
-            $('#myTabsContent').html(event.target);
-        }
-    });
-});
+<script type="module">
+import { w2tabs, query } from 'https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.es6.min.js'
+let tabs = new w2tabs({
+    name: 'myTabs',
+    active: 'tab1',
+    tabs: [
+        { id: 'tab1', text: 'Tab 1' },
+        { id: 'tab2', text: 'Tab 2' },
+        { id: 'tab3', text: 'Tab 3' },
+        { id: 'tab4', text: 'Tab 4' }
+    ],
+    onClick(event) {
+        let tab = event.detail.tab
+        query('#tabsContent').html(tab.text)
+    }
+})
+tabs.render('#tabs')
 </script>
 </html>
 </textarea>

@@ -10,35 +10,34 @@ Below is a simple example how to use the toolbar. It shows the minimum HTML and 
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" type="text/css" href="http://w2ui.com/src/w2ui-1.5.min.css" />
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script type="text/javascript" src="http://w2ui.com/src/w2ui-1.5.min.js"></script>
+    <link rel="stylesheet" type="text/css"
+        href="https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.css" />
 </head>
 <body>
-    <div id="myToolbar"></div>
+    <div id="toolbar" style="height: 400px"></div>
 </body>
-<script>
-$(function () {
-    $('#myToolbar').w2toolbar({
-        name : 'myToolbar',
-        items: [
-            { type: 'check',  id: 'item1', text: 'Check', img: 'icon-add', checked: true },
-            { type: 'break' },
-            { type: 'menu',   id: 'item2', text: 'Drop Down', img: 'icon-folder',
-                items: [
-                    { text: 'Item 1', img: 'icon-page' },
-                    { text: 'Item 2', img: 'icon-page' },
-                    { text: 'Item 3', img: 'icon-page' }
-                ]
-            },
-            { type: 'break' },
-            { type: 'radio',  id: 'item3',  group: '1', text: 'Radio 1', img: 'icon-page' },
-            { type: 'radio',  id: 'item4',  group: '1', text: 'Radio 2', img: 'icon-page' },
-            { type: 'spacer' },
-            { type: 'button',  id: 'item5',  text: 'Item 5', img: 'icon-save' }
-        ]
-    });
-});
+<script type="module">
+import { w2toolbar } from 'https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.es6.min.js'
+let toolbar = new w2toolbar({
+    name : 'myToolbar',
+    items: [
+        { type: 'check',  id: 'item1', text: 'Check', img: 'icon-add', checked: true },
+        { type: 'break' },
+        { type: 'menu',   id: 'item2', text: 'Drop Down', img: 'icon-folder',
+            items: [
+                { text: 'Item 1', img: 'icon-page' },
+                { text: 'Item 2', img: 'icon-page' },
+                { text: 'Item 3', img: 'icon-page' }
+            ]
+        },
+        { type: 'break' },
+        { type: 'radio',  id: 'item3',  group: '1', text: 'Radio 1', img: 'icon-page' },
+        { type: 'radio',  id: 'item4',  group: '1', text: 'Radio 2', img: 'icon-page' },
+        { type: 'spacer' },
+        { type: 'button',  id: 'item5',  text: 'Item 5', img: 'icon-save' }
+    ]
+})
+toolbar.render("#toolbar")
 </script>
 </html>
 </textarea>

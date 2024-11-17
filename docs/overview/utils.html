@@ -1,7 +1,10 @@
 <h3>Overview</h3>
 In w2ui library there are several global variables. If you link w2ui.js as "text/javascript":
 <textarea class="html">
-&lt;script type="text/javascript" src="w2ui.min.js"&gt;&lt;/script&gt;
+<script type="module">
+    import { w2utils, w2alert } from 'https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.es6.min.js'
+    w2alert(w2utils.base64encode('some text'))
+</script>
 </textarea>
 
 Following global object and function will be defined:

@@ -22,16 +22,16 @@ It shows the minimum HTML and JavaScript you need to have to display the grid.
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" type="text/css" href="http://w2ui.com/src/w2ui-1.5.min.css" />
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script type="text/javascript" src="http://w2ui.com/src/w2ui-1.5.min.js"></script>
+    <link rel="stylesheet" type="text/css"
+        href="https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.css" />
 </head>
 <body>
     <div id="myGrid" style="height: 450px"></div>
 </body>
-<script>
-$('#myGrid').w2grid({
-    name   : 'myGrid',
+<script type="module">
+import { w2grid } from 'https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.es6.min.js'
+let grid = new w2grid({
+    name: 'myGrid',
     columns: [
         { field: 'fname', text: 'First Name', size: '30%' },
         { field: 'lname', text: 'Last Name', size: '30%' },
@@ -47,9 +47,10 @@ $('#myGrid').w2grid({
         { recid: 6, fname: 'Francis', lname: 'Gatos', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
         { recid: 7, fname: 'Mark', lname: 'Welldo', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
         { recid: 8, fname: 'Thomas', lname: 'Bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-        { recid: 9, fname: 'Sergei', lname: 'Rachmaninov', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
+        { recid: 9, fname: 'Sergei', lname: 'Rach', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
     ]
-});
+})
+grid.render('#myGrid')
 </script>
 </html>
 </textarea>
@@ -63,24 +64,25 @@ data/records.json relative to where your example runs that returns JSON structur
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" type="text/css" href="http://w2ui.com/src/w2ui-1.5.min.css" />
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script type="text/javascript" src="http://w2ui.com/src/w2ui-1.5.min.js"></script>
+    <link rel="stylesheet" type="text/css"
+        href="https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.css" />
 </head>
 <body>
     <div id="myGrid" style="height: 450px"></div>
 </body>
-<script>
-$('#myGrid').w2grid({
-    name   : 'myGrid',
-    url    : 'data/records.json',
+<script type="module">
+import { w2grid } from 'https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.es6.min.js'
+let grid = new w2grid({
+    name: 'myGrid',
+    url: 'data/records.json',
     columns: [
         { field: 'fname', text: 'First Name', size: '30%' },
         { field: 'lname', text: 'Last Name', size: '30%' },
         { field: 'email', text: 'Email', size: '40%' },
         { field: 'sdate', text: 'Start Date', size: '120px' }
     ]
-});
+})
+grid.render('#myGrid')
 </script>
 </html>
 </textarea>

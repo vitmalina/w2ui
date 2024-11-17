@@ -2,7 +2,17 @@
 The w2popup object allows you to create dialogs. A popup can be created in any of the following ways:
 
 <h4>1. JSON structure</h4>
-<textarea class="javascript">
+<textarea class="html">
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css"
+        href="https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.css" />
+</head>
+<body>
+</body>
+<script type="module">
+import { w2popup } from 'https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.es6.min.js'
 w2popup.open({
     title: 'Popup Title HTML',
     body: 'Body HTML',
@@ -14,7 +24,9 @@ w2popup.open({
            w2popup.close()
         }
     }
-});
+})
+</script>
+</html>
 </textarea>
 
 <h4>2. Load from an external file</h4>
@@ -34,26 +46,7 @@ If there is a file "folder/popup.html", with
 </textarea>
 Then
 <textarea class="javascript">
-w2popup.load('folder/popup.html');
-</textarea>
-
-<h4>3. HTML Template</h4>
-<textarea class="html">
-<div id="popup" style="width: 600px; height: 400px; overflow: hidden">
-    <div rel="title">
-        Title
-    </div>
-    <div rel="body">
-        body ...
-    </div>
-    <div rel="buttons">
-        <input type="button" value="Switch to Popup 2" onclick="$('#popup2').w2popup()"/>
-    </div>
-</div>
-<script>
-    $('#popup').w2popup(); // content taken from inner html of #popup
-</script>
-</textarea>
+w2popup.load('folder/popup.html')</textarea>
 
 <h3>Options</h3>
 
