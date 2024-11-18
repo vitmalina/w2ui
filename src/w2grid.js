@@ -3677,7 +3677,7 @@ class w2grid extends w2base {
             return
         }
         // call delete script
-        let url = (typeof this.url != 'object' ? this.url : this.url.remove)
+        let url = this.url?.remove ?? this.url
         if (url) {
             this.request('delete')
         } else {
@@ -3765,7 +3765,7 @@ class w2grid extends w2base {
             }
             let sel_add = []
             if (start > end) { let tmp = start; start = end; end = tmp }
-            let url = this.url?.get ? this.url.get : this.url
+            let url = this.url?.get ?? this.url
             for (let i = start; i <= end; i++) {
                 if (this.searchData.length > 0 && !url && !this.last.searchIds.includes(i)) continue
                 if (this.selectType == 'row') {
@@ -3999,7 +3999,7 @@ class w2grid extends w2base {
     keydown(event) {
         // this method is called from w2utils
         let obj = this
-        let url = (typeof this.url != 'object' ? this.url : this.url.get)
+        let url = this.url?.get ?? this.url
         if (obj.keyboard !== true) return
         // trigger event
         let edata = obj.trigger('keydown', { target: obj.name, originalEvent: event })
@@ -4638,7 +4638,7 @@ class w2grid extends w2base {
             if (this.total !== -1) {
                 this.total += children.length
             }
-            let url = (typeof this.url != 'object' ? this.url : this.url.get)
+            let url = this.url?.get ?? this.url
             if (!url) {
                 this.localSort(true, true)
                 if (this.searchData.length > 0) {
@@ -4726,7 +4726,7 @@ class w2grid extends w2base {
             if (this.total !== -1) {
                 this.total -= end - start + 1
             }
-            let url     = (typeof this.url != 'object' ? this.url : this.url.get)
+            let url     = this.url?.get ?? this.url
             if (!url) {
                 if (this.searchData.length > 0) {
                     this.localSearch(true)
@@ -4822,7 +4822,7 @@ class w2grid extends w2base {
             this.sortData = []
         }
         // if local
-        let url = (typeof this.url != 'object' ? this.url : this.url.get)
+        let url = this.url?.get ?? this.url
         if (!url) {
             this.localSort(false, true)
             if (this.searchData.length > 0) this.localSearch(true)
@@ -5147,7 +5147,7 @@ class w2grid extends w2base {
             let line = tr1.attr('line')
             let isSummary = (this.records[ind] && this.records[ind].recid == recid ? false : true)
             // if it is searched, find index in search array
-            let url = (typeof this.url != 'object' ? this.url : this.url.get)
+            let url = this.url?.get ?? this.url
             if (this.searchData.length > 0 && !url) for (let s = 0; s < this.last.searchIds.length; s++) if (this.last.searchIds[s] == ind) ind = s
             let rec_html = this.getRecordHTML(ind, line, isSummary)
             tr1.replace(rec_html[0])
@@ -5175,7 +5175,7 @@ class w2grid extends w2base {
 
     refresh() {
         let time = Date.now()
-        let url  = (typeof this.url != 'object' ? this.url : this.url.get)
+        let url  = this.url?.get ?? this.url
         if (this.total <= 0 && !url && this.searchData.length === 0) {
             this.total = this.records.length
         }
@@ -5478,7 +5478,7 @@ class w2grid extends w2base {
                 // TODO: improve, scroll is not smooth, if scrolled to the end, it takes a while to return
                 let scroll = gridBody.data('scroll')
                 let container = gridBody.find('.w2ui-grid-records')
-                let amount = typeof event.wheelDelta != "undefined" ? -event.wheelDelta : (event.detail || event.deltaY)
+                let amount = typeof event.wheelDelta != 'undefined' ? -event.wheelDelta : (event.detail || event.deltaY)
                 let newScrollTop = container.prop('scrollTop')
 
                 scroll.lastDelta += amount
@@ -5626,7 +5626,7 @@ class w2grid extends w2base {
             this.box = box
         }
         if (!this.box) return
-        let url = (typeof this.url != 'object' ? this.url : this.url.get)
+        let url = this.url?.get ?? this.url
         // reset needed if grid existed
         this.reset(true)
         // --- default search field
@@ -6171,7 +6171,7 @@ class w2grid extends w2base {
             if (!text) text = '- column '+ (parseInt(c) + 1) +' -'
             items.push({ id: col.field, text: w2utils.stripTags(text), checked: !col.hidden })
         }
-        let url = (typeof this.url != 'object' ? this.url : this.url.get)
+        let url = this.url?.get ?? this.url
         if ((url && this.show.skipRecords) || this.show.saveRestoreState) {
             items.push({ text: '--' })
         }
@@ -6781,7 +6781,7 @@ class w2grid extends w2base {
         }
 
         let buffered = this.records.length
-        let url = (typeof this.url != 'object' ? this.url : this.url.get)
+        let url = this.url?.get ?? this.url
         if (this.searchData.length != 0 && !url) buffered = this.last.searchIds.length
         // apply overflow
         if (!this.fixedBody) { bodyOverflowY = false }
@@ -7557,7 +7557,7 @@ class w2grid extends w2base {
 
     getRecordsHTML() {
         let buffered = this.records.length
-        let url      = (typeof this.url != 'object' ? this.url : this.url.get)
+        let url      = this.url?.get ?? this.url
         if (this.searchData.length != 0 && !url) buffered = this.last.searchIds.length
         // larger number works better with chrome, smaller with FF.
         if (buffered > this.vs_start) this.last.vscroll.show_extra = this.vs_extra; else this.last.vscroll.show_extra = this.vs_start
@@ -7620,7 +7620,8 @@ class w2grid extends w2base {
 
     scroll(event) {
         let obj      = this
-        let url      = (typeof this.url != 'object' ? this.url : this.url.get)
+        let url      = this.url?.get ?? this.url
+        
         let records  = query(this.box).find(`#grid_${this.name}_records`)
         let frecords = query(this.box).find(`#grid_${this.name}_frecords`)
         // sync scroll positions
@@ -7962,7 +7963,7 @@ class w2grid extends w2base {
             return [rec_html1, rec_html2]
         }
         // regular record
-        let url = (typeof this.url != 'object' ? this.url : this.url.get)
+        let url = this.url?.get ?? this.url
         if (summary !== true) {
             if (this.searchData.length > 0 && !url) {
                 if (ind >= this.last.searchIds.length) return ''
@@ -8526,7 +8527,7 @@ class w2grid extends w2base {
     }
 
     stateRestore(newState) {
-        let url = (typeof this.url != 'object' ? this.url : this.url.get)
+        let url = this.url?.get ?? this.url
         if (!newState) {
             newState = this.cache('state')
         }
