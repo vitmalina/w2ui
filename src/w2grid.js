@@ -50,6 +50,7 @@
  *  - added grid.replace()
  *  - grid.compareSelection
  *  - this.showContextMenu(event, { recid, column, index }) - arguments changed
+ *  - this.parseField
  */
 
 import { w2base } from './w2base.js'
