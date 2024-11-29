@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (11/17/2024, 9:14:58 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (11/29/2024, 7:05:37 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -3907,7 +3907,7 @@ function w2alert(msg, title, callBack) {
         title: w2utils.lang(title ?? 'Notification'),
         body: `<div class="w2ui-centered w2ui-msg-text">${msg}</div>`,
         showClose: false,
-        actions: { ok: 'Ok' },
+        actions: { ok: w2utils.lang('Ok') },
         cancelAction: 'ok'
     }
     if (query('#w2ui-popup').length > 0 && w2popup.status != 'closing') {
@@ -3946,7 +3946,7 @@ function w2confirm(msg, title, callBack) {
     if (callBack == null && options.callBack != null) {
         callBack = options.callBack
     }
-    w2utils.normButtons(options, { yes: 'Yes', no: 'No' })
+    w2utils.normButtons(options, { yes: w2utils.lang('Yes'), no: w2utils.lang('No') })
     if (query('#w2ui-popup').length > 0 && w2popup.status != 'closing') {
         prom = w2popup.message(options)
     } else {
@@ -3989,7 +3989,7 @@ function w2prompt(label, title, callBack) {
         modal: true,
         cancelAction: 'cancel'
     })
-    w2utils.normButtons(options, { ok: 'Ok', cancel: 'Cancel' })
+    w2utils.normButtons(options, { ok: w2utils.lang('Ok'), cancel: w2utils.lang('Cancel') })
     if (query('#w2ui-popup').length > 0 && w2popup.status != 'closing') {
         prom = w2popup.message(options)
     } else {
@@ -11561,6 +11561,7 @@ class w2layout extends w2base {
  *  - added grid.replace()
  *  - grid.compareSelection
  *  - this.showContextMenu(event, { recid, column, index }) - arguments changed
+ *  - this.parseField
  */
 
 class w2grid extends w2base {
