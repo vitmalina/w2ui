@@ -63,29 +63,23 @@ class Utils {
             },
 
             'float'(record, extra) {
-                if (extra == undefined) extra = record
-                let { value, params } = extra
-                return w2utils.formatters.number(value, params)
+                return w2utils.formatters.number(record, extra)
             },
 
             'int'(record, extra) {
-                if (extra == undefined) extra = record
-                let { value, params } = extra
-                return w2utils.formatters.number(value, 0)
+                return w2utils.formatters.number(record, extra)
             },
 
             'money'(record, extra) {
                 if (extra == undefined) extra = record
                 let { value, params } = extra
                 if (value == null || value === '') return ''
-                let data = w2utils.formatNumber(Number(value), w2utils.settings.currencyPrecision)
+                let data = w2utils.formatNumber(Number(value), w2utils.settings.currencyPrecision, true)
                 return (w2utils.settings.currencyPrefix || '') + data + (w2utils.settings.currencySuffix || '')
             },
 
             'currency'(record, extra) {
-                if (extra == undefined) extra = record
-                let { value, params } = extra
-                return w2utils.formatters.money(value, params)
+                return w2utils.formatters.money(record, extra)
             },
 
             'percent'(record, extra) {

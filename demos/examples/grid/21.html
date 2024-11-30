@@ -43,7 +43,7 @@ let grid = new w2grid({
     columns: [
         { field: 'recid', text: 'ID', size: '50px', sortable: true, resizable: true },
         { field: 'text', text: 'text', size: '120px', sortable: true, resizable: true,
-            editable: { type: 'text' }
+            editable: { type: 'text' }, info: true
         },
         { field: 'int', text: 'int', size: '80px', sortable: true, resizable: true, render: 'int',
             editable: { type: 'int', min: 0, max: 32756 }
@@ -106,10 +106,11 @@ let grid = new w2grid({
             list: { id: 4, text: 'Mark Newman' } },
         { recid: 5, int: 350, money: 500, percent: 78, date: '4/1/2022', check: false },
         { recid: 6, text: 'some text', int: 350, money: 440, percent: 59, date: '4/4/2022', check: false },
-        { recid: 7, int: 350, money: 790, percent: 39, date: '6/8/2022', check: false },
+        { recid: 7, int: 350, money: 790, percent: 39, date: '6/8/2022', check: false,
+            w2ui: { style: 'background-color: #ffcccc', editable: false }
+        },
         { recid: 8, int: 350, money: 4040, percent: 12, date: '11/3/2022', check: true },
-        { recid: 9, int: 1000, money: 3400, percent: 100, date: '2/1/2022',
-            w2ui: { style: 'background-color: #ffcccc', editable: false } }
+        { recid: 9, int: 1000, money: 3400, percent: 100, date: '2/1/2022' }
     ]
 })
 

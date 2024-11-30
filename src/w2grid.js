@@ -5547,7 +5547,7 @@ class w2grid extends w2base {
                 let col = this.columns[td.attr('col')]
                 let isSummary = tr.parents('.w2ui-grid-body').hasClass('w2ui-grid-summary')
                 if (['mouseenter', 'mouseover'].includes(col.info?.showOn?.toLowerCase()) && event.type == 'mouseover') {
-                    this.showBubble(tr.attr('index'), td.attr('col'), isSummary)
+                    this.showBubble(parseInf(tr.attr('index')), parseInt(td.attr('col')), isSummary)
                         .then(() => {
                             query(event.delegate)
                                 .off('.tooltip')
@@ -5555,7 +5555,7 @@ class w2grid extends w2base {
                         })
                 } else if (event.type == 'click') {
                     w2tooltip.hide(this.name + '-bubble')
-                    this.showBubble(tr.attr('index'), td.attr('col'), isSummary)
+                    this.showBubble(parseInt(tr.attr('index')), parseInt(td.attr('col')), isSummary)
                 }
             })
             // clipborad copy icon
@@ -7622,7 +7622,7 @@ class w2grid extends w2base {
     scroll(event) {
         let obj      = this
         let url      = this.url?.get ?? this.url
-        
+
         let records  = query(this.box).find(`#grid_${this.name}_records`)
         let frecords = query(this.box).find(`#grid_${this.name}_frecords`)
         // sync scroll positions
@@ -8287,13 +8287,26 @@ class w2grid extends w2base {
                 let col = this.getColumn(tmp[0])
                 if (col == null) col = { field: tmp[0], caption: tmp[0] } // if not found in columns
                 let val = (col ? this.parseField(rec, col.field) : '')
+                // if change by inline editing
+                if (rec?.w2ui?.changes?.[col.field] != null) {
+                    val = rec.w2ui.changes[col.field]
+                }
                 if (tmp.length > 1) {
                     if (w2utils.formatters[tmp[1]]) {
-                        val = w2utils.formatters[tmp[1]](val, tmp[2] || null, rec)
+                        let extra = {
+                            self: this,
+                            value: val,
+                            params: tmp[2] || null,
+                            field: this.columns[col_ind].field,
+                            index: ind,
+                            colIndex: col_ind,
+                        }
+                        val = w2utils.formatters[tmp[1]].call(this, rec, extra)
                     } else {
                         console.log('ERROR: w2utils.formatters["'+ tmp[1] + '"] does not exists.')
                     }
                 }
+                if (typeof val == 'object' && val.text != null) val = val.text
                 if (info.showEmpty !== true && (val == null || val == '')) continue
                 if (info.maxLength != null && typeof val == 'string' && val.length > info.maxLength) val = val.substr(0, info.maxLength) + '...'
                 html += '<tr><td>' + col.text + '</td><td>' + ((val === 0 ? '0' : val) || '') + '</td></tr>'
@@ -8312,9 +8325,21 @@ class w2grid extends w2base {
                 let col = this.getColumn(tmp[0])
                 if (col == null) col = { field: tmp[0], caption: tmp[0] } // if not found in columns
                 let val = (col ? this.parseField(rec, col.field) : '')
+                // if change by inline editing
+                if (rec?.w2ui?.changes?.[col.field] != null) {
+                    val = rec.w2ui.changes[col.field]
+                }
                 if (tmp.length > 1) {
                     if (w2utils.formatters[tmp[1]]) {
-                        val = w2utils.formatters[tmp[1]](val, tmp[2] || null, rec)
+                        let extra = {
+                            self: this,
+                            value: val,
+                            params: tmp[2] || null,
+                            field: this.columns[col_ind].field,
+                            index: ind,
+                            colIndex: col_ind,
+                        }
+                        val = w2utils.formatters[tmp[1]].call(this, rec, extra)
                     } else {
                         console.log('ERROR: w2utils.formatters["'+ tmp[1] + '"] does not exists.')
                     }
@@ -8322,6 +8347,7 @@ class w2grid extends w2base {
                 if (typeof fld == 'function') {
                     val = fld(rec, { self: this, index: ind, colIndex: col_ind, summary: !!summary })
                 }
+                if (typeof val == 'object' && val.text != null) val = val.text
                 if (info.showEmpty !== true && (val == null || val == '')) continue
                 if (info.maxLength != null && typeof val == 'string' && val.length > info.maxLength) val = val.substr(0, info.maxLength) + '...'
                 html += '<tr><td>' + caption + '</td><td>' + ((val === 0 ? '0' : val) || '') + '</td></tr>'
