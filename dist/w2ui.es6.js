@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (11/29/2024, 7:05:37 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (11/30/2024, 8:44:57 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -1063,26 +1063,20 @@ class Utils {
                 return w2utils.formatNumber(parseFloat(value), params, true)
             },
             'float'(record, extra) {
-                if (extra == undefined) extra = record
-                let { value, params } = extra
-                return w2utils.formatters.number(value, params)
+                return w2utils.formatters.number(record, extra)
             },
             'int'(record, extra) {
-                if (extra == undefined) extra = record
-                let { value, params } = extra
-                return w2utils.formatters.number(value, 0)
+                return w2utils.formatters.number(record, extra)
             },
             'money'(record, extra) {
                 if (extra == undefined) extra = record
                 let { value, params } = extra
                 if (value == null || value === '') return ''
-                let data = w2utils.formatNumber(Number(value), w2utils.settings.currencyPrecision)
+                let data = w2utils.formatNumber(Number(value), w2utils.settings.currencyPrecision, true)
                 return (w2utils.settings.currencyPrefix || '') + data + (w2utils.settings.currencySuffix || '')
             },
             'currency'(record, extra) {
-                if (extra == undefined) extra = record
-                let { value, params } = extra
-                return w2utils.formatters.money(value, params)
+                return w2utils.formatters.money(record, extra)
             },
             'percent'(record, extra) {
                 if (extra == undefined) extra = record
@@ -15071,7 +15065,7 @@ class w2grid extends w2base {
             return
         }
         // call delete script
-        let url = (typeof this.url != 'object' ? this.url : this.url.remove)
+        let url = this.url?.remove ?? this.url
         if (url) {
             this.request('delete')
         } else {
@@ -15158,7 +15152,7 @@ class w2grid extends w2base {
             }
             let sel_add = []
             if (start > end) { let tmp = start; start = end; end = tmp }
-            let url = this.url?.get ? this.url.get : this.url
+            let url = this.url?.get ?? this.url
             for (let i = start; i <= end; i++) {
                 if (this.searchData.length > 0 && !url && !this.last.searchIds.includes(i)) continue
                 if (this.selectType == 'row') {
@@ -15381,7 +15375,7 @@ class w2grid extends w2base {
     keydown(event) {
         // this method is called from w2utils
         let obj = this
-        let url = (typeof this.url != 'object' ? this.url : this.url.get)
+        let url = this.url?.get ?? this.url
         if (obj.keyboard !== true) return
         // trigger event
         let edata = obj.trigger('keydown', { target: obj.name, originalEvent: event })
@@ -16004,7 +15998,7 @@ class w2grid extends w2base {
             if (this.total !== -1) {
                 this.total += children.length
             }
-            let url = (typeof this.url != 'object' ? this.url : this.url.get)
+            let url = this.url?.get ?? this.url
             if (!url) {
                 this.localSort(true, true)
                 if (this.searchData.length > 0) {
@@ -16089,7 +16083,7 @@ class w2grid extends w2base {
             if (this.total !== -1) {
                 this.total -= end - start + 1
             }
-            let url     = (typeof this.url != 'object' ? this.url : this.url.get)
+            let url     = this.url?.get ?? this.url
             if (!url) {
                 if (this.searchData.length > 0) {
                     this.localSearch(true)
@@ -16183,7 +16177,7 @@ class w2grid extends w2base {
             this.sortData = []
         }
         // if local
-        let url = (typeof this.url != 'object' ? this.url : this.url.get)
+        let url = this.url?.get ?? this.url
         if (!url) {
             this.localSort(false, true)
             if (this.searchData.length > 0) this.localSearch(true)
@@ -16497,7 +16491,7 @@ class w2grid extends w2base {
             let line = tr1.attr('line')
             let isSummary = (this.records[ind] && this.records[ind].recid == recid ? false : true)
             // if it is searched, find index in search array
-            let url = (typeof this.url != 'object' ? this.url : this.url.get)
+            let url = this.url?.get ?? this.url
             if (this.searchData.length > 0 && !url) for (let s = 0; s < this.last.searchIds.length; s++) if (this.last.searchIds[s] == ind) ind = s
             let rec_html = this.getRecordHTML(ind, line, isSummary)
             tr1.replace(rec_html[0])
@@ -16524,7 +16518,7 @@ class w2grid extends w2base {
     }
     refresh() {
         let time = Date.now()
-        let url  = (typeof this.url != 'object' ? this.url : this.url.get)
+        let url  = this.url?.get ?? this.url
         if (this.total <= 0 && !url && this.searchData.length === 0) {
             this.total = this.records.length
         }
@@ -16819,7 +16813,7 @@ class w2grid extends w2base {
                 // TODO: improve, scroll is not smooth, if scrolled to the end, it takes a while to return
                 let scroll = gridBody.data('scroll')
                 let container = gridBody.find('.w2ui-grid-records')
-                let amount = typeof event.wheelDelta != "undefined" ? -event.wheelDelta : (event.detail || event.deltaY)
+                let amount = typeof event.wheelDelta != 'undefined' ? -event.wheelDelta : (event.detail || event.deltaY)
                 let newScrollTop = container.prop('scrollTop')
                 scroll.lastDelta += amount
                 amount = Math.round(scroll.lastDelta)
@@ -16883,7 +16877,7 @@ class w2grid extends w2base {
                 let col = this.columns[td.attr('col')]
                 let isSummary = tr.parents('.w2ui-grid-body').hasClass('w2ui-grid-summary')
                 if (['mouseenter', 'mouseover'].includes(col.info?.showOn?.toLowerCase()) && event.type == 'mouseover') {
-                    this.showBubble(tr.attr('index'), td.attr('col'), isSummary)
+                    this.showBubble(parseInf(tr.attr('index')), parseInt(td.attr('col')), isSummary)
                         .then(() => {
                             query(event.delegate)
                                 .off('.tooltip')
@@ -16891,7 +16885,7 @@ class w2grid extends w2base {
                         })
                 } else if (event.type == 'click') {
                     w2tooltip.hide(this.name + '-bubble')
-                    this.showBubble(tr.attr('index'), td.attr('col'), isSummary)
+                    this.showBubble(parseInt(tr.attr('index')), parseInt(td.attr('col')), isSummary)
                 }
             })
             // clipborad copy icon
@@ -16959,7 +16953,7 @@ class w2grid extends w2base {
             this.box = box
         }
         if (!this.box) return
-        let url = (typeof this.url != 'object' ? this.url : this.url.get)
+        let url = this.url?.get ?? this.url
         // reset needed if grid existed
         this.reset(true)
         // --- default search field
@@ -17492,7 +17486,7 @@ class w2grid extends w2base {
             if (!text) text = '- column '+ (parseInt(c) + 1) +' -'
             items.push({ id: col.field, text: w2utils.stripTags(text), checked: !col.hidden })
         }
-        let url = (typeof this.url != 'object' ? this.url : this.url.get)
+        let url = this.url?.get ?? this.url
         if ((url && this.show.skipRecords) || this.show.saveRestoreState) {
             items.push({ text: '--' })
         }
@@ -18064,7 +18058,7 @@ class w2grid extends w2base {
             body.css('height', calculatedHeight + 'px')
         }
         let buffered = this.records.length
-        let url = (typeof this.url != 'object' ? this.url : this.url.get)
+        let url = this.url?.get ?? this.url
         if (this.searchData.length != 0 && !url) buffered = this.last.searchIds.length
         // apply overflow
         if (!this.fixedBody) { bodyOverflowY = false }
@@ -18815,7 +18809,7 @@ class w2grid extends w2base {
     }
     getRecordsHTML() {
         let buffered = this.records.length
-        let url      = (typeof this.url != 'object' ? this.url : this.url.get)
+        let url      = this.url?.get ?? this.url
         if (this.searchData.length != 0 && !url) buffered = this.last.searchIds.length
         // larger number works better with chrome, smaller with FF.
         if (buffered > this.vs_start) this.last.vscroll.show_extra = this.vs_extra; else this.last.vscroll.show_extra = this.vs_start
@@ -18876,7 +18870,7 @@ class w2grid extends w2base {
     }
     scroll(event) {
         let obj      = this
-        let url      = (typeof this.url != 'object' ? this.url : this.url.get)
+        let url      = this.url?.get ?? this.url
         let records  = query(this.box).find(`#grid_${this.name}_records`)
         let frecords = query(this.box).find(`#grid_${this.name}_frecords`)
         // sync scroll positions
@@ -19216,7 +19210,7 @@ class w2grid extends w2base {
             return [rec_html1, rec_html2]
         }
         // regular record
-        let url = (typeof this.url != 'object' ? this.url : this.url.get)
+        let url = this.url?.get ?? this.url
         if (summary !== true) {
             if (this.searchData.length > 0 && !url) {
                 if (ind >= this.last.searchIds.length) return ''
@@ -19533,13 +19527,26 @@ class w2grid extends w2base {
                 let col = this.getColumn(tmp[0])
                 if (col == null) col = { field: tmp[0], caption: tmp[0] } // if not found in columns
                 let val = (col ? this.parseField(rec, col.field) : '')
+                // if change by inline editing
+                if (rec?.w2ui?.changes?.[col.field] != null) {
+                    val = rec.w2ui.changes[col.field]
+                }
                 if (tmp.length > 1) {
                     if (w2utils.formatters[tmp[1]]) {
-                        val = w2utils.formatters[tmp[1]](val, tmp[2] || null, rec)
+                        let extra = {
+                            self: this,
+                            value: val,
+                            params: tmp[2] || null,
+                            field: this.columns[col_ind].field,
+                            index: ind,
+                            colIndex: col_ind,
+                        }
+                        val = w2utils.formatters[tmp[1]].call(this, rec, extra)
                     } else {
                         console.log('ERROR: w2utils.formatters["'+ tmp[1] + '"] does not exists.')
                     }
                 }
+                if (typeof val == 'object' && val.text != null) val = val.text
                 if (info.showEmpty !== true && (val == null || val == '')) continue
                 if (info.maxLength != null && typeof val == 'string' && val.length > info.maxLength) val = val.substr(0, info.maxLength) + '...'
                 html += '<tr><td>' + col.text + '</td><td>' + ((val === 0 ? '0' : val) || '') + '</td></tr>'
@@ -19558,9 +19565,21 @@ class w2grid extends w2base {
                 let col = this.getColumn(tmp[0])
                 if (col == null) col = { field: tmp[0], caption: tmp[0] } // if not found in columns
                 let val = (col ? this.parseField(rec, col.field) : '')
+                // if change by inline editing
+                if (rec?.w2ui?.changes?.[col.field] != null) {
+                    val = rec.w2ui.changes[col.field]
+                }
                 if (tmp.length > 1) {
                     if (w2utils.formatters[tmp[1]]) {
-                        val = w2utils.formatters[tmp[1]](val, tmp[2] || null, rec)
+                        let extra = {
+                            self: this,
+                            value: val,
+                            params: tmp[2] || null,
+                            field: this.columns[col_ind].field,
+                            index: ind,
+                            colIndex: col_ind,
+                        }
+                        val = w2utils.formatters[tmp[1]].call(this, rec, extra)
                     } else {
                         console.log('ERROR: w2utils.formatters["'+ tmp[1] + '"] does not exists.')
                     }
@@ -19568,6 +19587,7 @@ class w2grid extends w2base {
                 if (typeof fld == 'function') {
                     val = fld(rec, { self: this, index: ind, colIndex: col_ind, summary: !!summary })
                 }
+                if (typeof val == 'object' && val.text != null) val = val.text
                 if (info.showEmpty !== true && (val == null || val == '')) continue
                 if (info.maxLength != null && typeof val == 'string' && val.length > info.maxLength) val = val.substr(0, info.maxLength) + '...'
                 html += '<tr><td>' + caption + '</td><td>' + ((val === 0 ? '0' : val) || '') + '</td></tr>'
@@ -19766,7 +19786,7 @@ class w2grid extends w2base {
         return state
     }
     stateRestore(newState) {
-        let url = (typeof this.url != 'object' ? this.url : this.url.get)
+        let url = this.url?.get ?? this.url
         if (!newState) {
             newState = this.cache('state')
         }
