@@ -470,7 +470,6 @@ input[type=range] {
 
 #w2ui-notify {
     pointer-events: none; // it should not be blocking events unless it is on the message
-    position: fixed;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -479,6 +478,17 @@ input[type=range] {
     bottom: 15px;
     z-index: 10000;
     overflow: hidden;
+
+    //for body
+    &.fixed-notify {
+        position: fixed;
+    }
+
+    //for container
+    &.absolute-notify {
+        position: absolute;
+    }
+
     > div {
         pointer-events: all;
         position: relative;
