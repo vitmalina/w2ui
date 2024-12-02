@@ -13,6 +13,11 @@
     <button class="w2ui-btn notify-btn" value="2">Show an Error</button>
     <button class="w2ui-btn notify-btn" value="3">With actions</button>
     <button class="w2ui-btn notify-btn" value="4">Quick one</button>
+    <select id="side" class="w2ui-input">
+        <option value="right">Right</option>
+        <option value="left">Left</option>
+        <option value="center">Center</option>
+    </select>
 </div>
 
 <div id="preview-box" style="width: 700px; height: 300px; border: 1px solid #efefef; position: relative;
@@ -28,17 +33,18 @@
 
 <!--CODE-->
 <script type="module">
-import { w2utils, w2alert, query } from '__W2UI_PATH__'
+import { w2utils, w2alert, query, w2field } from '__W2UI_PATH__'
 
 query('.notify-btn').on('click', event => {
     let where = query('#in-the-box').prop('checked') ? '#preview-box' : undefined
+    let side = query('#side').val()
+
     switch(event.target.value) {
         case "1":
-            w2utils.notify(`User notification started at ${new Date().toLocaleTimeString()}. Will auto close in 15 seconds.`, {
-                class: "custom-class", where })
+            w2utils.notify(`User notification started at ${new Date().toLocaleTimeString()}. Will auto close in 15 seconds.`, { where, side })
             break
         case "2":
-            w2utils.notify('Error: cannot do this action', { error: true, where })
+            w2utils.notify('Error: cannot do this action', { error: true, where, side })
             break
         case "3":
             w2utils.notify('Message was sent ${undo} or ${don\'t show again}', {
@@ -50,11 +56,11 @@ query('.notify-btn').on('click', event => {
                         w2alert("don't show again")
                     }
                 },
-                where
+                where, side
             })
             break
         case "4":
-            w2utils.notify('Message will auto close in 2 seconds', { timeout: 2000, where: query('#preview-box'), where })
+            w2utils.notify('Message will auto close in 2 seconds', { timeout: 2000, where: query('#preview-box'), where, side })
             break
     }
 })

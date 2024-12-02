@@ -1386,7 +1386,7 @@ class Utils {
      *      where: el/selector, // element or selector where to show, default is document.body
      *      timeout: int,       // timeout when to hide, if 0 - indefinite
      *      error: boolean,     // add error clases
-     *      class: string,      // additional class strings
+     *      side: string,       // right, left, center
      *      actions: object     // object with action functions, it should correspot to templated text: '... ${action} ...'
      *  }
      * @returns promise
@@ -1416,8 +1416,8 @@ class Utils {
                     text = this.execTemplate(text, actions)
                 }
                 let html = `
-                    <div id="w2ui-notify" class=${options.where === document.body ? 'fixed-notify': 'absolute-notify'}>
-                        <div class="${options.class} ${options.error ? 'w2ui-notify-error' : ''}">
+                    <div id="w2ui-notify" class="${options.where === document.body ? 'fixed-notify': 'absolute-notify'} ${options.side}">
+                        <div class="${options.error ? 'w2ui-notify-error' : ''}">
                             ${text}
                             <span class="w2ui-notify-close w2ui-icon-cross"></span>
                         </div>

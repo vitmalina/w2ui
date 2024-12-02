@@ -473,9 +473,12 @@ input[type=range] {
     display: flex;
     flex-direction: column;
     align-items: center;
-    left: 0px;
-    right: 0px;
-    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 15px; 
+    border-radius: 4px;
+    box-sizing: border-box;
+    box-shadow: 3px 3px 10px #9c9c9c;
     z-index: 10000;
     overflow: hidden;
 
@@ -489,14 +492,25 @@ input[type=range] {
         position: absolute;
     }
 
+    &.left {
+        left: 15px;
+        transform: none;
+        align-items: flex-start;
+    }
+
+    &.right {
+        right: 15px;
+        left: auto; 
+        transform: none; 
+        align-items: flex-end;
+    }
+
     > div {
         pointer-events: all;
         position: relative;
         background-color: #292828ba;
         color: #ffffff;
         padding: 8px 44px 8px 16px;
-        border-radius: 4px;
-        box-shadow: 3px 3px 10px #9c9c9c;
         max-height: 76px;
         min-width: 100px;
         max-width: 800px;
