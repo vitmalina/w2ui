@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (11/30/2024, 8:44:57 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (12/2/2024, 8:42:12 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -2321,7 +2321,8 @@ class Utils {
             }
             options = options || {}
             options.where = options.where ?? document.body
-            options.timeout = options.timeout ?? 15_000 // 15 secodns or will be hidden on route change
+            options.timeout = options.timeout ?? 15_00000 // 15 secodns or will be hidden on route change
+            console.log(options)
             if (typeof this.tmp.notify_resolve == 'function') {
                 this.tmp.notify_resolve()
                 query(this.tmp.notify_where).find('#w2ui-notify').remove()
@@ -2338,8 +2339,8 @@ class Utils {
                     text = this.execTemplate(text, actions)
                 }
                 let html = `
-                    <div id="w2ui-notify">
-                        <div class="${options.class} ${options.error ? 'w2ui-notify-error' : ''}">
+                    <div id="w2ui-notify" class="${options.where === document.body ? 'fixed-notify': 'absolute-notify'}">
+                        <div class="${options.error ? 'w2ui-notify-error' : ''}">
                             ${text}
                             <span class="w2ui-notify-close w2ui-icon-cross"></span>
                         </div>
@@ -2368,6 +2369,10 @@ class Utils {
             }
         })
     }
+    // notifyRemove() {
+    //   let notify = query('#w2ui-notify')
+    //   let notify2 = query('')
+    // }
     confirm(where, options) {
         if (typeof options == 'string') {
             options = { text: options }

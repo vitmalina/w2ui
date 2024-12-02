@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (10/31/2024, 10:55:25 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (12/2/2024, 8:42:12 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -513,15 +513,34 @@ input[type=range]:focus::-ms-fill-upper {
 */
 #w2ui-notify {
   pointer-events: none;
-  position: fixed;
   display: flex;
   flex-direction: column;
   align-items: center;
-  left: 0px;
-  right: 0px;
   bottom: 15px;
-  z-index: 10000;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 4px;
+  box-sizing: border-box;
+  box-shadow: 3px 3px 10px #9c9c9c;
+  z-index: 1000;
   overflow: hidden;
+}
+#w2ui-notify.fixed-notify {
+  position: fixed;
+}
+#w2ui-notify.absolute-notify {
+  position: absolute;
+}
+#w2ui-notify.left {
+  left: 15px;
+  transform: none;
+  align-items: flex-start;
+}
+#w2ui-notify.right {
+  right: 15px;
+  left: auto;
+  transform: none;
+  align-items: flex-end;
 }
 #w2ui-notify > div {
   pointer-events: all;
@@ -529,8 +548,6 @@ input[type=range]:focus::-ms-fill-upper {
   background-color: #292828ba;
   color: #ffffff;
   padding: 8px 44px 8px 16px;
-  border-radius: 4px;
-  box-shadow: 3px 3px 10px #9c9c9c;
   max-height: 76px;
   min-width: 100px;
   max-width: 800px;
@@ -3590,6 +3607,7 @@ textarea.w2ui-error {
 }
 .w2ui-sidebar .w2ui-sidebar-body .w2ui-node:hover {
   background-color: #f1f1f1;
+  cursor: pointer;
 }
 .w2ui-sidebar .w2ui-sidebar-body .w2ui-node .w2ui-node-image {
   width: 22px;
@@ -4045,6 +4063,7 @@ textarea.w2ui-error {
 .w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-button.over {
   border: 1px solid transparent;
   background-color: #eaeaed;
+  cursor: pointer;
 }
 .w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-button.over .w2ui-tb-text {
   color: black;
