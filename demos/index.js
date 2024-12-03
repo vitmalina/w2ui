@@ -34,15 +34,25 @@ query(async function () {
             name: 'demo_toolbar',
             items: [
                 { id: 'combo', type: 'radio', text: 'Combo', icon: 'fa fa-star-o', route: 'combo/1' },
+                { type: 'break'},
                 { id: 'layout', type: 'radio', text: 'Layout', icon: 'fa fa-columns', route: 'layout/1' },
+                { type: 'break'},
                 { id: 'grid', type: 'radio', text: 'Grid', icon: 'fa fa-table', route: 'grid/1' },
+                { type: 'break'},
                 { id: 'toolbar', type: 'radio', text: 'Toolbar', icon: 'fa fa-hand-o-up', route: 'toolbar/1' },
+                { type: 'break'},
                 { id: 'sidebar', type: 'radio', text: 'Sidebar', icon: 'fa fa-hand-o-left', route: 'sidebar/1' },
+                { type: 'break'},
                 { id: 'tabs', type: 'radio', text: 'Tabs', icon: 'fa fa-folder-o', route: 'tabs/1' },
+                { type: 'break'},
                 { id: 'form', type: 'radio', text: 'Forms', icon: 'fa fa-pencil-square-o', route: 'form/1' },
+                { type: 'break'},
                 { id: 'fields', type: 'radio', text: 'Fields', icon: 'fa fa-pencil-square-o', route: 'fields/1' },
+                { type: 'break'},
                 { id: 'popup', type: 'radio', text: 'Popup', icon: 'fa fa-list-alt', route: 'popup/1' },
+                { type: 'break'},
                 { id: 'tooltip', type: 'radio', text: 'Tooltip', icon: 'fa fa-comment-o', route: 'tooltip/1' },
+                { type: 'break'},
                 { id: 'utils', type: 'radio', text: 'Utils', icon: 'fa fa-star-o', route: 'utils/1' },
                 { type: 'spacer' },
                 { type: 'menu-radio', id: 'locale', icon: 'fa fa-language',
@@ -534,7 +544,7 @@ query(async function () {
     function hashChanged() {
         query('#drag-me').remove()
         // show toolbar
-        let hash = String(document.location.hash).substr(2)
+        let hash = String(document.location.hash).slice(2)
         if (hash == '') hash = 'combo/1'
         let sec = hash.split('/')[0]
         let exp = hash.split('/')[1]
