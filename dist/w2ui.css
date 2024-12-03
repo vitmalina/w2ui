@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (12/2/2024, 8:42:12 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (12/3/2024, 10:29:41 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -516,13 +516,13 @@ input[type=range]:focus::-ms-fill-upper {
   display: flex;
   flex-direction: column;
   align-items: center;
-  bottom: 15px;
   left: 50%;
   transform: translateX(-50%);
+  bottom: 15px;
   border-radius: 4px;
   box-sizing: border-box;
   box-shadow: 3px 3px 10px #9c9c9c;
-  z-index: 1000;
+  z-index: 10000;
   overflow: hidden;
 }
 #w2ui-notify.fixed-notify {

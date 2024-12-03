@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (12/2/2024, 8:42:12 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (12/3/2024, 10:29:41 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -2308,7 +2308,7 @@ class Utils {
      *      where: el/selector, // element or selector where to show, default is document.body
      *      timeout: int,       // timeout when to hide, if 0 - indefinite
      *      error: boolean,     // add error clases
-     *      class: string,      // additional class strings
+     *      side: string,       // right, left, center
      *      actions: object     // object with action functions, it should correspot to templated text: '... ${action} ...'
      *  }
      * @returns promise
@@ -2320,16 +2320,13 @@ class Utils {
                 text = options.text
             }
             options = options || {}
+            options.side = options.side ?? 'center'
             options.where = options.where ?? document.body
-            options.timeout = options.timeout ?? 15_00000 // 15 secodns or will be hidden on route change
-            console.log(options)
-            if (typeof this.tmp.notify_resolve == 'function') {
-                this.tmp.notify_resolve()
-                query(this.tmp.notify_where).find('#w2ui-notify').remove()
-            }
+            options.timeout = options.timeout ?? 15_000 // 15 secodns or will be hidden on route change
+                    
+            this.removeNotify()
             this.tmp.notify_resolve = resolve
             this.tmp.notify_where = options.where
-            clearTimeout(this.tmp.notify_timer)
             if (text) {
                 if (typeof options.actions == 'object') {
                     let actions = {}
@@ -2339,7 +2336,7 @@ class Utils {
                     text = this.execTemplate(text, actions)
                 }
                 let html = `
-                    <div id="w2ui-notify" class="${options.where === document.body ? 'fixed-notify': 'absolute-notify'}">
+                    <div id="w2ui-notify" class="${options.where === document.body ? 'fixed-notify': 'absolute-notify'} ${options.side}">
                         <div class="${options.error ? 'w2ui-notify-error' : ''}">
                             ${text}
                             <span class="w2ui-notify-close w2ui-icon-cross"></span>
@@ -2348,31 +2345,49 @@ class Utils {
                 query(options.where).append(html)
                 query(options.where).find('#w2ui-notify').find('.w2ui-notify-close')
                     .on('click', event => {
-                        query(options.where).find('#w2ui-notify').remove()
-                        resolve()
+                        this.removeNotify()
                     })
                 if (options.actions) {
                     query(options.where).find('#w2ui-notify .w2ui-notify-link')
                         .on('click', event => {
                             let value = query(event.target).attr('value')
                             options.actions[value]()
-                            query(options.where).find('#w2ui-notify').remove()
-                            resolve()
+                            this.removeNotify()
                         })
                 }
                 if (options.timeout > 0) {
                     this.tmp.notify_timer = setTimeout(() => {
-                        query(options.where).find('#w2ui-notify').remove()
-                        resolve()
+                        this.removeNotify()
                     }, options.timeout)
                 }
             }
         })
     }
-    // notifyRemove() {
-    //   let notify = query('#w2ui-notify')
-    //   let notify2 = query('')
-    // }
+    /**
+    * Removes the currently active notification from the DOM and cleans up associated resources.
+    * 
+    * - Resolves any pending Promise linked to the notification.
+    * - Clears the timeout associated with the notification, if one exists.
+    * - Removes the notification element (`#w2ui-notify`) from its parent container.
+    * - Resets all temporary references (`tmp`) to ensure proper cleanup.
+    * 
+    * This method ensures that any active notification is properly terminated, 
+    * preventing memory leaks or conflicts with future notifications.
+    */
+    removeNotify() {
+        if (typeof this.tmp.notify_resolve === 'function') {
+            this.tmp.notify_resolve()
+        } 
+        clearTimeout(this.tmp.notify_timer)
+            
+        if (this.tmp.notify_where) {
+            query(this.tmp.notify_where).find('#w2ui-notify').remove()
+        }
+        
+        this.tmp.notify_resolve = null
+        this.tmp.notify_where = null
+        this.tmp.notify_timer = null
+    }
     confirm(where, options) {
         if (typeof options == 'string') {
             options = { text: options }
