@@ -5547,7 +5547,7 @@ class w2grid extends w2base {
                 let col = this.columns[td.attr('col')]
                 let isSummary = tr.parents('.w2ui-grid-body').hasClass('w2ui-grid-summary')
                 if (['mouseenter', 'mouseover'].includes(col.info?.showOn?.toLowerCase()) && event.type == 'mouseover') {
-                    this.showBubble(parseInf(tr.attr('index')), parseInt(td.attr('col')), isSummary)
+                    this.showBubble(parseInt(tr.attr('index')), parseInt(td.attr('col')), isSummary)
                         .then(() => {
                             query(event.delegate)
                                 .off('.tooltip')

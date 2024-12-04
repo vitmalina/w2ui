@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (11/30/2024, 8:44:57 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (12/4/2024, 10:23:25 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -16877,7 +16877,7 @@ class w2grid extends w2base {
                 let col = this.columns[td.attr('col')]
                 let isSummary = tr.parents('.w2ui-grid-body').hasClass('w2ui-grid-summary')
                 if (['mouseenter', 'mouseover'].includes(col.info?.showOn?.toLowerCase()) && event.type == 'mouseover') {
-                    this.showBubble(parseInf(tr.attr('index')), parseInt(td.attr('col')), isSummary)
+                    this.showBubble(parseInt(tr.attr('index')), parseInt(td.attr('col')), isSummary)
                         .then(() => {
                             query(event.delegate)
                                 .off('.tooltip')
@@ -21832,7 +21832,7 @@ class w2form extends w2base {
                         div.append(`<div class="w2ui-map-field" style="margin-bottom: 5px" data-index="${cnt}">${html}</div>`)
                         if (typeof field.html.render == 'function') {
                             let box = div.find(`[data-index="${cnt}"]`)
-                            box.find(`input`).each(el => {
+                            box.find('input').each(el => {
                                 // set only if it is not defined in the HTML
                                 if (query(el).attr('tabindex') == null) {
                                     query(el).attr('tabindex', field.html.tabindex)
