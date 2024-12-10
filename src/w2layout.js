@@ -8,6 +8,7 @@
  *  - layout.confirm - refactored
  *  - layout.message - refactored
  *  - panel.removed
+ *  - assignTabs
  */
 
 import { w2base } from './w2base.js'
@@ -430,6 +431,26 @@ class w2layout extends w2base {
         let pan = this.get(panel)
         if (!pan) return
         if (pan.show.tabs) this.hideTabs(panel); else this.showTabs(panel)
+    }
+
+    assignTabs(panel, tabs) {
+        if (typeof tabs == 'string' && w2ui[tabs] != null) tabs = w2ui[tabs]
+        let pan = this.get(panel)
+        pan.tabs = tabs
+        let tmp = query(this.box).find(panel +'> [data-role="panel-tabs"]')
+        if (pan.tabs != null) {
+            if (tmp.attr('name') != pan.tabs.name) {
+                pan.tabs.render(tmp.get(0))
+            } else if (pan.tabs != null) {
+                pan.tabs.refresh()
+            }
+            tabs.owner = this
+            this.showTabs(panel)
+            this.refresh(panel)
+        } else {
+            tmp.html('')
+            this.hideTabs(panel)
+        }
     }
 
     render(box) {

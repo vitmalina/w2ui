@@ -477,6 +477,7 @@ class w2toolbar extends w2base {
                             }
                             w2menu.show(w2utils.extend({
                                 items,
+                                selected: -1,
                                 align: it.text ? 'left' : 'none', // if there is no text, then no alignent
                             }, it.overlay, {
                                 type: menuType,

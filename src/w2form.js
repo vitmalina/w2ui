@@ -1744,6 +1744,7 @@ class w2form extends w2base {
                     }
                 })
                 field.$el.prev().addClass('w2ui-form-switch') // need to add this class, as toolbar render will remove all w2ui-* classes
+                field.toolbar.resize()
                 field.$el
                     .off('.form-input')
                     .on('focus.form-input', event => {

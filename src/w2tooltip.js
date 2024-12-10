@@ -10,6 +10,7 @@
  * - options.contextMenu
  * - options.prefilter - if true, it will show prefiltered items for w2menu, otherwise all
  * - menu.item.help, menu.item.hotkey, menu.item.extra
+ * - options.selected -> for w2menu
  */
 
 import { w2base } from './w2base.js'
@@ -1429,7 +1430,7 @@ class MenuTooltip extends Tooltip {
         this.defaults = w2utils.extend({}, this.defaults, {
             type        : 'normal',    // can be normal, radio, check
             items       : [],
-            index       : null,        // current selected
+            selected    : null,        // current selected
             render      : null,
             spinner     : false,
             msgNoItems  : w2utils.lang('No items found'),
@@ -1483,8 +1484,7 @@ class MenuTooltip extends Tooltip {
             if (ret.overlay?.box) {
                 let search = ''
                 // reset selected and active chain
-                overlay.selected = null
-
+                overlay.selected = overlay.options.selected // this is needed so that menu item can be preselected
                 if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
                     search = overlay.anchor.value
                     overlay.selected = overlay.anchor.dataset.selectedIndex
