@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (12/4/2024, 10:23:25 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (12/11/2024, 10:54:15 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -4045,6 +4045,7 @@ let w2popup = new Dialog()
  * - options.contextMenu
  * - options.prefilter - if true, it will show prefiltered items for w2menu, otherwise all
  * - menu.item.help, menu.item.hotkey, menu.item.extra
+ * - options.selected -> for w2menu
  */
 
 class Tooltip {
@@ -5403,7 +5404,7 @@ class MenuTooltip extends Tooltip {
         this.defaults = w2utils.extend({}, this.defaults, {
             type        : 'normal',    // can be normal, radio, check
             items       : [],
-            index       : null,        // current selected
+            selected    : null,        // current selected
             render      : null,
             spinner     : false,
             msgNoItems  : w2utils.lang('No items found'),
@@ -5456,7 +5457,7 @@ class MenuTooltip extends Tooltip {
             if (ret.overlay?.box) {
                 let search = ''
                 // reset selected and active chain
-                overlay.selected = null
+                overlay.selected = overlay.options.selected // this is needed so that menu item can be preselected
                 if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
                     search = overlay.anchor.value
                     overlay.selected = overlay.anchor.dataset.selectedIndex
@@ -5484,7 +5485,7 @@ class MenuTooltip extends Tooltip {
             if (overlay.selected == null || overlay.selected?.length == 0) {
                 overlay.selected = chain[0]
             } else {
-                let ind = chain.indexOf(overlay.selected)
+                let ind = chain.indexOf(String(overlay.selected)) // if nested menu, selected will be "2-2"
                 // selected not in chain of items
                 if (ind == -1) {
                     overlay.selected = chain[0]
@@ -5501,7 +5502,7 @@ class MenuTooltip extends Tooltip {
             if (overlay.selected == null || overlay.selected?.length == 0) {
                 overlay.selected = chain[chain.length-1]
             } else {
-                let ind = chain.indexOf(overlay.selected)
+                let ind = chain.indexOf(String(overlay.selected)) // if nested menu, selected will be "2-2"
                 // selected not in chain of items
                 if (ind == -1) {
                     overlay.selected = chain[chain.length-1]
@@ -7411,6 +7412,7 @@ class w2toolbar extends w2base {
                             }
                             w2menu.show(w2utils.extend({
                                 items,
+                                selected: -1,
                                 align: it.text ? 'left' : 'none', // if there is no text, then no alignent
                             }, it.overlay, {
                                 type: menuType,
@@ -10399,6 +10401,7 @@ class w2tabs extends w2base {
  *  - layout.confirm - refactored
  *  - layout.message - refactored
  *  - panel.removed
+ *  - assignTabs
  */
 
 let w2panels = ['top', 'left', 'main', 'preview', 'right', 'bottom']
@@ -10790,6 +10793,25 @@ class w2layout extends w2base {
         let pan = this.get(panel)
         if (!pan) return
         if (pan.show.tabs) this.hideTabs(panel); else this.showTabs(panel)
+    }
+    assignTabs(panel, tabs) {
+        if (typeof tabs == 'string' && w2ui[tabs] != null) tabs = w2ui[tabs]
+        let pan = this.get(panel)
+        pan.tabs = tabs
+        let tmp = query(this.box).find(panel +'> [data-role="panel-tabs"]')
+        if (pan.tabs != null) {
+            if (tmp.attr('name') != pan.tabs.name) {
+                pan.tabs.render(tmp.get(0))
+            } else if (pan.tabs != null) {
+                pan.tabs.refresh()
+            }
+            tabs.owner = this
+            this.showTabs(panel)
+            this.refresh(panel)
+        } else {
+            tmp.html('')
+            this.hideTabs(panel)
+        }
     }
     render(box) {
         let time = Date.now()
@@ -21731,6 +21753,7 @@ class w2form extends w2base {
                     }
                 })
                 field.$el.prev().addClass('w2ui-form-switch') // need to add this class, as toolbar render will remove all w2ui-* classes
+                field.toolbar.resize()
                 field.$el
                     .off('.form-input')
                     .on('focus.form-input', event => {
