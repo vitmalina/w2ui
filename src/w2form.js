@@ -1847,7 +1847,7 @@ class w2form extends w2base {
                         div.append(`<div class="w2ui-map-field" style="margin-bottom: 5px" data-index="${cnt}">${html}</div>`)
                         if (typeof field.html.render == 'function') {
                             let box = div.find(`[data-index="${cnt}"]`)
-                            box.find(`input`).each(el => {
+                            box.find('input').each(el => {
                                 // set only if it is not defined in the HTML
                                 if (query(el).attr('tabindex') == null) {
                                     query(el).attr('tabindex', field.html.tabindex)
