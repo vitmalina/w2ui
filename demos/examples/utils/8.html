@@ -1,7 +1,7 @@
 <div class="content">
     <div id="example_title">
         <h1>Notification</h1>
-        You can show notification that do not interrupt user flow with the new w2utils.notify() method
+        You can show notification that do not interrupt user flow with the new w2notification class
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
@@ -11,8 +11,13 @@
 <div>
     <button class="w2ui-btn notify-btn" value="1">Show a Notification</button>
     <button class="w2ui-btn notify-btn" value="2">Show an Error</button>
-    <button class="w2ui-btn notify-btn" value="3">With actions</button>
-    <button class="w2ui-btn notify-btn" value="4">Quick one</button>
+    <button class="w2ui-btn notify-btn" value="3">With actions</button> 
+    <label for="side">Position:</label>
+    <select title="position" id="side" class="w2ui-input">
+        <option value="center-bottom">Center-Bottom</option>
+        <option value="left-bottom">Left-Bottom</option>
+        <option value="right-bottom">Right-Bottom</option>
+    </select>
 </div>
 
 <div id="preview-box" style="width: 700px; height: 300px; border: 1px solid #efefef; position: relative;
@@ -28,34 +33,37 @@
 
 <!--CODE-->
 <script type="module">
-import { w2utils, w2alert, query } from '__W2UI_PATH__'
+import { query, w2alert, w2notification } from '__W2UI_PATH__'
+
+let notification = new w2notification()
 
 query('.notify-btn').on('click', event => {
-    let where = query('#in-the-box').prop('checked') ? '#preview-box' : undefined
+    let where = query('#in-the-box').prop('checked') ? document.getElementById('preview-box') : undefined
+    let position = query('#side').val()
+
     switch(event.target.value) {
         case "1":
-            w2utils.notify(`User notification started at ${new Date().toLocaleTimeString()}. Will auto close in 15 seconds.`, {
-                class: "custom-class", where })
+           notification.show('Message', { where , position })       
             break
         case "2":
-            w2utils.notify('Error: cannot do this action', { error: true, where })
+            notification.show('Message', { where , type: w2notification.Settings.Type.ERROR , position })
             break
         case "3":
-            w2utils.notify('Message was sent ${undo} or ${don\'t show again}', {
-                actions: {
-                    undo() {
-                        w2alert('undo')
-                    },
-                    "don't show again"() {
-                        w2alert("don't show again")
+            notification.show('This is button action message, all right?', { where, type: w2notification.Settings.Type.INFO, position, actions:[
+                {
+                    label:'YES',
+                    onClick : () => {
+                      w2alert('Yes')
                     }
                 },
-                where
-            })
-            break
-        case "4":
-            w2utils.notify('Message will auto close in 2 seconds', { timeout: 2000, where: query('#preview-box'), where })
-            break
+                {
+                    label: 'NO',
+                    onClick : () => {
+                      w2alert('No')
+                    }
+                }
+            ] }) 
+            break 
     }
 })
 </script>

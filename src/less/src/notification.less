@@ -1,0 +1,116 @@
+.notify-container {
+    position: absolute;
+    padding: 10px 20px;
+    border-radius: 4px;
+    box-shadow: 0 4px 6px @notification-shadow-background-color;
+    z-index: 10000;
+    pointer-events: auto;
+    color: #fff;
+
+    // Styles for different notification types
+    &.notify-error {
+        background: @notification-error-background-color;
+    }
+
+    &.notify-info {
+        background: @notification-info-background-color;
+    }
+
+    &.notify-success {
+        background: @notification-success-background-color;
+    }
+
+    // Positioning
+    &.notify-center-bottom {
+        bottom: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    &.notify-left-bottom {
+        bottom: 15px;
+        left: 15px;
+    }
+
+    &.notify-right-bottom {
+        bottom: 15px;
+        right: 15px;
+    }
+
+    .notify-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        .notify-close {
+            cursor: pointer;
+            margin-left: 15px; 
+            color: #ccc;
+
+            &:hover {
+                color: #fff;
+            }
+        }
+    }
+
+    /* Action buttons */
+    .notify-actions {
+        display: flex;
+        justify-content: flex-end; /* Aligns buttons to the right */
+        margin-top: 10px; /* Adds spacing between content and buttons */
+
+        .notify-action {
+            background: @notification-button-actions-background-color;
+            padding: 5px 10px;
+            border-radius: 4px; 
+            margin-left: 10px; /* Adds spacing between buttons */
+            border: none;
+            cursor: pointer;
+
+            &:hover {
+                background: darken(@notification-button-actions-background-hover-color, 10%);
+            }
+
+            &:focus {
+                outline: none;
+                box-shadow: 0 0 0 2px lighten(@notification-button-actions-background-focus-color, 20%);
+            }
+        }
+    }
+
+    /* Progress bar */
+    .notify-progress {
+        position: absolute;
+        bottom: 0;
+        left: 1px;
+        height: 3px;
+        width: 100%;
+        border-radius: 4px;
+        background-color: @notification-progress-default-background-color;
+        transform-origin: left;
+        animation: progress linear var(--progress-duration, 5s);
+
+        /* Theme colors for progress bar */
+        &.error {
+            background-color: @notification-progress-error-background-color;
+        }
+
+        &.info {
+            background-color: @notification-progress-info-background-color;
+        }
+
+        &.success {
+            background-color: @notification-progress-success-background-color;
+        }
+    } 
+}
+
+/* Animation for the progress bar */
+@keyframes progress {
+    from {
+        transform: scaleX(1);
+    }
+    to {
+        transform: scaleX(0);
+    }
+}
