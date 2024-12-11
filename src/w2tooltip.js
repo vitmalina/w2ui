@@ -1512,7 +1512,7 @@ class MenuTooltip extends Tooltip {
             if (overlay.selected == null || overlay.selected?.length == 0) {
                 overlay.selected = chain[0]
             } else {
-                let ind = chain.indexOf(overlay.selected)
+                let ind = chain.indexOf(String(overlay.selected)) // if nested menu, selected will be "2-2"
                 // selected not in chain of items
                 if (ind == -1) {
                     overlay.selected = chain[0]
@@ -1529,7 +1529,7 @@ class MenuTooltip extends Tooltip {
             if (overlay.selected == null || overlay.selected?.length == 0) {
                 overlay.selected = chain[chain.length-1]
             } else {
-                let ind = chain.indexOf(overlay.selected)
+                let ind = chain.indexOf(String(overlay.selected)) // if nested menu, selected will be "2-2"
                 // selected not in chain of items
                 if (ind == -1) {
                     overlay.selected = chain[chain.length-1]
