@@ -24,6 +24,7 @@ import { w2sidebar } from './w2sidebar.js'
 import { w2tabs } from './w2tabs.js'
 import { w2toolbar } from './w2toolbar.js'
 import { w2tooltip, w2color, w2menu, w2date, Tooltip } from './w2tooltip.js'
+import { w2notification } from './w2notification.js'
 
 // Register jQuery plugins
 (function($) {
@@ -203,5 +204,5 @@ export {
     w2ui, w2utils, query, w2locale, w2event, w2base,
     w2popup, w2alert, w2confirm, w2prompt, Dialog,
     w2tooltip, w2menu, w2color, w2date, Tooltip,
-    w2toolbar, w2sidebar, w2tabs, w2layout, w2grid, w2form, w2field
+    w2toolbar, w2sidebar, w2tabs, w2layout, w2grid, w2form, w2field, w2notification
 }
