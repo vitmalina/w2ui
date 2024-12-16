@@ -18,6 +18,13 @@
         <option value="left-bottom">Left-Bottom</option>
         <option value="right-bottom">Right-Bottom</option>
     </select>
+    <label for="type">Type:</label>
+    <select title="type" id="type" class="w2ui-input">
+        <option value="success">Success</option>
+        <option value="info">Info</option>
+        <option value="error">Error</option>
+    </select>
+</div>
 </div>
 
 <div id="preview-box" style="width: 700px; height: 300px; border: 1px solid #efefef; position: relative;
@@ -40,16 +47,17 @@ let notification = new w2notification()
 query('.notify-btn').on('click', event => {
     let where = query('#in-the-box').prop('checked') ? document.getElementById('preview-box') : undefined
     let position = query('#side').val()
+    let type = query('#type').val()
 
     switch(event.target.value) {
         case "1":
-           notification.show('Message', { where , position })       
+           notification.show('Message', { where, type, position })       
             break
         case "2":
-            notification.show('Message', { where , type: w2notification.Settings.Type.ERROR , position })
+            notification.show('Message', { where, type, position })
             break
         case "3":
-            notification.show('This is button action message, all right?', { where, type: w2notification.Settings.Type.INFO, position, actions:[
+            notification.show('This is button action message, all right?', { where, type, position, actions:[
                 {
                     label:'YES',
                     onClick : () => {
