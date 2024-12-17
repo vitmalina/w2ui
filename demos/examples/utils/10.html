@@ -30,7 +30,7 @@
     twentieth-most populous country in Europe. The country is administratively divided into seven regions. Minsk is the capital
     and largest city.
     <div style="height: 20px"></div>
-    <button class="w2ui-btn">Action</button>
+    <button class="w2ui-btn" onclick="action('Action!')">Action</button>
 </div>
 <div style="height: 20px;"></div>
 
@@ -49,4 +49,8 @@ window.lock = function(opts = {}) {
 window.unlock = function() {
     w2utils.unlock(query('#custom'))
 }
+window.action = (msg) => {
+    w2utils.message({ box: '#custom' }, msg)
+}
+
 </script>
