@@ -1416,8 +1416,8 @@ class Utils {
                     text = this.execTemplate(text, actions)
                 }
                 let html = `
-                    <div id="w2ui-notify">
-                        <div class="${options.class} ${options.error ? 'w2ui-notify-error' : ''}">
+                    <div id="w2ui-notify" style="${options.where == document.body ? 'position: fixed' : ''}">
+                        <div class="${options.class ?? ''} ${options.error ? 'w2ui-notify-error' : ''}">
                             ${text}
                             <span class="w2ui-notify-close w2ui-icon-cross"></span>
                         </div>
