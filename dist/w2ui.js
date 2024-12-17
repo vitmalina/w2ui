@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (12/16/2024, 4:54:30 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (12/17/2024, 11:46:42 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -1028,6 +1028,8 @@ query.version = Query.version
  *  - w2utils.debounce
  *  - w2utils.prepareParams
  *  - w2utils.getStrHeight
+ *  - w2utils.alrert() - same as w2utils.message()
+ *  - w2utils.prompt() - similar to w2prompt
  */
 
 // variable that holds all w2ui objects
@@ -1955,9 +1957,9 @@ class Utils {
      * Opens a context message, similar in parameters as w2popup.open()
      *
      * Sample Calls
-     * w2utils.message({ box: '#div' }, 'message').ok(() => {})
-     * w2utils.message({ box: '#div' }, { text: 'message', width: 300 }).ok(() => {})
-     * w2utils.message({ box: '#div' }, { text: 'message', actions: ['Save'] }).Save(() => {})
+     * w2utils.message({ box: '#div', text: 'message' }).ok(() => {})
+     * w2utils.message({ box: '#div', text: 'message', width: 300 }).ok(() => {})
+     * w2utils.message({ box: '#div', text: 'message', actions: ['Save'] }).Save(() => {})
      *
      * Used in w2grid, w2form, w2layout (should be in w2popup too)
      * should be called with .call(...) method
@@ -2031,7 +2033,10 @@ class Utils {
                 text  : String(options),
             }
         }
-        if (typeof options != 'object') {
+        if (arguments.length == 1) {
+            options = where
+        }
+        if ((options.text === '' || options.text == null) && (options.body === '' || options.body == null)) {
             removeLast()
             return
         }
@@ -2039,6 +2044,7 @@ class Utils {
         if (options.width == null) options.width = 350
         if (options.height == null) options.height = 170
         if (options.hideOn == null) options.hideOn = ['esc']
+        options.cancelAction ??= 'Ok'
         // mix in events
         if (options.on == null) {
             let opts = options
@@ -2296,6 +2302,151 @@ class Utils {
         }
         return prom
     }
+    alert(where, options) {
+        return this.message(...arguments)
+    }
+    /**
+     * Shows a prompt as a context message. It will use same where: { box: ... } as w2utils.message() function
+     * but it will have options similar to w2prompt dialog
+     *
+     * Example:
+     *  - w2utils.conrirm({
+     *       box: '#custom',
+     *       text: 'Some message'
+     *    })
+     *    .yes(event => console.log(event))
+     */
+    confirm(where, options) {
+        if (['string', 'number'].includes(typeof options)) {
+            options = { label: options }
+        }
+        if (arguments.length == 1) {
+            options = where
+        }
+        w2utils.normButtons(options, { yes: 'Yes', no: 'No' })
+        options.cancelAction ??= 'No'
+        let prom = w2utils.message(where, options)
+        if (prom) {
+            prom.action(event => {
+                event.detail.self.close()
+            })
+        }
+        return prom
+    }
+    /**
+     * Shows a prompt as a context message. It will use same where: { box: ... } as w2utils.message() function
+     * but it will have options similar to w2prompt dialog
+     *
+     * Example:
+     *  - w2utils.prompt({
+     *       box: '#custom',
+     *       label: 'Enter Name',
+     *       textarea: false,
+     *       attrs: 'style="border: 1px solid red"'
+     *    })
+     *    .ok(event => console.log(event))
+     */
+    prompt(where, options) {
+        let prom
+        if (['string', 'number'].includes(typeof options)) {
+            options = { label: options }
+        }
+        if (arguments.length == 1) {
+            options = where
+        }
+        options.cancelAction ??= 'Cancel'
+        if (options.label) {
+            options.focus = 0 // the input should be in focus, which is first in the popup
+            options.body = (options.textarea
+                ? `<div class="w2ui-prompt textarea">
+                     <div>${options.label}</div>
+                     <textarea id="w2prompt" class="w2ui-input" ${options.attrs ?? ''}
+                        data-keydown="keydown|event" data-keyup="change|event"></textarea>
+                   </div>`
+                : `<div class="w2ui-prompt w2ui-centered">
+                     <label>${options.label}&nbsp;</label>
+                     <input id="w2prompt" class="w2ui-input" ${options.attrs ?? ''}
+                        data-keydown="keydown|event" data-keyup="change|event">
+                   </div>`
+            )
+        }
+        w2utils.normButtons(options, { ok: w2utils.lang('Ok'), cancel: w2utils.lang('Cancel') })
+        prom = w2utils.message(where, options)
+        if (prom) {
+            prom.change = function(callBack) {
+                prom.self.on('change.prom', callBack)
+                return prom
+            }
+            prom
+                .action(event => {
+                    event.detail.self.close()
+                })
+                .then(event => {
+                    event.detail.self.input = query(event.detail.box).find('#w2prompt').get(0)
+                    query(event.detail.box)
+                        .find('#w2prompt')
+                        .on('keydown', event => {
+                            if (event.keyCode == 13 && event.shiftKey === false) {
+                                event.preventDefault()
+                            }
+                        })
+                        .on('keyup', event => {
+                            let edata = prom.self.trigger('change', { value: event.target.value, input: event.target, originalEvent: event })
+                            if (event.keyCode == 13 && event.shiftKey === false) {
+                                prom.self.action('Ok', event)
+                            }
+                            edata.finish()
+                        })
+                })
+        }
+        return prom
+    }
+    /**
+     * Normalizes yes, no buttons for confirmation dialog
+     *
+     * @param {*} options
+     * @returns  options
+     */
+    normButtons(options, btn) {
+        options.actions = options.actions ?? {}
+        let btns = Object.keys(btn)
+        btns.forEach(name => {
+            let action = options['btn_' + name]
+            if (action) {
+                btn[name] = {
+                    text: w2utils.lang(action.text ?? btn[name] ?? ''),
+                    class: action.class ?? '',
+                    style: action.style ?? '',
+                    attrs: action.attrs ?? ''
+                }
+                delete options['btn_' + name]
+            }
+            Array('text', 'class', 'style', 'attrs').forEach(suffix => {
+                if (options[name + '_' + suffix]) {
+                    if (typeof btn[name] == 'string') {
+                        btn[name] = { text: btn[name] }
+                    }
+                    btn[name][suffix] = options[name + '_' + suffix]
+                    delete options[name + '_' + suffix]
+                }
+            })
+        })
+        if (btns.includes('yes') && btns.includes('no')) {
+            if (w2utils.settings.macButtonOrder) {
+                w2utils.extend(options.actions, { no: btn.no, yes: btn.yes })
+            } else {
+                w2utils.extend(options.actions, { yes: btn.yes, no: btn.no })
+            }
+        }
+        if (btns.includes('ok') && btns.includes('cancel')) {
+            if (w2utils.settings.macButtonOrder) {
+                w2utils.extend(options.actions, { cancel: btn.cancel, ok: btn.ok })
+            } else {
+                w2utils.extend(options.actions, { ok: btn.ok, cancel: btn.cancel })
+            }
+        }
+        return options
+    }
     /**
      * Shows small notification message at the bottom of the page, or containter that you specify
      * in options.where (could be element or a selector)
@@ -2367,65 +2518,6 @@ class Utils {
                 }
             }
         })
-    }
-    confirm(where, options) {
-        if (typeof options == 'string') {
-            options = { text: options }
-        }
-        w2utils.normButtons(options, { yes: 'Yes', no: 'No' })
-        let prom = w2utils.message(where, options)
-        if (prom) {
-            prom.action(event => {
-                event.detail.self.close()
-            })
-        }
-        return prom
-    }
-    /**
-     * Normalizes yes, no buttons for confirmation dialog
-     *
-     * @param {*} options
-     * @returns  options
-     */
-    normButtons(options, btn) {
-        options.actions = options.actions ?? {}
-        let btns = Object.keys(btn)
-        btns.forEach(name => {
-            let action = options['btn_' + name]
-            if (action) {
-                btn[name] = {
-                    text: w2utils.lang(action.text ?? btn[name] ?? ''),
-                    class: action.class ?? '',
-                    style: action.style ?? '',
-                    attrs: action.attrs ?? ''
-                }
-                delete options['btn_' + name]
-            }
-            Array('text', 'class', 'style', 'attrs').forEach(suffix => {
-                if (options[name + '_' + suffix]) {
-                    if (typeof btn[name] == 'string') {
-                        btn[name] = { text: btn[name] }
-                    }
-                    btn[name][suffix] = options[name + '_' + suffix]
-                    delete options[name + '_' + suffix]
-                }
-            })
-        })
-        if (btns.includes('yes') && btns.includes('no')) {
-            if (w2utils.settings.macButtonOrder) {
-                w2utils.extend(options.actions, { no: btn.no, yes: btn.yes })
-            } else {
-                w2utils.extend(options.actions, { yes: btn.yes, no: btn.no })
-            }
-        }
-        if (btns.includes('ok') && btns.includes('cancel')) {
-            if (w2utils.settings.macButtonOrder) {
-                w2utils.extend(options.actions, { cancel: btn.cancel, ok: btn.ok })
-            } else {
-                w2utils.extend(options.actions, { ok: btn.ok, cancel: btn.cancel })
-            }
-        }
-        return options
     }
     getSize(el, type) {
         el = query(el) // for backward compatibility
