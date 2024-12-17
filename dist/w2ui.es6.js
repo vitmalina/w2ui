@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (12/11/2024, 10:54:15 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (12/16/2024, 4:54:30 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -2338,8 +2338,8 @@ class Utils {
                     text = this.execTemplate(text, actions)
                 }
                 let html = `
-                    <div id="w2ui-notify">
-                        <div class="${options.class} ${options.error ? 'w2ui-notify-error' : ''}">
+                    <div id="w2ui-notify" style="${options.where == document.body ? 'position: fixed' : ''}">
+                        <div class="${options.class ?? ''} ${options.error ? 'w2ui-notify-error' : ''}">
                             ${text}
                             <span class="w2ui-notify-close w2ui-icon-cross"></span>
                         </div>
