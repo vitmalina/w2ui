@@ -1108,7 +1108,12 @@ class Utils {
                 text  : String(options),
             }
         }
-        if (arguments.length == 1) {
+        if (arguments.length == 1 || options === undefined) {
+            // w2grid "message" method has an argument for "options" and that is passed to this Utils "message" method
+            // however, sometimes the grid calls its "message" method without any arguments, therefore passing an
+            // undefined argument as options to the Utils "message" method; the "arguments" keyword will still see 2 arguments 
+            // (arguments.length == 2) and previously wouldn't execute this logic of setting options = where, but with the extra logic
+            // of checking if options === undefined, this will now execute as intended
             options = where
         }
         if ((options.text === '' || options.text == null) && (options.body === '' || options.body == null)) {
