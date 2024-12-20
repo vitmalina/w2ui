@@ -2354,7 +2354,8 @@ class MenuTooltip extends Tooltip {
         } else {
             // find items that are selected
             let selected = this.findChecked(options.items)
-            overlay.selected = parseInt($item.attr('index'))
+            let a_index = $item.attr('index')
+            overlay.selected = isNaN(a_index) ? a_index: parseInt(a_index)
             edata = this.trigger('select', { originalEvent: event, target: overlay.name,
                 overlay, item, index, parents, selected, keepOpen, el: $item[0] })
             if (edata.isCancelled === true) {

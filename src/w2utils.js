@@ -1108,7 +1108,7 @@ class Utils {
                 text  : String(options),
             }
         }
-        if (arguments.length == 1) {
+        if (arguments.length == 1 || options == null) {
             options = where
         }
         if ((options.text === '' || options.text == null) && (options.body === '' || options.body == null)) {

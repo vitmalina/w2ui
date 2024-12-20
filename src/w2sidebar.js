@@ -1167,7 +1167,7 @@ class w2sidebar extends w2base {
                 originalEvent: event
             })
             .select(evt => {
-                this.menuClick(id, parseInt(evt.detail.index), event)
+                this.menuClick(id, evt.detail)
             })
         }
         // prevent default context menu
@@ -1176,9 +1176,9 @@ class w2sidebar extends w2base {
         edata.finish()
     }
 
-    menuClick(itemId, index, event) {
+    menuClick(itemId, detail = {}) {
         // event before
-        let edata = this.trigger('menuClick', { target: itemId, originalEvent: event, menuIndex: index, menuItem: this.menu[index] })
+        let edata = this.trigger('menuClick', { target: itemId, ...detail })
         if (edata.isCancelled === true) return
         // default action
         // -- empty
