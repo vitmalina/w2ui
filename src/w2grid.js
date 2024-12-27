@@ -5342,11 +5342,11 @@ class w2grid extends w2base {
             searches += `
                 ${this.show.searchSave
                     ? `<div class="grid-search-line"></div>
-                       <button class="w2ui-btn grid-search-btn" data-click="searchSave">${w2utils.lang('Save')}</button>
+                       <button class="w2ui-btn grid-search-btn" data-click="searchSave" type="button">${w2utils.lang('Save')}</button>
                       `
                     : ''
                 }
-                <button class="w2ui-btn grid-search-btn btn-remove"
+                <button class="w2ui-btn grid-search-btn btn-remove" type="button"
                     data-click="searchReset">X</button>
             `
             query(this.box).find(`#grid_${this.name}_searches`).html(searches)
