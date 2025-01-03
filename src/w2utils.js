@@ -1111,7 +1111,8 @@ class Utils {
         if (arguments.length == 1 || options == null) {
             options = where
         }
-        if ((options.text === '' || options.text == null) && (options.body === '' || options.body == null)) {
+        options ??= {}
+        if (options == null || (options.text === '' || options.text == null) && (options.body === '' || options.body == null)) {
             removeLast()
             return
         }
