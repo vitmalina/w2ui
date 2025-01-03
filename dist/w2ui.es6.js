@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (12/17/2024, 11:46:42 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (1/3/2025, 9:57:34 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -2033,10 +2033,11 @@ class Utils {
                 text  : String(options),
             }
         }
-        if (arguments.length == 1) {
+        if (arguments.length == 1 || options == null) {
             options = where
         }
-        if ((options.text === '' || options.text == null) && (options.body === '' || options.body == null)) {
+        options ??= {}
+        if (options == null || (options.text === '' || options.text == null) && (options.body === '' || options.body == null)) {
             removeLast()
             return
         }
@@ -2600,7 +2601,8 @@ class Utils {
                 .replace(/</g, '&gt;')
                 .replace(/>/g, '&lt;')
             // only outside tags
-            let regex = new RegExp((ww ? '\\b' : '') + term + (ww ? '\\b' : '')+ '(?!([^<]+)?>)', 'i' + (!options.onlyFirst ? 'g' : ''))
+            // and only outside of quotes
+            let regex = new RegExp((ww ? '\\b' : '') + term + (ww ? '\\b' : '') + '(?=([a-z-0-9]+="[^"]*")*?[^"]+$)' + '(?!([^<]+)?>)', 'i' + (!options.onlyFirst ? 'g' : ''))
             return html = html.replace(regex, replaceWith)
         }
         function _clearMerkers(el) {
@@ -6402,7 +6404,8 @@ class MenuTooltip extends Tooltip {
         } else {
             // find items that are selected
             let selected = this.findChecked(options.items)
-            overlay.selected = parseInt($item.attr('index'))
+            let a_index = $item.attr('index')
+            overlay.selected = isNaN(a_index) ? a_index: parseInt(a_index)
             edata = this.trigger('select', { originalEvent: event, target: overlay.name,
                 overlay, item, index, parents, selected, keepOpen, el: $item[0] })
             if (edata.isCancelled === true) {
@@ -9289,7 +9292,7 @@ class w2sidebar extends w2base {
                 originalEvent: event
             })
             .select(evt => {
-                this.menuClick(id, parseInt(evt.detail.index), event)
+                this.menuClick(id, evt.detail)
             })
         }
         // prevent default context menu
@@ -9297,9 +9300,9 @@ class w2sidebar extends w2base {
         // event after
         edata.finish()
     }
-    menuClick(itemId, index, event) {
+    menuClick(itemId, detail = {}) {
         // event before
-        let edata = this.trigger('menuClick', { target: itemId, originalEvent: event, menuIndex: index, menuItem: this.menu[index] })
+        let edata = this.trigger('menuClick', { target: itemId, ...detail })
         if (edata.isCancelled === true) return
         // default action
         // -- empty
