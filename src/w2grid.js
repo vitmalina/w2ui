@@ -8347,7 +8347,7 @@ class w2grid extends w2base {
                 if (typeof fld == 'function') {
                     val = fld(rec, { self: this, index: ind, colIndex: col_ind, summary: !!summary })
                 }
-                if (typeof val == 'object' && val.text != null) val = val.text
+                if (val?.text != null) val = val.text
                 if (info.showEmpty !== true && (val == null || val == '')) continue
                 if (info.maxLength != null && typeof val == 'string' && val.length > info.maxLength) val = val.substr(0, info.maxLength) + '...'
                 html += '<tr><td>' + caption + '</td><td>' + ((val === 0 ? '0' : val) || '') + '</td></tr>'
