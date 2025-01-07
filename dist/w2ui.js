@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (1/3/2025, 9:57:34 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (1/7/2025, 1:26:51 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -19704,7 +19704,7 @@ class w2grid extends w2base {
                 if (typeof fld == 'function') {
                     val = fld(rec, { self: this, index: ind, colIndex: col_ind, summary: !!summary })
                 }
-                if (typeof val == 'object' && val.text != null) val = val.text
+                if (val?.text != null) val = val.text
                 if (info.showEmpty !== true && (val == null || val == '')) continue
                 if (info.maxLength != null && typeof val == 'string' && val.length > info.maxLength) val = val.substr(0, info.maxLength) + '...'
                 html += '<tr><td>' + caption + '</td><td>' + ((val === 0 ? '0' : val) || '') + '</td></tr>'
