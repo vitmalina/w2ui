@@ -1,0 +1,22 @@
+Default server error message that appears when server responed with an error but w/o message.
+
+<div class="definition">
+    String, default = 'Server error'
+</div>
+
+If server returns an error, but does not return "message", the default server error message will be displayed.
+
+<textarea class="javascript">
+    let grid = new w2grid({
+        name: 'grid',
+        msgServerError: 'Unknown server error',
+        columns: [
+            { field: 'recid', text: 'ID', size: '50px' },
+            { field: 'lname', text: 'Last Name', size: '30%' },
+            { field: 'fname', text: 'First Name', size: '30%' },
+            { field: 'email', text: 'Email', size: '40%' },
+            { field: 'sdate', text: 'Start Date', size: '120px' },
+            { field: 'sdate', text: 'End Date', size: '120px' }
+        ]
+    });
+    </textarea>

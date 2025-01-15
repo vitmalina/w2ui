@@ -1,0 +1,32 @@
+Defines dateType for the form
+
+<div class="definition">
+    String, default = null
+</div>
+
+If dataType is not defined, the default one comes from
+<a href="w2utils.settings" class="method">w2utils.settings.dataType</a>.
+<div style="height: 10px"></div>
+
+This property can be set during object creation:
+<textarea class="javascript">
+let form = new w2form({
+    name: 'form',
+    dataType: 'JSON',
+    url: '/server/url',
+    fields: [
+        { field: 'first_name', type: 'text', required: true },
+        { field: 'last_name', type: 'text', required: true },
+        { field: 'email', type: 'email' }
+    ],
+    actions: {
+        "save": function () { this.validate(); },
+        "reset": function () { this.clear(); }
+    },
+})
+</textarea>
+
+Or any time during run-time:
+<textarea class="javascript">
+form.dataType = 'JSON';
+</textarea>

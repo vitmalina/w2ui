@@ -9,11 +9,24 @@ they will be pulled from the <span class="method">.url</span>. If grid needs to 
 this <span class="method">.url</span> as well.
 <div style="height: 10px"></div>
 
+The <span class="method">.url</span> property can also be an object that defines different URL for get, save, and remove:
+<textarea class="javascript">
+url: {
+    get: 'server/side/path/to/records',
+    save: 'server/side/path/to/save',
+    remove: 'server/side/path/to/remove'
+}
+</textarea>
+<div style="height: 10px"></div>
+
+See also <a class="argument" href="w2form.dataType">.dataType</a> property to control how data will be passed to the server.
+<div style="height: 10px"></div>
+
 URL can be defined during object creation:
 <textarea class="javascript">
 let grid = new w2grid({
-    name : 'grid',
-    url  : 'server/side/path/to/records',
+    name: 'grid',
+    url: 'server/side/path/to/records',
     columns: [
         { field: 'recid', text: 'ID', size: '50px' },
         { field: 'lname', text: 'Last Name', size: '30%' },
@@ -28,11 +41,11 @@ let grid = new w2grid({
 You may define different URLs for different operations (get records, delete records, save records)
 <textarea class="javascript">
 let grid = new w2grid({
-    name : 'grid',
-    url  : {
-        get    : 'server/side/path/to/records',
-        remove : 'server/side/path/to/remove',
-        save   : 'server/side/path/to/save'
+    name: 'grid',
+    url: {
+        get: 'server/side/path/to/records',
+        save: 'server/side/path/to/save',
+        remove: 'server/side/path/to/remove'
     },
     columns: [
         { field: 'recid', text: 'ID', size: '50px' },

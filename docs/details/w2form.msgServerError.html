@@ -1,0 +1,29 @@
+Default server error message that appears when server responed with an error but w/o message.
+
+<div class="definition">
+    String, default = 'Server error'
+</div>
+
+If server returns an error, but does not return "message", the default server error message will be displayed.
+
+<textarea class="javascript">
+let form = new w2form({
+    name: 'form',
+    header: 'Form Header',
+    msgServerError: 'Unknown server error',
+    fields: [
+        { field: 'first_name', type: 'text', required: true },
+        { field: 'last_name', type: 'text', required: true },
+        { field: 'email', type: 'email' }
+    ],
+    record: {
+        first_name : 'John',
+        last_name  : 'Doe',
+        email      : 'jdoe@email.com'
+    },
+    actions: {
+        "save": function () { this.validate(); },
+        "reset": function () { this.clear(); }
+    }
+});
+</textarea>
