@@ -1840,7 +1840,7 @@ class MenuTooltip extends Tooltip {
             name: overlay.name + '-submenu',
             anchor: anchor,
             items: _items,
-            class: overlay.options.class,
+            class: overlay.options.class + ' ' + mitem.overlay?.class,
             offsetX: -7,
             arrowSize: 0,
             parentOverlay: overlay,

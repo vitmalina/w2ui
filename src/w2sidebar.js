@@ -1342,7 +1342,7 @@ class w2sidebar extends w2base {
                     nd.count = options.count
                     // update counts
                     let txt = nd.count ?? this.badge.text
-                    let style = this.badge.style
+                    let style = this.badge?.style
                     let last = this.last.badge[nd.id]
                     if (typeof txt == 'function') txt = txt.call(this, nd, level)
                     $el.find('.w2ui-node-badge')

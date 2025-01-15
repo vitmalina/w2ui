@@ -28,6 +28,8 @@
  *  - added field.html.class
  *  - setValue(..., noRefresh)
  *  - rememberOriginal()
+ *  - help for this.dataType
+ *  - help for this.url can be an object { get: ..., save: ... }
  */
 
 import { w2base } from './w2base.js'
@@ -919,7 +921,7 @@ class w2form extends w2base {
                 this.setValue.call(tmp, fld.field, val)
             }
         })
-        // return only records present in description
+        // return only records present in fields
         if (strict === true) {
             Object.keys(data).forEach((key) => {
                 if (!this.get(key)) delete data[key]
@@ -1082,7 +1084,7 @@ class w2form extends w2base {
         // append other params
         w2utils.extend(params, self.postData)
         w2utils.extend(params, postData)
-        params.record = w2utils.clone(self.record)
+        params.record = w2utils.clone(self.getCleanRecord())
         // event before
         let edata = self.trigger('submit', { target: self.name, url: self.url, httpMethod: this.method ?? 'POST',
             postData: params, httpHeaders: self.httpHeaders })
