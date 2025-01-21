@@ -291,6 +291,11 @@ class w2sidebar extends w2base {
     }
 
     setCount(id, count, options = {}) {
+        let node = this.get(id)
+        if (node.group) {
+            console.log(`Node "${id}" is a group and groups cannot have counts or badges.`)
+            return
+        }
         let btn = query(this.box).find(`#node_${w2utils.escapeId(id)} .w2ui-node-badge`)
         if (btn.length > 0) {
             btn.removeClass()

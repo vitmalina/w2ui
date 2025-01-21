@@ -28,8 +28,6 @@
  *  - added field.html.class
  *  - setValue(..., noRefresh)
  *  - rememberOriginal()
- *  - help for this.dataType
- *  - help for this.url can be an object { get: ..., save: ... }
  */
 
 import { w2base } from './w2base.js'
