@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (1/7/2025, 1:26:51 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (1/21/2025, 2:09:26 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -5901,7 +5901,7 @@ class MenuTooltip extends Tooltip {
             name: overlay.name + '-submenu',
             anchor: anchor,
             items: _items,
-            class: overlay.options.class,
+            class: overlay.options.class + ' ' + mitem.overlay?.class,
             offsetX: -7,
             arrowSize: 0,
             parentOverlay: overlay,
@@ -8459,6 +8459,11 @@ class w2sidebar extends w2base {
         }
     }
     setCount(id, count, options = {}) {
+        let node = this.get(id)
+        if (node.group) {
+            console.log(`Node "${id}" is a group and groups cannot have counts or badges.`)
+            return
+        }
         let btn = query(this.box).find(`#node_${w2utils.escapeId(id)} .w2ui-node-badge`)
         if (btn.length > 0) {
             btn.removeClass()
@@ -9462,7 +9467,7 @@ class w2sidebar extends w2base {
                     nd.count = options.count
                     // update counts
                     let txt = nd.count ?? this.badge.text
-                    let style = this.badge.style
+                    let style = this.badge?.style
                     let last = this.last.badge[nd.id]
                     if (typeof txt == 'function') txt = txt.call(this, nd, level)
                     $el.find('.w2ui-node-badge')
@@ -16796,11 +16801,11 @@ class w2grid extends w2base {
             searches += `
                 ${this.show.searchSave
                     ? `<div class="grid-search-line"></div>
-                       <button class="w2ui-btn grid-search-btn" data-click="searchSave">${w2utils.lang('Save')}</button>
+                       <button class="w2ui-btn grid-search-btn" data-click="searchSave" type="button">${w2utils.lang('Save')}</button>
                       `
                     : ''
                 }
-                <button class="w2ui-btn grid-search-btn btn-remove"
+                <button class="w2ui-btn grid-search-btn btn-remove" type="button"
                     data-click="searchReset">X</button>
             `
             query(this.box).find(`#grid_${this.name}_searches`).html(searches)
@@ -21041,7 +21046,7 @@ class w2form extends w2base {
                 this.setValue.call(tmp, fld.field, val)
             }
         })
-        // return only records present in description
+        // return only records present in fields
         if (strict === true) {
             Object.keys(data).forEach((key) => {
                 if (!this.get(key)) delete data[key]
@@ -21200,7 +21205,7 @@ class w2form extends w2base {
         // append other params
         w2utils.extend(params, self.postData)
         w2utils.extend(params, postData)
-        params.record = w2utils.clone(self.record)
+        params.record = w2utils.clone(self.getCleanRecord())
         // event before
         let edata = self.trigger('submit', { target: self.name, url: self.url, httpMethod: this.method ?? 'POST',
             postData: params, httpHeaders: self.httpHeaders })
