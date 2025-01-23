@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (1/21/2025, 2:09:26 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (1/23/2025, 2:15:31 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -8464,21 +8464,22 @@ class w2sidebar extends w2base {
             console.log(`Node "${id}" is a group and groups cannot have counts or badges.`)
             return
         }
+        this.last.badge[id] = {
+            className: options.className ?? '',
+            style: options.style ?? ''
+        }
         let btn = query(this.box).find(`#node_${w2utils.escapeId(id)} .w2ui-node-badge`)
         if (btn.length > 0) {
             btn.removeClass()
                 .addClass(`w2ui-node-badge ${options.className ?? 'w2ui-node-count'}`)
                 .text(count)
                 .get(0).style.cssText = options.style || ''
-            this.last.badge[id] = {
-                className: options.className ?? '',
-                style: options.style ?? ''
-            }
             let item = this.get(id)
             item.count = count
-        } else {
+        } else if (!options.noRepeat) {
             this.set(id, { count })
-            this.setCount(...arguments) // to update styles
+            options.noRepeat = true
+            queueMicrotask(() => this.setCount(id, count, options)) // to update styles
         }
     }
     find(parent, params, results) { // can be just called find({ selected: true })
@@ -9463,7 +9464,7 @@ class w2sidebar extends w2base {
                         delete options.icon
                     }
                 }
-                if (options.count) {
+                if (options.count != null) {
                     nd.count = options.count
                     // update counts
                     let txt = nd.count ?? this.badge.text
@@ -9481,7 +9482,7 @@ class w2sidebar extends w2base {
                     $el[0].className = 'w2ui-node w2ui-level-'+ level + (nd.selected ? ' w2ui-selected' : '') + (nd.disabled ? ' w2ui-disabled' : '') + (nd.class ? ' ' + nd.class : '')
                     delete options.class
                 }
-                if (options.text) {
+                if (options.text != null) {
                     nd.text = options.text
                     $el.find('.w2ui-node-text').html(typeof nd.text == 'function' ? nd.text.call(this, nd) : nd.text)
                     delete options.text
@@ -9667,7 +9668,7 @@ class w2sidebar extends w2base {
                     let style = self.badge?.style
                     let last = obj.last.badge[nd.id]
                     if (typeof txt == 'function') txt = txt.call(self, nd, level)
-                    if (txt) {
+                    if (txt || txt === 0) { // can be number 0
                         counts = `
                             <div class="w2ui-node-badge w2ui-eaction ${nd.count != null ? 'w2ui-node-count' : ''} ${last?.className ?? ''}"
                                 style="${style ?? ''};${last?.style ?? ''}"
@@ -9748,7 +9749,7 @@ class w2sidebar extends w2base {
         if (type == 'tooltip') {
             // this tooltip shows for flat sidebars
             let text = w2utils.lang(typeof node.text == 'function' ? node.text.call(this, node) : node.text)
-            let tooltip = text + (node.count || node.count === 0
+            let tooltip = text + (node.count != null
                 ? ' - <span class="w2ui-node-badge w2ui-node-count">'+ node.count +'</span>'
                 : '')
             if (action == 'Leave' || this.selected == node.id) tooltip = ''
@@ -14486,7 +14487,7 @@ class w2grid extends w2base {
                 resp.json()
                     .catch(processError)
                     .then(data => {
-                        this.requestComplete(data, action, callBack, resolve, reject)
+                        this.requestComplete(data ?? {}, action, callBack, resolve, reject)
                     })
                     .finally(() => self.unlock())
             })
