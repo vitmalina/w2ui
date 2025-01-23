@@ -2960,7 +2960,7 @@ class w2grid extends w2base {
                 resp.json()
                     .catch(processError)
                     .then(data => {
-                        this.requestComplete(data, action, callBack, resolve, reject)
+                        this.requestComplete(data ?? {}, action, callBack, resolve, reject)
                     })
                     .finally(() => self.unlock())
             })
