@@ -1432,7 +1432,7 @@ class w2field extends w2base {
                 'margin-left'    : styles['margin-left'],
                 'margin-right'   : 0,
                 'z-index'        : 1,
-                'display'        : 'flex',
+                'display'        : 'inline-flex',
                 'align-items'    : 'center'
             })
         // only if visible

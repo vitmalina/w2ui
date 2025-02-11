@@ -52,10 +52,23 @@ people[6].removable = true
 people[7].removable = true
 people[8].removable = true
 
+// sub menu
+people.push({
+    id: 'more',
+    icon: 'icon-info',
+    text: 'More...',
+    items: [
+        { id: 'person-1', text: 'Person 1', icon: 'fa fa-user' },
+        { id: 'person-2', text: 'Person 2', icon: 'fa fa-user' },
+        { id: 'person-3', text: 'Person 3', icon: 'fa fa-user' }
+    ]
+})
+
 query('#custom-btn').on('click', event => {
     w2menu.show({
         name: 'custom-menu',
         anchor: event.target,
+        hideOn: ['select'],
         match: 'contains',
         altRows: true,
         items: people

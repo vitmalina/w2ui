@@ -2154,7 +2154,7 @@ class MenuTooltip extends Tooltip {
                             data.records = []
                         }
                         if (!Array.isArray(data.records)) {
-                            console.error('ERROR: server did not return proper data structure', '\n',
+                            console.error('ERROR: server did not return proper JSON data structure', '\n',
                                 ' - it should return', { records: [{ id: 1, text: 'item' }] }, '\n',
                                 ' - or just an array ', [{ id: 1, text: 'item' }], '\n',
                                 ' - or if errorr ', { error: true, message: 'error message' })
@@ -2371,6 +2371,7 @@ class MenuTooltip extends Tooltip {
         }
         if (!keepOpen) {
             this.hide(overlay.name)
+            this.hide(overlay.name + '-submenu')
         }
         // if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
         //     overlay.anchor.focus()

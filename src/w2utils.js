@@ -1305,7 +1305,7 @@ class Utils {
         }
         // action handler
         options.action = (action, event) => {
-            let click = options.actions[action]
+            let click = options.actions?.[action]
             if (click instanceof Object && click.onClick) click = click.onClick
             // event before
             let edata = options.trigger('action', { target: this.name, action, self: options,
