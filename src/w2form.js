@@ -28,6 +28,7 @@
  *  - added field.html.class
  *  - setValue(..., noRefresh)
  *  - rememberOriginal()
+ *  - saveCleanRecord
  */
 
 import { w2base } from './w2base.js'
@@ -57,6 +58,7 @@ class w2form extends w2base {
         this.record       = {}
         this.original     = null
         this.dataType     = null // only used when not null, otherwise from w2utils.settings.dataType
+        this.saveCleanRecord = true // if true, it will submit clean record when saving
         this.postData     = {}
         this.httpHeaders  = {}
         this.toolbar      = {} // if not empty, then it is toolbar
@@ -1082,7 +1084,7 @@ class w2form extends w2base {
         // append other params
         w2utils.extend(params, self.postData)
         w2utils.extend(params, postData)
-        params.record = w2utils.clone(self.getCleanRecord())
+        params.record = w2utils.clone(self.saveCleanRecord ? self.getCleanRecord() : self.record)
         // event before
         let edata = self.trigger('submit', { target: self.name, url: self.url, httpMethod: this.method ?? 'POST',
             postData: params, httpHeaders: self.httpHeaders })
