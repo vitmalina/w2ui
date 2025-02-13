@@ -1320,9 +1320,14 @@ class w2form extends w2base {
                     break
                 }
                 case 'switch': {
-                    input = `<div id="${field.field}-tb" class="w2ui-form-switch ${field.html.class ?? ''}" ${field.html.attr}></div>
-                        <input id="${field.field}" name="${field.field}" ${tabindex_str} class="w2ui-input"
-                            style="position: absolute; right: 0; margin-top: -30px; width: 1px; padding: 0; opacity: 0">`
+                    input = `
+                        <div>
+                            <div id="${field.field}-tb" class="w2ui-form-switch ${field.html.class ?? ''}" ${field.html.attr}></div>
+                            <input id="${field.field}" name="${field.field}" ${tabindex_str} class="w2ui-input"
+                                style="position: absolute; right: 0px; margin-top: -30px; width: 1px; padding: 0; opacity: 0">
+                            <span style="position: absolute; margin-top: -2px;">${field.html.text ?? ''}</span>
+                        </div>
+                        `
                     break
                 }
                 case 'textarea':
@@ -1383,17 +1388,25 @@ class w2form extends w2base {
             if (field.html.anchor == null) {
                 let span = (field.html.span != null ? 'w2ui-span'+ field.html.span : '')
                 if (field.html.span == -1) span = 'w2ui-span-none'
-                let label = '<label'+ (span == 'none' ? ' style="display: none"' : '') +'>' + w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text) +'</label>'
+                let label = `<label ${span == 'none' ? ' style="display: none"' : ''}>`
+                    + w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text) +'</label>'
                 if (!field.html.label) label = ''
                 html += '\n      <div class="w2ui-field '+ span +'" style="'+ (field.hidden ? 'display: none;' : '') + field.html.style +'">'+
                         '\n         '+ label +
-                        ((field.type === 'empty') ? input : '\n         <div>'+ input + (field.type != 'array' && field.type != 'map' ? w2utils.lang(field.type != 'checkbox' ? field.html.text : '') : '') + '</div>') +
+                        ((field.type === 'empty' || field.type == 'switch')
+                            ? input
+                            : '\n         <div>'+ input + (field.type != 'array' && field.type != 'map' ? w2utils.lang(field.type != 'checkbox' ? field.html.text : '') : '') + '</div>') +
                         '\n      </div>'
             } else {
-                pages[field.html.page].anchors                    = pages[field.html.page].anchors || {}
-                pages[field.html.page].anchors[field.html.anchor] = '<div class="w2ui-field w2ui-field-inline" style="'+ (field.hidden ? 'display: none;' : '') + field.html.style +'">'+
-                        ((field.type === 'empty') ? input : '<div>'+ w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text, true) + input + w2utils.lang(field.type != 'checkbox' ? field.html.text : '') + '</div>') +
-                        '</div>'
+                pages[field.html.page].anchors = pages[field.html.page].anchors || {}
+                pages[field.html.page].anchors[field.html.anchor] =
+                    '<div class="w2ui-field w2ui-field-inline" style="'+ (field.hidden ? 'display: none;' : '') + field.html.style +'">'+
+                        ((field.type === 'empty' || field.type == 'switch')
+                            ? input
+                            : '<div>'+ w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text, true)
+                                + input + w2utils.lang(field.type != 'checkbox' ? field.html.text : '')
+                                + '</div>') +
+                    '</div>'
             }
             if (pages[field.html.page] == null) pages[field.html.page] = {}
             if (pages[field.html.page][field.html.column] == null) pages[field.html.page][field.html.column] = ''
@@ -1727,7 +1740,7 @@ class w2form extends w2base {
                     w2ui[this.name + '_' + field.name + '_tb'].destroy()
                 }
                 let items = field.options.items
-                items.forEach(item => item.type = 'radio')
+                items.forEach(item => item.type ??= 'radio')
                 field.toolbar = new w2toolbar({
                     box: field.$el.prev().get(0),
                     name: this.name + '_' + field.name + '_tb',

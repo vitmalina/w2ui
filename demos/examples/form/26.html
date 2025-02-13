@@ -30,6 +30,38 @@ let form = new w2form({
             },
             html: { label: 'File Type', attr1: 'style="width: 300px"' }
         },
+        { field: 'type', type: 'switch', required: true,
+            options: {
+                items: [
+                    { id: 'some', tooltip: 'Star', icon: 'fa fa-star' },
+                    { id: 'some2', tooltip: 'Empty star', icon: 'fa fa-star-o' },
+                    { id: 'info', tooltip: 'Empty star', icon: 'fa fa-folder-o' },
+                    { type: 'break' }
+                ]
+            },
+            html: {
+                label: 'Anchored',
+                attr: 'style="width: 120px"',
+                text: `
+                    <span style="display: inline-block; padding-left: 5px">%input-min%</span>
+                    <span style="display: inline-block; padding-left: 5px">%input-max%</span>
+                `
+            }
+        },
+        { field: 'min', type: 'text',
+            html: {
+                anchor: '%input-min%',
+                label: '',
+                attr: 'placeholder="max" style="width: 50px"'
+            }
+        },
+        { field: 'max', type: 'text',
+            html: {
+                anchor: '%input-max%',
+                label: '',
+                attr: 'placeholder="max" style="width: 50px"'
+            }
+        },
         { field: 'comments',   type: 'textarea', html: { label: 'Comments', attr: 'style="width: 100%; height: 120px"' } }
     ],
     onChange(event) {
