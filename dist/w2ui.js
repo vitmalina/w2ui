@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (1/23/2025, 2:15:31 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (2/13/2025, 10:30:14 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -2230,7 +2230,7 @@ class Utils {
         }
         // action handler
         options.action = (action, event) => {
-            let click = options.actions[action]
+            let click = options.actions?.[action]
             if (click instanceof Object && click.onClick) click = click.onClick
             // event before
             let edata = options.trigger('action', { target: this.name, action, self: options,
@@ -6209,7 +6209,7 @@ class MenuTooltip extends Tooltip {
                             data.records = []
                         }
                         if (!Array.isArray(data.records)) {
-                            console.error('ERROR: server did not return proper data structure', '\n',
+                            console.error('ERROR: server did not return proper JSON data structure', '\n',
                                 ' - it should return', { records: [{ id: 1, text: 'item' }] }, '\n',
                                 ' - or just an array ', [{ id: 1, text: 'item' }], '\n',
                                 ' - or if errorr ', { error: true, message: 'error message' })
@@ -6421,6 +6421,7 @@ class MenuTooltip extends Tooltip {
         }
         if (!keepOpen) {
             this.hide(overlay.name)
+            this.hide(overlay.name + '-submenu')
         }
         // if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
         //     overlay.anchor.focus()
@@ -14195,7 +14196,7 @@ class w2grid extends w2base {
         this.searchData = edata.detail.searchData
         this.searchSelected = null
         this.last.search = ''
-        this.last.logic = (hasHiddenSearches ? 'AND' : 'OR')
+        this.last.logic = (hasHiddenSearches ? 'AND' : this.last.logic)
         // --- do not reset to All Fields (I think)
         input.next().hide() // advanced search button
         if (this.searches.length > 0) {
@@ -20195,6 +20196,7 @@ class w2grid extends w2base {
  *  - added field.html.class
  *  - setValue(..., noRefresh)
  *  - rememberOriginal()
+ *  - saveCleanRecord
  */
 
 class w2form extends w2base {
@@ -20216,6 +20218,7 @@ class w2form extends w2base {
         this.record       = {}
         this.original     = null
         this.dataType     = null // only used when not null, otherwise from w2utils.settings.dataType
+        this.saveCleanRecord = true // if true, it will submit clean record when saving
         this.postData     = {}
         this.httpHeaders  = {}
         this.toolbar      = {} // if not empty, then it is toolbar
@@ -21206,7 +21209,7 @@ class w2form extends w2base {
         // append other params
         w2utils.extend(params, self.postData)
         w2utils.extend(params, postData)
-        params.record = w2utils.clone(self.getCleanRecord())
+        params.record = w2utils.clone(self.saveCleanRecord ? self.getCleanRecord() : self.record)
         // event before
         let edata = self.trigger('submit', { target: self.name, url: self.url, httpMethod: this.method ?? 'POST',
             postData: params, httpHeaders: self.httpHeaders })
@@ -21435,9 +21438,14 @@ class w2form extends w2base {
                     break
                 }
                 case 'switch': {
-                    input = `<div id="${field.field}-tb" class="w2ui-form-switch ${field.html.class ?? ''}" ${field.html.attr}></div>
-                        <input id="${field.field}" name="${field.field}" ${tabindex_str} class="w2ui-input"
-                            style="position: absolute; right: 0; margin-top: -30px; width: 1px; padding: 0; opacity: 0">`
+                    input = `
+                        <div>
+                            <div id="${field.field}-tb" class="w2ui-form-switch ${field.html.class ?? ''}" ${field.html.attr}></div>
+                            <input id="${field.field}" name="${field.field}" ${tabindex_str} class="w2ui-input"
+                                style="position: absolute; right: 0px; margin-top: -30px; width: 1px; padding: 0; opacity: 0">
+                            <span style="position: absolute; margin-top: -2px;">${field.html.text ?? ''}</span>
+                        </div>
+                        `
                     break
                 }
                 case 'textarea':
@@ -21497,17 +21505,25 @@ class w2form extends w2base {
             if (field.html.anchor == null) {
                 let span = (field.html.span != null ? 'w2ui-span'+ field.html.span : '')
                 if (field.html.span == -1) span = 'w2ui-span-none'
-                let label = '<label'+ (span == 'none' ? ' style="display: none"' : '') +'>' + w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text) +'</label>'
+                let label = `<label ${span == 'none' ? ' style="display: none"' : ''}>`
+                    + w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text) +'</label>'
                 if (!field.html.label) label = ''
                 html += '\n      <div class="w2ui-field '+ span +'" style="'+ (field.hidden ? 'display: none;' : '') + field.html.style +'">'+
                         '\n         '+ label +
-                        ((field.type === 'empty') ? input : '\n         <div>'+ input + (field.type != 'array' && field.type != 'map' ? w2utils.lang(field.type != 'checkbox' ? field.html.text : '') : '') + '</div>') +
+                        ((field.type === 'empty' || field.type == 'switch')
+                            ? input
+                            : '\n         <div>'+ input + (field.type != 'array' && field.type != 'map' ? w2utils.lang(field.type != 'checkbox' ? field.html.text : '') : '') + '</div>') +
                         '\n      </div>'
             } else {
-                pages[field.html.page].anchors                    = pages[field.html.page].anchors || {}
-                pages[field.html.page].anchors[field.html.anchor] = '<div class="w2ui-field w2ui-field-inline" style="'+ (field.hidden ? 'display: none;' : '') + field.html.style +'">'+
-                        ((field.type === 'empty') ? input : '<div>'+ w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text, true) + input + w2utils.lang(field.type != 'checkbox' ? field.html.text : '') + '</div>') +
-                        '</div>'
+                pages[field.html.page].anchors = pages[field.html.page].anchors || {}
+                pages[field.html.page].anchors[field.html.anchor] =
+                    '<div class="w2ui-field w2ui-field-inline" style="'+ (field.hidden ? 'display: none;' : '') + field.html.style +'">'+
+                        ((field.type === 'empty' || field.type == 'switch')
+                            ? input
+                            : '<div>'+ w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text, true)
+                                + input + w2utils.lang(field.type != 'checkbox' ? field.html.text : '')
+                                + '</div>') +
+                    '</div>'
             }
             if (pages[field.html.page] == null) pages[field.html.page] = {}
             if (pages[field.html.page][field.html.column] == null) pages[field.html.page][field.html.column] = ''
@@ -21835,7 +21851,7 @@ class w2form extends w2base {
                     w2ui[this.name + '_' + field.name + '_tb'].destroy()
                 }
                 let items = field.options.items
-                items.forEach(item => item.type = 'radio')
+                items.forEach(item => item.type ??= 'radio')
                 field.toolbar = new w2toolbar({
                     box: field.$el.prev().get(0),
                     name: this.name + '_' + field.name + '_tb',
@@ -23686,7 +23702,7 @@ class w2field extends w2base {
                 'margin-left'    : styles['margin-left'],
                 'margin-right'   : 0,
                 'z-index'        : 1,
-                'display'        : 'flex',
+                'display'        : 'inline-flex',
                 'align-items'    : 'center'
             })
         // only if visible

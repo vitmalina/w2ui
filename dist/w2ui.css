@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (12/17/2024, 11:46:15 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (2/13/2025, 10:30:14 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -1793,6 +1793,7 @@ button.w2ui-btn:disabled {
   float: none;
 }
 .w2ui-field .w2ui-form-switch {
+  display: inline-block;
   position: relative;
   height: 34px;
   margin-top: -5px;
