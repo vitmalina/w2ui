@@ -863,19 +863,23 @@ class w2layout extends w2base {
             tmp.sizeCalculated = Math.max(tmp.sizeCalculated, parseInt(tmp.minSize))
         }
         // negative size
-        if (String(pright.size).substr(0, 1) == '-') {
-            if (sleft && String(pleft.size).substr(0, 1) == '-') {
+        if (parseInt(pright.size) < 0) {
+            if (sleft && parseInt(pleft.size) < 0) {
                 console.log('ERROR: you cannot have both left panel.size and right panel.size be negative.')
             } else {
                 pright.sizeCalculated = width - (sleft ? pleft.sizeCalculated : 0) + parseInt(pright.size)
             }
         }
-        if (String(pleft.size).substr(0, 1) == '-') {
-            if (sright && String(pright.size).substr(0, 1) == '-') {
+        if (parseInt(pleft.size) < 0) {
+            if (sright && parseInt(pright.size) < 0) {
                 console.log('ERROR: you cannot have both left panel.size and right panel.size be negative.')
             } else {
                 pleft.sizeCalculated = width - (sright ? pright.sizeCalculated : 0) + parseInt(pleft.size)
             }
+        }
+        if (parseInt(pprev.size) < 0) {
+            pprev.sizeCalculated = height + parseInt(pprev.size)
+            if (pprev.sizeCalculated > height) pprev.sizeCalculated = height
         }
         // top if any
         if (ptop != null && ptop.hidden !== true) {

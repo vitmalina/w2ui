@@ -15,8 +15,10 @@
 
 <div style="height: 20px;"></div>
 
-<button class="w2ui-btn" onclick="setSize('700px')">width=700px</button>
-<button class="w2ui-btn" onclick="setSize('100%')">width=100%</button>
+<button class="w2ui-btn" onclick="setWidth('700px')">width=700px</button>
+<button class="w2ui-btn" onclick="setWidth('100%')">width=100%</button>
+<button class="w2ui-btn" onclick="setHeight('350px')">height=350px</button>
+<button class="w2ui-btn" onclick="setHeight('400px')">height=400px</button>
 
 <!--CODE-->
 <script type="module">
@@ -31,12 +33,17 @@ let layout = new w2layout({
     panels: [
         { type: 'left', size: 200, resizable: true, style: pstyle, html: 'left' },
         { type: 'main', style: pstyle2, html: 'main' },
-        { type: 'right', style: pstyle, size: -300, html: 'right', resizable: true }
+        { type: 'right', style: pstyle, size: -600, html: 'right', resizable: true },
+        { type: 'preview', style: pstyle, size: -50, html: 'preview', resizable: true }
     ]
 })
 
-window.setSize = function (size) {
+window.setWidth = function (size) {
     query('#layout').css('width', size)
+    layout.resize()
+}
+window.setHeight = function (size) {
+    query('#layout').css('height', size)
     layout.resize()
 }
 </script>
