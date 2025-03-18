@@ -47,7 +47,7 @@ let people = [
 ]
 people.sort()
 people.forEach((p, ind) => {
-    people[ind] = { id: p, text: p, tooltip: { html: 'Sample tooltip for the item', class: 'w2ui-light' } }
+    people[ind] = { id: p, text: p, tooltip: { html: `Sample for "${p}"`, class: 'w2ui-light' } }
 })
 
 query('#custom-btn').on('click', event => {

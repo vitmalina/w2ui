@@ -11,6 +11,8 @@
  * - options.prefilter - if true, it will show prefiltered items for w2menu, otherwise all
  * - menu.item.help, menu.item.hotkey, menu.item.extra
  * - options.selected -> for w2menu
+ * - options.tooltip => {}
+ * - w2menu event onTooltip
  */
 
 import { w2base } from './w2base.js'
@@ -1612,7 +1614,7 @@ class MenuTooltip extends Tooltip {
                 let dt = event.target.dataset
                 let tooltip = overlay.options.items[dt.index]?.tooltip
                 if (tooltip && dt.hassubmenu != 'yes') {
-                    this.showTooltip(overlay.name, { tooltip })
+                    this.showTooltip(overlay.name, { tooltip, anchor: event.target })
                 }
                 // hide previous sub-menu if any
                 let _menu = query(event.target).closest('.w2ui-menu').get(0)
@@ -1913,18 +1915,19 @@ class MenuTooltip extends Tooltip {
                 })
             }
         }
+        w2tooltip.hide(overlay.name + '-tooltip')
     }
 
     showTooltip(name, options) {
         let overlay = Tooltip.active[name.replace(/[\s\.#]/g, '_')]
         if (!overlay || !overlay.displayed) return
-        let el = query(overlay.box).find(`.w2ui-menu-item[index="${overlay.selected}"]`).get(0)
+        let anchor = options?.anchor ?? query(overlay.box).find(`.w2ui-menu-item[index="${overlay.selected}"]`).get(0)
         let tooltip = options?.tooltip ?? overlay.options.items[overlay.selected]?.tooltip
         if (tooltip) {
             let html = tooltip.html ?? tooltip
             w2tooltip.show(Object.assign({
                 name: overlay.name + '-tooltip',
-                anchor: el,
+                anchor,
                 html,
                 position: 'right|left',
                 hideOn: ['doc-click'],
