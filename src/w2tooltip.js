@@ -1523,6 +1523,7 @@ class MenuTooltip extends Tooltip {
                 }
             }
             this.refreshIndex(overlay.name)
+            this.showTooltip(overlay.name)
         }
         overlay.prev = () => {
             let chain = this.getActiveChain(overlay.name)
@@ -1540,6 +1541,7 @@ class MenuTooltip extends Tooltip {
                 }
             }
             this.refreshIndex(overlay.name)
+            this.showTooltip(overlay.name)
         }
         overlay.click = () => {
             $(overlay.box).find('.w2ui-selected').click()
@@ -1609,14 +1611,8 @@ class MenuTooltip extends Tooltip {
             .on('mouseEnter.w2menu', event => {
                 let dt = event.target.dataset
                 let tooltip = overlay.options.items[dt.index]?.tooltip
-                if (tooltip) {
-                    w2tooltip.show({
-                        name: overlay.name + '-tooltip',
-                        anchor: event.target,
-                        html: tooltip,
-                        position: 'right|left',
-                        hideOn: ['doc-click']
-                    })
+                if (tooltip && dt.hassubmenu != 'yes') {
+                    this.showTooltip(overlay.name, { tooltip })
                 }
                 // hide previous sub-menu if any
                 let _menu = query(event.target).closest('.w2ui-menu').get(0)
@@ -1919,6 +1915,29 @@ class MenuTooltip extends Tooltip {
         }
     }
 
+    showTooltip(name, options) {
+        let overlay = Tooltip.active[name.replace(/[\s\.#]/g, '_')]
+        if (!overlay || !overlay.displayed) return
+        let el = query(overlay.box).find(`.w2ui-menu-item[index="${overlay.selected}"]`).get(0)
+        let tooltip = options?.tooltip ?? overlay.options.items[overlay.selected]?.tooltip
+        if (tooltip) {
+            let html = tooltip.html ?? tooltip
+            w2tooltip.show(Object.assign({
+                name: overlay.name + '-tooltip',
+                anchor: el,
+                html,
+                position: 'right|left',
+                hideOn: ['doc-click'],
+                onShow(event) {
+                    overlay.self.trigger('tooltip', { overlay, action: 'show', originalEvent: event })
+                },
+                onHide(event) {
+                    overlay.self.trigger('tooltip', { overlay, action: 'hide', originalEvent: event })
+                }
+            }, typeof tooltip == 'object' && tooltip != null ? tooltip : {}))
+        }
+    }
+
     // show/hide searched items
     refreshSearch(name) {
         let overlay = Tooltip.active[name.replace(/[\s\.#]/g, '_')]
@@ -1926,6 +1945,7 @@ class MenuTooltip extends Tooltip {
         if (!overlay.displayed) {
             this.show(overlay.name)
         }
+        w2tooltip.hide(overlay.name + '-tooltip')
         query(overlay.box).find('.w2ui-no-items').hide()
         query(overlay.box).find('.w2ui-menu-item, .w2ui-menu-divider').each(el => {
             let cur = this.getCurrent(name, el.getAttribute('index'))

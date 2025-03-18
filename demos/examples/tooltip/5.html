@@ -46,6 +46,9 @@ let people = [
     'Harry Truman', 'William Clinton', 'Dwight Eisenhower', 'George W. Bush', 'Barack Obama'
 ]
 people.sort()
+people.forEach((p, ind) => {
+    people[ind] = { id: p, text: p, tooltip: { html: 'Sample tooltip for the item', class: 'w2ui-light' } }
+})
 
 query('#custom-btn').on('click', event => {
     w2menu.show({
@@ -56,7 +59,10 @@ query('#custom-btn').on('click', event => {
         markSearch: true,
         altRows: true,
         filter: true,
-        items: people
+        items: people,
+        onTooltip(event) {
+            console.log('tooltip:', event.detail)
+        }
     })
     .then(event => {
         let box = event.detail.overlay.box
