@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (2/14/2025, 7:19:44 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (3/18/2025, 3:22:11 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -19,6 +19,7 @@
   display: inline-block;
   vertical-align: middle;
   line-height: 1;
+  margin-top: -9px;
   font-weight: normal;
   font-style: normal;
   speak: none;
@@ -3738,7 +3739,7 @@ textarea.w2ui-error {
   padding: 2px;
 }
 .w2ui-sidebar .w2ui-sidebar-body .w2ui-node-data .w2ui-node-image {
-  padding: 3px 0px 0px 0px;
+  padding: 4px 0px 0px 0px;
   float: left;
 }
 .w2ui-sidebar .w2ui-sidebar-body .w2ui-node-data .w2ui-node-image > span {
@@ -4027,7 +4028,7 @@ textarea.w2ui-error {
 }
 .w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-button .w2ui-tb-text {
   margin-left: 20px;
-  padding: 5px ;
+  padding: 6px 5px 0 5px;
 }
 .w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-button .w2ui-tb-text .w2ui-tb-color-box {
   display: inline-block;
