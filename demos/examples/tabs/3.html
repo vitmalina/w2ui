@@ -27,6 +27,13 @@ new w2tabs({
         { id: 'tab6', text: 'Tab 6', closable: true },
         { id: 'tab7', text: 'Tab 7', closable: true },
         { id: 'tab8', text: 'Tab 8', closable: true }
-    ]
+    ],
+    onClose(event) {
+        console.log('close', event)
+        event.preventDefault()
+    },
+    onClick(event) {
+        console.log('click', event)
+    }
 })
 </script>

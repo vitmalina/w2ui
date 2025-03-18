@@ -571,6 +571,10 @@ class w2tabs extends w2base {
     // -- Internal Event Handlers
 
     click(id, event) {
+        if (query(event.target).hasClass('w2ui-tab-close')) {
+            // do not consider click on close button as tab click
+            return
+        }
         let tab = this.get(id)
         if (tab == null || tab.disabled || this.last.reordering) return false
         // event before
@@ -607,7 +611,7 @@ class w2tabs extends w2base {
             edata.finish()
             this.refresh()
         })
-        if (event) event.stopPropagation()
+        event?.stopPropagation()
     }
 
     animateClose(id) {

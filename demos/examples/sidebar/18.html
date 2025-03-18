@@ -30,6 +30,9 @@ let sb = new w2sidebar({
                 onchange="search(this.value)">
         </div>
     `,
+    onClick(event) {
+        console.log('click', event.detail)
+    },
     async onRefresh(event) {
         await event.complete
         if (event.detail.fullRefresh) {
