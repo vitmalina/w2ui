@@ -433,7 +433,7 @@ class Tooltip {
                 }
                 query('html').on(`click.${scope}`, hide)
             }
-            if (options.hideOn.includes('focus-change')) {
+            if (options.hideOn.includes('focus-change') || options.hideOn.includes('blur')) {
                 query('html')
                     .on(`focusin.${scope}`, (e) => {
                         if (document.activeElement != overlay.anchor) {
@@ -444,7 +444,7 @@ class Tooltip {
             if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
                 $anchor.off(`.${scope}`)
                 options.hideOn.forEach(event => {
-                    if (['doc-click', 'focus-change'].indexOf(event) == -1) {
+                    if (['doc-click', 'focus-change', 'blur'].indexOf(event) == -1) {
                         $anchor.on(`${event}.${scope}`, { once: true }, hide)
                     }
                 })
@@ -1438,11 +1438,11 @@ class MenuTooltip extends Tooltip {
             msgNoItems  : w2utils.lang('No items found'),
             topHTML     : '',
             menuStyle   : '',
-            filter      : false,
+            search      : false,        // search input inside tooltip
+            filter      : false,        // will apply filter, if anchor is INPUT or TEXTAREA
+            match       : 'contains',   // is, begins, ends, contains
             markSearch  : false,
             prefilter   : false,
-            match       : 'contains',   // is, begins, ends, contains
-            search      : false,        // top search TODO: Check
             altRows     : false,
             arrowSize   : 10,
             align       : 'left',

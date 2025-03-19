@@ -1,0 +1,80 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Searchable Menu & Preview</h1>
+        Each item of the menu can have an icon and various badges, such as count, hotkey, or help icon. Or it can be removable.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<style>
+    .custom {
+        font-size: 16px;
+        padding: 10px;
+        background-color: #fcfcfc;
+        width: 600px;
+        color: #484848;
+    }
+    .tooltip {
+        display: inline-block;
+        padding: 3px 6px;
+        background-color: #f1f4dc;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+</style>
+
+<div style="height: 10px"></div>
+
+<input id="custom-inp" class="w2ui-input" placeholder="Type to search..." style="width: 200px">
+
+<div style="height: 20px"></div>
+
+<!--CODE-->
+<script type="module">
+import { query, w2menu, w2utils } from '__W2UI_PATH__'
+
+let people = [
+    'George Washington', 'John Adams', 'Thomas Jefferson', 'James Buchanan', 'James Madison',
+    'Abraham Lincoln', 'James Monroe', 'Andrew Johnson', 'John Adams'
+]
+w2utils.normMenu(people) // convert to objects
+people.forEach(person => {
+    person.icon = 'fa fa-user'
+    person.tooltip = {
+        html: `
+            <div style="width: 130px; height: 120px; font-size: 90px; padding: 10px 30px"
+                class="fa fa-user"></div>
+            <div style="text-align: center; padding: 5px">${person.text}</div>`,
+        class: 'w2ui-light'
+    }
+}) // add icon
+
+query('#custom-inp')
+    .on('focus', event => {
+        query(event.target).val('')
+        showMenu(people)
+    })
+    .on('input', event => {
+        showMenu(people) // will update the menu
+    })
+
+function showMenu(items) {
+    w2menu.show({
+        name: 'custom-menu',
+        anchor: event.target,
+        hideOn: ['select', 'focus-change', 'blur'],
+        filter: true,   // if the anchor is an INPUT, it will use its value to filter
+        match: 'contains', // can be begins, contains, ends
+        markSearch: true,
+        altRows: true,
+        items
+    })
+    .select(event => {
+        let anchor = event.detail.overlay.anchor
+        query(anchor).val(event.detail.item.text)
+    })
+}
+
+</script>
