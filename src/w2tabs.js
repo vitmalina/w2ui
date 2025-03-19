@@ -571,7 +571,7 @@ class w2tabs extends w2base {
     // -- Internal Event Handlers
 
     click(id, event) {
-        if (query(event.target).hasClass('w2ui-tab-close')) {
+        if (event && query(event.target).hasClass('w2ui-tab-close')) {
             // do not consider click on close button as tab click
             return
         }
