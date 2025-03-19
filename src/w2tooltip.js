@@ -1734,7 +1734,7 @@ class MenuTooltip extends Tooltip {
             icon = mitem.icon
             let index = (parents.length > 0 ? parents.join('-') + '-' : '') + f
             if (icon == null) icon = null // icon might be undefined
-            if (['radio', 'check'].indexOf(options.type) != -1 && !Array.isArray(mitem.items) && mitem.group !== false) {
+            if (['radio', 'check'].includes(options.type) && !Array.isArray(mitem.items) && mitem.group !== false) {
                 if (mitem.checked === true) icon = 'w2ui-icon-check'; else icon = 'w2ui-icon-empty'
             }
             if (mitem.hidden !== true) {
@@ -1743,10 +1743,13 @@ class MenuTooltip extends Tooltip {
                 if (typeof options.render === 'function') txt = options.render(mitem, options)
                 if (typeof txt == 'function') txt = txt(mitem, options)
                 if (icon) {
-                    if (String(icon).slice(0, 1) !== '<') {
+                    let first = String(icon).slice(0, 1)
+                    if (first == '#') {
+                        icon = `<span class="w2ui-icon w2ui-icon-empty" style="background-color: ${icon}"></span>`
+                    } else if (first !== '<') {
                         icon = `<span class="w2ui-icon ${icon}"></span>`
                     }
-                    icon_dsp = `<div class="menu-icon">${icon}</span></div>`
+                    icon_dsp = `<div class="menu-icon">${icon}</div>`
                 }
                 // for backward compatibility
                 if (mitem.removable == null && mitem.remove != null) {

@@ -389,10 +389,12 @@ query(async function () {
                 { id: 'tooltip-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
                         { id: 'tooltip/5', text: 'Searchable Menu', icon: 'fa fa-comment-o' },
+                        { id: 'tooltip/10', text: 'Searchable Menu & Preview', icon: 'fa fa-comment-o' },
                         { id: 'tooltip/6', text: 'Menu Icons & Badges', icon: 'fa fa-comment-o' },
                         { id: 'tooltip/7', text: 'Advanced Controls', icon: 'fa fa-comment-o' },
                         { id: 'tooltip/8', text: 'Show Anywhere', icon: 'fa fa-comment-o' },
                         { id: 'tooltip/9', text: 'Draggable Tooltips', icon: 'fa fa-comment-o' },
+                        { id: 'tooltip/11', text: 'Custom Menu Icons', icon: 'fa fa-comment-o' },
                     ]
                 },
                 { id: 'utils', text: 'Utils Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
