@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (3/19/2025, 9:53:48 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (3/18/2025, 4:13:22 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -5807,7 +5807,7 @@ class MenuTooltip extends Tooltip {
                 if (typeof options.render === 'function') txt = options.render(mitem, options)
                 if (typeof txt == 'function') txt = txt(mitem, options)
                 if (icon) {
-                    let first = String(icon).slice(0, 1)
+                    let first = String(icon).trim().slice(0, 1)
                     if (first == '#') {
                         icon = `<span class="w2ui-icon w2ui-icon-empty" style="background-color: ${icon}"></span>`
                     } else if (first !== '<') {
