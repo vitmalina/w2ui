@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (3/18/2025, 3:22:11 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (3/18/2025, 4:13:22 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -19,7 +19,7 @@
   display: inline-block;
   vertical-align: middle;
   line-height: 1;
-  margin-top: -9px;
+  margin-top: 0px;
   font-weight: normal;
   font-style: normal;
   speak: none;
@@ -917,7 +917,7 @@ button.w2ui-btn:disabled {
 }
 .w2ui-colors .w2ui-color-tabs .w2ui-color-tab .w2ui-icon {
   padding-top: 0;
-  margin-top: -2px;
+  margin-top: 3px;
   width: 30px;
   height: 21px;
 }
@@ -971,7 +971,7 @@ button.w2ui-btn:disabled {
 }
 .w2ui-colors .w2ui-tab-content.tab-1 .w2ui-color-row .w2ui-color.w2ui-color-picker .w2ui-icon {
   position: relative;
-  top: -7px;
+  top: -2px;
   left: -2px;
   margin: 0;
   padding: 0;
@@ -1122,7 +1122,7 @@ button.w2ui-btn:disabled {
 }
 .w2ui-colors .w2ui-tab-content.tab-2 .w2ui-color-picker .w2ui-icon {
   position: relative;
-  top: -3px;
+  top: 2px;
   left: 3px;
   font-size: 14px;
   height: 20px;
@@ -3297,7 +3297,7 @@ textarea.w2ui-error {
 .w2ui-popup .w2ui-popup-title-btns .w2ui-popup-button span.w2ui-icon {
   width: 24px;
   height: 23px;
-  margin-top: -5px;
+  margin-top: 0px;
 }
 .w2ui-popup .w2ui-popup-title-btns .w2ui-popup-button.w2ui-popup-close:hover {
   color: #222;

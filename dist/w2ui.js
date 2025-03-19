@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (3/18/2025, 3:39:08 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (3/19/2025, 9:53:48 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -2602,7 +2602,9 @@ class Utils {
                 .replace(/>/g, '&lt;')
             // only outside tags
             // and only outside of quotes
-            let regex = new RegExp((ww ? '\\b' : '') + term + (ww ? '\\b' : '') + '(?=([a-z-0-9]+="[^"]*")*?[^"]+$)' + '(?!([^<]+)?>)', 'i' + (!options.onlyFirst ? 'g' : ''))
+            // let regex = new RegExp((ww ? '\\b' : '') + term + (ww ? '\\b' : '') + '(?=([a-z-0-9]+="[^"]*")*?[^"]+$)' + '(?!([^<]+)?>)', 'i' + (!options.onlyFirst ? 'g' : ''))
+            // -- the one above would not match inside html tags
+            let regex = new RegExp((ww ? '\\b' : '') + term + (ww ? '\\b' : '') + '(?![^<]*>)', 'i' + (!options.onlyFirst ? 'g' : ''));
             return html = html.replace(regex, replaceWith)
         }
         function _clearMerkers(el) {
@@ -4545,7 +4547,7 @@ class Tooltip {
                 }
                 query('html').on(`click.${scope}`, hide)
             }
-            if (options.hideOn.includes('focus-change')) {
+            if (options.hideOn.includes('focus-change') || options.hideOn.includes('blur')) {
                 query('html')
                     .on(`focusin.${scope}`, (e) => {
                         if (document.activeElement != overlay.anchor) {
@@ -4556,7 +4558,7 @@ class Tooltip {
             if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
                 $anchor.off(`.${scope}`)
                 options.hideOn.forEach(event => {
-                    if (['doc-click', 'focus-change'].indexOf(event) == -1) {
+                    if (['doc-click', 'focus-change', 'blur'].indexOf(event) == -1) {
                         $anchor.on(`${event}.${scope}`, { once: true }, hide)
                     }
                 })
@@ -5506,11 +5508,11 @@ class MenuTooltip extends Tooltip {
             msgNoItems  : w2utils.lang('No items found'),
             topHTML     : '',
             menuStyle   : '',
-            filter      : false,
+            search      : false,        // search input inside tooltip
+            filter      : false,        // will apply filter, if anchor is INPUT or TEXTAREA
+            match       : 'contains',   // is, begins, ends, contains
             markSearch  : false,
             prefilter   : false,
-            match       : 'contains',   // is, begins, ends, contains
-            search      : false,        // top search TODO: Check
             altRows     : false,
             arrowSize   : 10,
             align       : 'left',
@@ -5796,7 +5798,7 @@ class MenuTooltip extends Tooltip {
             icon = mitem.icon
             let index = (parents.length > 0 ? parents.join('-') + '-' : '') + f
             if (icon == null) icon = null // icon might be undefined
-            if (['radio', 'check'].indexOf(options.type) != -1 && !Array.isArray(mitem.items) && mitem.group !== false) {
+            if (['radio', 'check'].includes(options.type) && !Array.isArray(mitem.items) && mitem.group !== false) {
                 if (mitem.checked === true) icon = 'w2ui-icon-check'; else icon = 'w2ui-icon-empty'
             }
             if (mitem.hidden !== true) {
@@ -5805,10 +5807,13 @@ class MenuTooltip extends Tooltip {
                 if (typeof options.render === 'function') txt = options.render(mitem, options)
                 if (typeof txt == 'function') txt = txt(mitem, options)
                 if (icon) {
-                    if (String(icon).slice(0, 1) !== '<') {
+                    let first = String(icon).slice(0, 1)
+                    if (first == '#') {
+                        icon = `<span class="w2ui-icon w2ui-icon-empty" style="background-color: ${icon}"></span>`
+                    } else if (first !== '<') {
                         icon = `<span class="w2ui-icon ${icon}"></span>`
                     }
-                    icon_dsp = `<div class="menu-icon">${icon}</span></div>`
+                    icon_dsp = `<div class="menu-icon">${icon}</div>`
                 }
                 // for backward compatibility
                 if (mitem.removable == null && mitem.remove != null) {
