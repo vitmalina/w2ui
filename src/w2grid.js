@@ -498,6 +498,7 @@ class w2grid extends w2base {
         } else {
             this.refresh()
         }
+        this.trigger("add", {target: this.name})
         return added
     }
 
