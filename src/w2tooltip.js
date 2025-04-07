@@ -13,6 +13,7 @@
  * - options.selected -> for w2menu
  * - options.tooltip => {}
  * - w2menu event onTooltip
+ * - added onMouseEnter and onMouseLeave for w2menu
  */
 
 import { w2base } from './w2base.js'
@@ -1453,7 +1454,10 @@ class MenuTooltip extends Tooltip {
             hideOn      : ['doc-click', 'focus-change', 'select'], // also can 'item-remove'
             onSelect    : null,
             onSubMenu   : null,
-            onRemove    : null
+            onRemove    : null,
+            onTooltip   : null,
+            onMouseEnter: null,
+            onMouseLeave: null
         })
     }
 
@@ -1612,7 +1616,12 @@ class MenuTooltip extends Tooltip {
             .off('.w2menu')
             .on('mouseEnter.w2menu', event => {
                 let dt = event.target.dataset
-                let tooltip = overlay.options.items[dt.index]?.tooltip
+                let item = overlay.options.items[dt.index]
+                let edata = this.trigger('mouseEnter', { overlay, item, originalEvent: event })
+                if (edata.isCancelled) {
+                    return
+                }
+                let tooltip = item?.tooltip
                 if (tooltip && dt.hassubmenu != 'yes') {
                     this.showTooltip(overlay.name, { tooltip, anchor: event.target })
                 }
@@ -1633,9 +1642,17 @@ class MenuTooltip extends Tooltip {
                     _menu._evt = _evt
                     this.openSubMenu(_evt)
                 }
+                edata.finish()
             })
             .on('mouseLeave.w2menu', event => {
+                let dt = event.target.dataset
+                let item = overlay.options.items[dt.index]
+                let edata = this.trigger('mouseLeave', { overlay, item, originalEvent: event })
+                if (edata.isCancelled) {
+                    return
+                }
                 w2tooltip.hide(overlay.name + '-tooltip')
+                edata.finish()
             })
             .find('.menu-help')
             .off('.w2menu')
