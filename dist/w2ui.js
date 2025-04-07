@@ -14877,7 +14877,7 @@ var w2prompt = function (label, title, callBack) {
             var items = 0;
             var tmp   = [];
             for (var a = 0; a < arguments.length; a++) {
-                var it = this.get(arguments[a]);
+                let it = this.get(arguments[a]); // let will make it block specific and it will work in a timeout
                 if (!it || String(arguments[a]).indexOf(':') != -1) continue;
                 // remove overlay
                 if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(it.type) != -1 && it.checked) {
