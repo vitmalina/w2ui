@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (3/18/2025, 4:13:22 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (4/7/2025, 12:21:04 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -3291,6 +3291,7 @@ var w2utils = new Utils() // eslint-disable-line -- needs to be functional/modul
  *  - close(immediate), also refactored if popup is closed when opening
  *  - options.resizable
  *  - actions in popup can be just html (for example separator)
+ *  - resize - returns promise
  */
 
 class Dialog extends w2base {
@@ -3379,7 +3380,10 @@ class Dialog extends w2base {
         options.width  = parseInt(options.width)
         options.height = parseInt(options.height)
         let edata, msg, tmp
-        let { top, left } = this.center()
+        let { top, left, width, height } = this.center()
+        // make sure popup is not bigger then available screen
+        if (options.width > width) options.width = width
+        if (options.height > height) options.height = height
         let prom = {
             self: this,
             action(callBack) {
@@ -3940,24 +3944,27 @@ class Dialog extends w2base {
         return { top, left, width, height }
     }
     resize(newWidth, newHeight, callBack) {
-        let self = this
-        if (this.options.speed == null) this.options.speed = 0
-        // calculate new position
-        let { top, left, width, height } = this.center(newWidth, newHeight)
-        let speed = this.options.speed
-        query('#w2ui-popup').css({
-            'transition': `${speed}s width, ${speed}s height, ${speed}s left, ${speed}s top`,
-            'top'   : top + 'px',
-            'left'  : left + 'px',
-            'width' : width + 'px',
-            'height': height + 'px'
+        return new Promise(resolve => {
+            let self = this
+            if (this.options.speed == null) this.options.speed = 0
+            // calculate new position
+            let { top, left, width, height } = this.center(newWidth, newHeight)
+            let speed = this.options.speed
+            query('#w2ui-popup').css({
+                'transition': `${speed}s width, ${speed}s height, ${speed}s left, ${speed}s top`,
+                'top'   : top + 'px',
+                'left'  : left + 'px',
+                'width' : width + 'px',
+                'height': height + 'px'
+            })
+            let tmp_int = setInterval(() => { self.resizeMessages() }, 10) // then messages resize nicely
+            setTimeout(() => {
+                clearInterval(tmp_int)
+                self.resizeMessages()
+                if (typeof callBack == 'function') callBack()
+                resolve()
+            }, (this.options.speed * 1000) + 50) // give extra 50 ms
         })
-        let tmp_int = setInterval(() => { self.resizeMessages() }, 10) // then messages resize nicely
-        setTimeout(() => {
-            clearInterval(tmp_int)
-            self.resizeMessages()
-            if (typeof callBack == 'function') callBack()
-        }, (this.options.speed * 1000) + 50) // give extra 50 ms
     }
     // internal function
     resizeMessages() {
@@ -4144,6 +4151,7 @@ let w2popup = new Dialog()
  * - options.selected -> for w2menu
  * - options.tooltip => {}
  * - w2menu event onTooltip
+ * - added onMouseEnter and onMouseLeave for w2menu
  */
 
 class Tooltip {
@@ -5523,7 +5531,10 @@ class MenuTooltip extends Tooltip {
             hideOn      : ['doc-click', 'focus-change', 'select'], // also can 'item-remove'
             onSelect    : null,
             onSubMenu   : null,
-            onRemove    : null
+            onRemove    : null,
+            onTooltip   : null,
+            onMouseEnter: null,
+            onMouseLeave: null
         })
     }
     attach(anchor, text) {
@@ -5679,7 +5690,12 @@ class MenuTooltip extends Tooltip {
             .off('.w2menu')
             .on('mouseEnter.w2menu', event => {
                 let dt = event.target.dataset
-                let tooltip = overlay.options.items[dt.index]?.tooltip
+                let item = overlay.options.items[dt.index]
+                let edata = this.trigger('mouseEnter', { overlay, item, originalEvent: event })
+                if (edata.isCancelled) {
+                    return
+                }
+                let tooltip = item?.tooltip
                 if (tooltip && dt.hassubmenu != 'yes') {
                     this.showTooltip(overlay.name, { tooltip, anchor: event.target })
                 }
@@ -5700,9 +5716,17 @@ class MenuTooltip extends Tooltip {
                     _menu._evt = _evt
                     this.openSubMenu(_evt)
                 }
+                edata.finish()
             })
             .on('mouseLeave.w2menu', event => {
+                let dt = event.target.dataset
+                let item = overlay.options.items[dt.index]
+                let edata = this.trigger('mouseLeave', { overlay, item, originalEvent: event })
+                if (edata.isCancelled) {
+                    return
+                }
                 w2tooltip.hide(overlay.name + '-tooltip')
+                edata.finish()
             })
             .find('.menu-help')
             .off('.w2menu')
@@ -10437,7 +10461,7 @@ class w2tabs extends w2base {
     // ===================================================
     // -- Internal Event Handlers
     click(id, event) {
-        if (query(event.target).hasClass('w2ui-tab-close')) {
+        if (event && query(event.target).hasClass('w2ui-tab-close')) {
             // do not consider click on close button as tab click
             return
         }

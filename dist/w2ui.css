@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (3/18/2025, 4:13:22 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (4/7/2025, 12:21:14 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -1140,7 +1140,7 @@ button.w2ui-btn:disabled {
 }
 .w2ui-menu-search .w2ui-icon {
   position: absolute;
-  top: 11px;
+  top: 8px;
   left: 6px;
   color: #90819c;
   font-size: 14px;
