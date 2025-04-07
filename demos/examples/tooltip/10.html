@@ -64,7 +64,7 @@ function showMenu(items) {
     w2menu.show({
         name: 'custom-menu',
         anchor: event.target,
-        hideOn: ['select', 'focus-change', 'blur'],
+        hideOn: ['select', 'blur', 'doc-click'],
         filter: true,   // if the anchor is an INPUT, it will use its value to filter
         match: 'contains', // can be begins, contains, ends
         markSearch: true,
