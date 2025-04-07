@@ -19,6 +19,7 @@
  *  - close(immediate), also refactored if popup is closed when opening
  *  - options.resizable
  *  - actions in popup can be just html (for example separator)
+ *  - resize - returns promise
  */
 
 import { w2base } from './w2base.js'
@@ -113,7 +114,10 @@ class Dialog extends w2base {
         options.height = parseInt(options.height)
 
         let edata, msg, tmp
-        let { top, left } = this.center()
+        let { top, left, width, height } = this.center()
+        // make sure popup is not bigger then available screen
+        if (options.width > width) options.width = width
+        if (options.height > height) options.height = height
 
         let prom = {
             self: this,
@@ -705,24 +709,27 @@ class Dialog extends w2base {
     }
 
     resize(newWidth, newHeight, callBack) {
-        let self = this
-        if (this.options.speed == null) this.options.speed = 0
-        // calculate new position
-        let { top, left, width, height } = this.center(newWidth, newHeight)
-        let speed = this.options.speed
-        query('#w2ui-popup').css({
-            'transition': `${speed}s width, ${speed}s height, ${speed}s left, ${speed}s top`,
-            'top'   : top + 'px',
-            'left'  : left + 'px',
-            'width' : width + 'px',
-            'height': height + 'px'
+        return new Promise(resolve => {
+            let self = this
+            if (this.options.speed == null) this.options.speed = 0
+            // calculate new position
+            let { top, left, width, height } = this.center(newWidth, newHeight)
+            let speed = this.options.speed
+            query('#w2ui-popup').css({
+                'transition': `${speed}s width, ${speed}s height, ${speed}s left, ${speed}s top`,
+                'top'   : top + 'px',
+                'left'  : left + 'px',
+                'width' : width + 'px',
+                'height': height + 'px'
+            })
+            let tmp_int = setInterval(() => { self.resizeMessages() }, 10) // then messages resize nicely
+            setTimeout(() => {
+                clearInterval(tmp_int)
+                self.resizeMessages()
+                if (typeof callBack == 'function') callBack()
+                resolve()
+            }, (this.options.speed * 1000) + 50) // give extra 50 ms
         })
-        let tmp_int = setInterval(() => { self.resizeMessages() }, 10) // then messages resize nicely
-        setTimeout(() => {
-            clearInterval(tmp_int)
-            self.resizeMessages()
-            if (typeof callBack == 'function') callBack()
-        }, (this.options.speed * 1000) + 50) // give extra 50 ms
     }
 
     // internal function
