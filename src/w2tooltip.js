@@ -1672,7 +1672,6 @@ class MenuTooltip extends Tooltip {
             .on('mouseLeave.w2menu', event => {
                 w2tooltip.hide(overlay.name + '-help-tp')
             })
-
         if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
             query(overlay.anchor)
                 .off('.w2menu')
@@ -1864,28 +1863,10 @@ class MenuTooltip extends Tooltip {
             parentOverlay: overlay,
             parents: [...event.parents, event.index],
             position: 'right|left',
-            hideOn: ['doc-click']
+            hideOn: ['doc-click', 'select']
         })
         .hide(evt => {
             query(event.target).removeClass('expanded')
-        })
-        .select(evt => {
-            // overlay - is the top overlay, evt.detail.overlay -- current submenu
-            let parents = evt.detail.overlay.options.parents
-            let _overlay = overlay
-            while (_overlay.options.parentOverlay) {
-                _overlay = _overlay.options.parentOverlay
-            }
-            this.menuClick(_overlay, evt.detail.originalEvent, parseInt(evt.detail.index), parents)
-        })
-        .remove(evt => {
-            // overlay - is the top overlay, evt.detail.overlay -- current submenu
-            let parents = evt.detail.overlay.options.parents
-            let _overlay = overlay
-            while (_overlay.options.parentOverlay) {
-                _overlay = _overlay.options.parentOverlay
-            }
-            this.menuClick(_overlay, evt.detail.originalEvent, parseInt(evt.detail.index), parents)
         })
         // indicates if user cursor is over sub menu
         setTimeout(() => {
@@ -2065,7 +2046,6 @@ class MenuTooltip extends Tooltip {
                 }
             }
             query(overlay.box).find('.w2ui-no-items').html(msg)
-
             remote.search = search
             options.items = []
             overlay.tmp.remote = remote
@@ -2369,7 +2349,6 @@ class MenuTooltip extends Tooltip {
                 items = items[id].items
             })
         }
-
         if (typeof items == 'function') {
             items = items({ overlay, index, parents, event })
         }
@@ -2378,29 +2357,60 @@ class MenuTooltip extends Tooltip {
             return
         }
         let edata
+        let overlays = [overlay]
+        let topOverlay = overlay
+        let parentOverlay
+        while (topOverlay.options.parentOverlay) {
+            topOverlay = topOverlay.options.parentOverlay
+            parentOverlay ??= topOverlay // not top overlay, but parent overlay items
+            overlays.push(topOverlay)
+        }
+
         if (query(event.target).hasClass('menu-remove')) {
-            edata = this.trigger('remove', { originalEvent: event, target: overlay.name,
-                overlay, item, index, parents, el: $item[0] })
+            edata = topOverlay.trigger('remove', {
+                originalEvent: event, target: overlay.name, overlay, topOverlay, parentOverlay,
+                item, index, el: $item[0]
+            })
             if (edata.isCancelled === true) {
                 return
             }
+            // delete from items
+            let items = options.items
+            let ind = items.findIndex(it => it.id == item.id)
+            if (ind != -1) {
+                let tmp = items.splice(ind, 1)
+                // delete from the parent too
+                let pind = overlay.options.parents[overlay.options.parents.length -1]
+                let pitems = parentOverlay.options.items[pind].items
+                if (pitems[ind].id == tmp[0].id) {
+                    pitems.splice(ind, 1)
+                }
+            }
             keepOpen = !options.hideOn.includes('item-remove')
-            $item.remove()
+            let name = $item.closest('.w2ui-overlay').attr('name')
+            overlay.self.update(name, items)
 
         } else if ($item.hasClass('has-sub-menu')) {
-            edata = this.trigger('subMenu', { originalEvent: event, target: overlay.name,
-                overlay, item, index, parents, el: $item[0] })
+
+            edata = topOverlay.trigger('subMenu', {
+                originalEvent: event, target: overlay.name, overlay, topOverlay, parentOverlay,
+                item, index, el: $item[0]
+            })
             if (edata.isCancelled === true) {
                 return
             }
             keepOpen = true
+
         } else {
+
             // find items that are selected
             let selected = this.findChecked(options.items)
             let a_index = $item.attr('index')
             overlay.selected = isNaN(a_index) ? a_index: parseInt(a_index)
-            edata = this.trigger('select', { originalEvent: event, target: overlay.name,
-                overlay, item, index, parents, selected, keepOpen, el: $item[0] })
+            edata = topOverlay.trigger('select', {
+                originalEvent: event, target: overlay.name, overlay, topOverlay, parentOverlay,
+                item, index, selected, keepOpen, el: $item[0]
+            })
             if (edata.isCancelled === true) {
                 return
             }
@@ -2413,8 +2423,7 @@ class MenuTooltip extends Tooltip {
             }
         }
         if (!keepOpen) {
-            this.hide(overlay.name)
-            this.hide(overlay.name + '-submenu')
+            overlays.forEach(overlay => this.hide(overlay.name))
         }
         // if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
         //     overlay.anchor.focus()
