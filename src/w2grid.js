@@ -2171,15 +2171,17 @@ class w2grid extends w2base {
                                 if (String(value).trim() != '') searchData.push(tmp)
                             }
                             // range in global search box
-                            if (['int', 'float', 'money', 'currency', 'percent'].indexOf(search.type) != -1 && String(value).trim().split('-').length == 2) {
-                                let t   = String(value).trim().split('-')
-                                let tmp = {
-                                    field    : search.field,
-                                    type     : search.type,
-                                    operator : (search.operator != null ? search.operator : 'between'),
-                                    value    : [t[0], t[1]]
+                            if (['int', 'float', 'money', 'currency', 'percent'].indexOf(search.type) != -1){
+                                let t = String(value).trim().split('-').map(v => v.trim()).filter(v => w2utils.isFloat(v))
+                                if (t.length == 2) {
+                                    let tmp = {
+                                        field    : search.field,
+                                        type     : search.type,
+                                        operator : 'between',
+                                        value    : [t[0], t[1]]
+                                    }
+                                    searchData.push(tmp)
                                 }
-                                searchData.push(tmp)
                             }
                             // lists fields
                             if (['list', 'enum'].indexOf(search.type) != -1) {
