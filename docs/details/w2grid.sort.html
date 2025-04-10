@@ -31,9 +31,18 @@ Returns <i>undefined</i>.
 
 <h4>Description</h4>
 
-This method will sort records in the <a class="property" href="w2grid.records">.records</a> array if you have local
-data source or submit to the server side if your data source is remote. If you call this method without parameters, it
+This method sorts records in the <a class="property" href="w2grid.records">.records</a> array if you have local
+data source or it will submit to the server if your data source is remote. If you call this method without parameters, it
 will reset the sort.
+<div style="height: 10px;"></div>
+
+If <span class="property">multisort</span>  is true, it will do sorting by multiple fields, as it will keep presious sorts as well.
+So, if you call:
+<textarea class="javascript">
+    grid.sort('field1', 'asc')
+    grid.sort('field2', 'asc')
+</textarea>
+it will first sort records by field1 and then by field2 at the same time.
 <div style="height: 10px;"></div>
 
 If you have a grid defined in the following way:
