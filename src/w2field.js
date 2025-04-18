@@ -116,7 +116,7 @@ class w2field extends w2base {
                     },
                     decimalSymbol: w2utils.settings.decimalSymbol,
                     groupSymbol: w2utils.settings.groupSymbol,
-                    arrow: false,
+                    arrows: false,
                     keyboard: true,
                     precision: null,
                     prefix: '',
@@ -129,7 +129,7 @@ class w2field extends w2base {
                 options.percentRE = new RegExp('['+ options.groupSymbol + '%]', 'g')
                 // no keyboard support needed
                 if (['text', 'alphanumeric', 'hex', 'bin'].includes(this.type)) {
-                    options.arrow   = false
+                    options.arrows   = false
                     options.keyboard = false
                 }
                 break
@@ -140,7 +140,7 @@ class w2field extends w2base {
                     prefix      : '#',
                     suffix      : `<div style="width: ${size}px; height: ${size}px; margin-top: -2px;
                                     position: relative; top: 50%; transform: translateY(-50%);">&#160;</div>`,
-                    arrow       : false,
+                    arrows      : false,
                     advanced    : null, // open advanced by default
                     transparent : true
                 }
@@ -1442,7 +1442,7 @@ class w2field extends w2base {
     }
 
     addSuffix() {
-        if (!this.options.suffix && !this.options.arrow) {
+        if (!this.options.suffix && !this.options.arrows) {
             return
         }
         let helper
@@ -1452,9 +1452,9 @@ class w2field extends w2base {
             this.tmp['old-padding-right'] = styles['padding-right']
         }
         let pr = parseInt(styles['padding-right'] || 0)
-        if (this.options.arrow) {
+        if (this.options.arrows) {
             // remove if already displayed
-            if (this.helpers.arrow) query(this.helpers.arrow).remove()
+            if (this.helpers.arrows) query(this.helpers.arrows).remove()
             // add fresh
             query(this.el).after(
                 '<div class="w2ui-field-helper" style="border: 1px solid transparent">&#160;'+
@@ -1488,7 +1488,7 @@ class w2field extends w2base {
                 })
             pr += helper.clientWidth // width of the control
             query(this.el).css('padding-right', pr + 'px !important')
-            this.helpers.arrow = helper
+            this.helpers.arrows = helper
         }
         if (this.options.suffix !== '') {
             // remove if already displayed

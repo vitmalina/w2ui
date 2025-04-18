@@ -566,7 +566,11 @@ class w2form extends w2base {
             case 'empty':
                 break
             default:
-                // regular text fields
+                // all other fields, text, int, float
+                if (value != null && el._w2field?.format) {
+                    let obj = el._w2field
+                    value = obj.format(obj.clean(value))
+                }
                 el.value = value ?? ''
                 break
         }

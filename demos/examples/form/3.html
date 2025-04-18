@@ -31,7 +31,8 @@ let form = new w2form({
             text: 'default text value',
             alpha: 'ABC123',
             int: null,
-            float: 0
+            float: 0.1,
+            number: 2500
         },
         single: {
             check: true,
@@ -47,13 +48,17 @@ let form = new w2form({
         { field: 'simple.text', type: 'text',
             html: { label: 'Text', attr: 'style="width: 300px"' }
         },
+        { field: 'simple.number', type: 'float',
+            html: { label: 'Formatted', attr: 'style="width: 70px"' },
+            options: { arrows: true, autoFormat: true }
+        },
         { field: 'simple.int', type: 'int',
-            html: { label: 'Integer', attr: 'style="width: 60px"' },
+            html: { label: 'Integer', attr: 'style="width: 70px"' },
             options: { arrows: true, min: 0, max: 50 }
         },
         { field: 'simple.float', type: 'float',
-            html: { label: 'Float', attr: 'style="width: 60px"' },
-            options: { arrows: true, format: true, precision: 2, min: 0, max: 50, step: 0.1 }
+            html: { label: 'Float', attr: 'style="width: 70px"' },
+            options: { arrows: true, autoFormat: true, precision: 2, min: 0, max: 50, step: 0.1 }
         },
         { field: 'date.date', type: 'date',
             html: { label: 'Date', attr: 'style="width: 90px"', text: ' @time' }
