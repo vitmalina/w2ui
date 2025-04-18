@@ -1846,7 +1846,7 @@ class w2form extends w2base {
                             + `${field.html.value.text || ''}`
 
                         if (typeof field.html.render == 'function') {
-                            html = field.html.render.call(self, { empty: !!empty, ind: cnt, field, div })
+                            html = field.html.render.call(self, { empty: empty === true, ind: cnt, field, div })
                             // make sure all inputs have names as it is important for array objects
                             if (!field.el._errorDisplayed) {
                                 query.html(html).filter('input').each(inp => {
@@ -1890,11 +1890,8 @@ class w2form extends w2base {
                             if (!Array.isArray(map)) map = []
                             keys = map.map((item, ind) => { return ind })
                         }
-                        // delete extra fields (including empty one)
-                        let all = div.find('.w2ui-map-field')
-                        for (let i = all.length-1; i >= keys.length; i--) {
-                            div.find(`div[data-index='${i}']`).remove()
-                        }
+                        // delete fields (including empty one)
+                        div.find('.w2ui-map-field').remove()
                         for (let ind = 0; ind < keys.length; ind++) {
                             let key = keys[ind]
                             let fld = div.find(`div[data-index='${ind}']`)
