@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (4/7/2025, 12:21:04 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (4/18/2025, 9:58:59 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -5934,28 +5934,10 @@ class MenuTooltip extends Tooltip {
             parentOverlay: overlay,
             parents: [...event.parents, event.index],
             position: 'right|left',
-            hideOn: ['doc-click']
+            hideOn: ['doc-click', 'select']
         })
         .hide(evt => {
             query(event.target).removeClass('expanded')
-        })
-        .select(evt => {
-            // overlay - is the top overlay, evt.detail.overlay -- current submenu
-            let parents = evt.detail.overlay.options.parents
-            let _overlay = overlay
-            while (_overlay.options.parentOverlay) {
-                _overlay = _overlay.options.parentOverlay
-            }
-            this.menuClick(_overlay, evt.detail.originalEvent, parseInt(evt.detail.index), parents)
-        })
-        .remove(evt => {
-            // overlay - is the top overlay, evt.detail.overlay -- current submenu
-            let parents = evt.detail.overlay.options.parents
-            let _overlay = overlay
-            while (_overlay.options.parentOverlay) {
-                _overlay = _overlay.options.parentOverlay
-            }
-            this.menuClick(_overlay, evt.detail.originalEvent, parseInt(evt.detail.index), parents)
         })
         // indicates if user cursor is over sub menu
         setTimeout(() => {
@@ -6437,17 +6419,42 @@ class MenuTooltip extends Tooltip {
             return
         }
         let edata
+        let overlays = [overlay]
+        let topOverlay = overlay
+        let parentOverlay
+        while (topOverlay.options.parentOverlay) {
+            topOverlay = topOverlay.options.parentOverlay
+            parentOverlay ??= topOverlay // not top overlay, but parent overlay items
+            overlays.push(topOverlay)
+        }
         if (query(event.target).hasClass('menu-remove')) {
-            edata = this.trigger('remove', { originalEvent: event, target: overlay.name,
-                overlay, item, index, parents, el: $item[0] })
+            edata = topOverlay.trigger('remove', {
+                originalEvent: event, target: overlay.name, overlay, topOverlay, parentOverlay,
+                item, index, el: $item[0]
+            })
             if (edata.isCancelled === true) {
                 return
             }
+            // delete from items
+            let items = options.items
+            let ind = items.findIndex(it => it.id == item.id)
+            if (ind != -1) {
+                let tmp = items.splice(ind, 1)
+                // delete from the parent too
+                let pind = overlay.options.parents[overlay.options.parents.length -1]
+                let pitems = parentOverlay.options.items[pind].items
+                if (pitems[ind].id == tmp[0].id) {
+                    pitems.splice(ind, 1)
+                }
+            }
             keepOpen = !options.hideOn.includes('item-remove')
-            $item.remove()
+            let name = $item.closest('.w2ui-overlay').attr('name')
+            overlay.self.update(name, items)
         } else if ($item.hasClass('has-sub-menu')) {
-            edata = this.trigger('subMenu', { originalEvent: event, target: overlay.name,
-                overlay, item, index, parents, el: $item[0] })
+            edata = topOverlay.trigger('subMenu', {
+                originalEvent: event, target: overlay.name, overlay, topOverlay, parentOverlay,
+                item, index, el: $item[0]
+            })
             if (edata.isCancelled === true) {
                 return
             }
@@ -6457,8 +6464,10 @@ class MenuTooltip extends Tooltip {
             let selected = this.findChecked(options.items)
             let a_index = $item.attr('index')
             overlay.selected = isNaN(a_index) ? a_index: parseInt(a_index)
-            edata = this.trigger('select', { originalEvent: event, target: overlay.name,
-                overlay, item, index, parents, selected, keepOpen, el: $item[0] })
+            edata = topOverlay.trigger('select', {
+                originalEvent: event, target: overlay.name, overlay, topOverlay, parentOverlay,
+                item, index, selected, keepOpen, el: $item[0]
+            })
             if (edata.isCancelled === true) {
                 return
             }
@@ -6471,8 +6480,7 @@ class MenuTooltip extends Tooltip {
             }
         }
         if (!keepOpen) {
-            this.hide(overlay.name)
-            this.hide(overlay.name + '-submenu')
+            overlays.forEach(overlay => this.hide(overlay.name))
         }
         // if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
         //     overlay.anchor.focus()
@@ -20771,7 +20779,11 @@ class w2form extends w2base {
             case 'empty':
                 break
             default:
-                // regular text fields
+                // all other fields, text, int, float
+                if (value != null && el._w2field?.format) {
+                    let obj = el._w2field
+                    value = obj.format(obj.clean(value))
+                }
                 el.value = value ?? ''
                 break
         }
@@ -22472,7 +22484,7 @@ class w2field extends w2base {
                     },
                     decimalSymbol: w2utils.settings.decimalSymbol,
                     groupSymbol: w2utils.settings.groupSymbol,
-                    arrow: false,
+                    arrows: false,
                     keyboard: true,
                     precision: null,
                     prefix: '',
@@ -22485,7 +22497,7 @@ class w2field extends w2base {
                 options.percentRE = new RegExp('['+ options.groupSymbol + '%]', 'g')
                 // no keyboard support needed
                 if (['text', 'alphanumeric', 'hex', 'bin'].includes(this.type)) {
-                    options.arrow   = false
+                    options.arrows   = false
                     options.keyboard = false
                 }
                 break
@@ -22496,7 +22508,7 @@ class w2field extends w2base {
                     prefix      : '#',
                     suffix      : `<div style="width: ${size}px; height: ${size}px; margin-top: -2px;
                                     position: relative; top: 50%; transform: translateY(-50%);">&#160;</div>`,
-                    arrow       : false,
+                    arrows      : false,
                     advanced    : null, // open advanced by default
                     transparent : true
                 }
@@ -23770,7 +23782,7 @@ class w2field extends w2base {
         this.helpers.prefix = helper
     }
     addSuffix() {
-        if (!this.options.suffix && !this.options.arrow) {
+        if (!this.options.suffix && !this.options.arrows) {
             return
         }
         let helper
@@ -23780,9 +23792,9 @@ class w2field extends w2base {
             this.tmp['old-padding-right'] = styles['padding-right']
         }
         let pr = parseInt(styles['padding-right'] || 0)
-        if (this.options.arrow) {
+        if (this.options.arrows) {
             // remove if already displayed
-            if (this.helpers.arrow) query(this.helpers.arrow).remove()
+            if (this.helpers.arrows) query(this.helpers.arrows).remove()
             // add fresh
             query(this.el).after(
                 '<div class="w2ui-field-helper" style="border: 1px solid transparent">&#160;'+
@@ -23816,7 +23828,7 @@ class w2field extends w2base {
                 })
             pr += helper.clientWidth // width of the control
             query(this.el).css('padding-right', pr + 'px !important')
-            this.helpers.arrow = helper
+            this.helpers.arrows = helper
         }
         if (this.options.suffix !== '') {
             // remove if already displayed
