@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (4/7/2025, 12:21:14 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (4/30/2025, 10:01:11 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -917,7 +917,7 @@ button.w2ui-btn:disabled {
 }
 .w2ui-colors .w2ui-color-tabs .w2ui-color-tab .w2ui-icon {
   padding-top: 0;
-  margin-top: 3px;
+  margin-top: -2px;
   width: 30px;
   height: 21px;
 }
@@ -971,7 +971,7 @@ button.w2ui-btn:disabled {
 }
 .w2ui-colors .w2ui-tab-content.tab-1 .w2ui-color-row .w2ui-color.w2ui-color-picker .w2ui-icon {
   position: relative;
-  top: -2px;
+  top: -7px;
   left: -2px;
   margin: 0;
   padding: 0;
@@ -1122,7 +1122,7 @@ button.w2ui-btn:disabled {
 }
 .w2ui-colors .w2ui-tab-content.tab-2 .w2ui-color-picker .w2ui-icon {
   position: relative;
-  top: 2px;
+  top: -3px;
   left: 3px;
   font-size: 14px;
   height: 20px;
