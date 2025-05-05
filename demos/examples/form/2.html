@@ -34,7 +34,20 @@ let form = new w2form({
                 attr: 'style="width: 300px"'
             }
         },
-        { field: 'color',  type: 'color', required: true,
+        { field: 'department',  type: 'list', required: false,
+            html: {
+                label: 'Department',
+                attr: 'style="width: 180px"',
+            },
+            options: {
+                items: [
+                    { id: 'hr', text: 'Human Resources' },
+                    { id: 'it', text: 'Information Technologies' },
+                    { id: 'exec', text: 'Executive' },
+                ]
+            }
+        },
+        { field: 'color',  type: 'color', required: false,
             html: {
                 label: 'Favorite Color',
                 attr: 'style="width: 120px"'
@@ -53,7 +66,9 @@ let form = new w2form({
     record: {
         first_name: 'John',
         last_name: 'Doe',
-        color: 'E69138'
+        color: 'E69138',
+        department: 'it'
+        // department: { id: 'it', name: 'info tech' }
     },
     actions: {
         Reset(event) {

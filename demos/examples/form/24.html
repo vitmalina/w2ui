@@ -1,7 +1,7 @@
 <div class="content">
     <div id="example_title">
-        <h1>Apply Focus</h1>
-        You can define initial field to focus, or you can set focus later on.
+        <h1>Set Focus</h1>
+        You can specify which field on the form has focus when form is rendered, or you can set focus later on.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
@@ -24,7 +24,7 @@ let form = new w2form({
     name: 'form',
     header: 'Auto-Generated Form',
     url: 'server/post',
-    focus: 'last_name',
+    focus: 'last_name', // can be either field name or field index, use -1 if you want no auto focus
     fields: [
         { field: 'first_name', type: 'text', required: true,
             html: { label: 'First Name', attr: 'style="width: 200px"' }
