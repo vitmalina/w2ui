@@ -68,7 +68,8 @@ let form = new w2form({
             html: {
                 label: 'Animal Group',
                 attr: 'style="width: 180px"',
-                text: '<div><span style="font-size: 16px">←</span> Change to trigger dependent fields</div>'
+                style: '',
+                text: '<span style="margin-left: 10px; font-size: 12px">←</span> Change to trigger dependent fields'
             },
             options: {
                 // you can optionally define itemMap were you can provide mapping to id and text fields
@@ -106,7 +107,7 @@ let form = new w2form({
         { field: 'list2',  type: 'switch', required: false,
             html: {
                 label: 'Swtich',
-                attr: 'style="max-width: 550px"'
+                attr: 'style=""'
             },
             options: {
                 parentList: 'group',
