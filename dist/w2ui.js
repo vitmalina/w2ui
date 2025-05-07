@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (4/18/2025, 9:58:59 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (5/7/2025, 1:22:31 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -1030,6 +1030,7 @@ query.version = Query.version
  *  - w2utils.getStrHeight
  *  - w2utils.alrert() - same as w2utils.message()
  *  - w2utils.prompt() - similar to w2prompt
+ *  - w2utils.normMenu(..., options) got options parameter that can have itemMap
  */
 
 // variable that holds all w2ui objects
@@ -3119,12 +3120,25 @@ class Utils {
         }
         return 0
     }
-    normMenu(menu, el) {
+    /**
+     * Takes a menu (used in drop downs, context menu, field: list/combo/enum) and normalizes it to the common structure, which
+     * is { id: ..., text: ... }. In options you can pass { itemMap: { id: 'id_field', text: 'text_field' }} that will be used
+     * to find out id and text fields.
+     */
+    normMenu(menu, options) {
         if (Array.isArray(menu)) {
             menu.forEach((it, m) => {
                 if (typeof it === 'string' || typeof it === 'number') {
                     menu[m] = { id: it, text: String(it) }
                 } else if (it != null) {
+                    if (options.itemMap != null) {
+                        if (options.itemMap.id != null && it[options.itemMap.id] != null) {
+                            it.id = it[options.itemMap.id]
+                        }
+                        if (options.itemMap.text != null && it[options.itemMap.text] != null) {
+                            it.text = it[options.itemMap.text]
+                        }
+                    }
                     if (it.caption != null && it.text == null) it.text = it.caption
                     if (it.text != null && it.id == null) it.id = it.text
                     if (it.text == null && it.id != null) it.text = it.id
@@ -3135,7 +3149,7 @@ class Utils {
             return menu
         } else if (typeof menu === 'function') {
             let newMenu = menu.call(this, menu, el)
-            return w2utils.normMenu.call(this, newMenu)
+            return w2utils.normMenu.call(this, newMenu, options)
         } else if (typeof menu === 'object') {
             return Object.keys(menu).map(key => { return { id: key, text: menu[key] } })
         }
@@ -5558,7 +5572,7 @@ class MenuTooltip extends Tooltip {
         if (options.cacheMax <= 0) {
             console.log(`The option "cacheMax" is ${options.cacheMax} but should be more than 0`)
         }
-        options.items = w2utils.normMenu(options.items)
+        options.items = w2utils.normMenu(options.items, options)
         options.html = this.getMenuHTML(options)
         let ret = super.attach(options)
         let overlay = ret.overlay
@@ -6274,7 +6288,7 @@ class MenuTooltip extends Tooltip {
                         remote.emptySet = (search === '' && data.records.length === 0 ? true : false)
                         // event after
                         edata.finish()
-                        resolve(w2utils.normMenu(data.records))
+                        resolve(w2utils.normMenu(data.records, data))
                     })
                     .catch(error => {
                         let edata = this.trigger('error', { overlay, search, error })
@@ -14886,7 +14900,7 @@ class w2grid extends w2base {
         }
         // normalize items, if not yet normlized
         if (edit.items.length > 0 && !w2utils.isPlainObject(edit.items[0])) {
-            edit.items = w2utils.normMenu(edit.items)
+            edit.items = w2utils.normMenu(edit.items, edit)
         }
         let input
         let dropTypes = ['date', 'time', 'datetime', 'color', 'list', 'combo']
@@ -20264,6 +20278,7 @@ class w2grid extends w2base {
  *  - setValue(..., noRefresh)
  *  - rememberOriginal()
  *  - saveCleanRecord
+ *  - added options.itemMap = { id: 'id', text: 'text' }
  */
 
 class w2form extends w2base {
@@ -20676,8 +20691,17 @@ class w2form extends w2base {
                 let inputs = query(el).closest('div').find('input')
                 let items  = field.options.items
                 items.forEach((it, ind) => {
+                    let input = inputs.filter(`[data-index="${ind}"]`)
                     if (it.id === value) { // need exact match so to match empty string and 0
-                        inputs.filter(`[data-index="${ind}"]`).prop('checked', true)
+                        input.prop('checked', true)
+                    } else {
+                        input.prop('checked', false)
+                    }
+                    // show or hide the whole line
+                    if (it.hidden === true) {
+                        input.parent().hide().next().hide() // next.hide is because it has <br>
+                    } else {
+                        input.parent().show().next().show()
                     }
                 })
                 break
@@ -20695,17 +20719,40 @@ class w2form extends w2base {
                 let inputs = query(el).closest('div').find('input')
                 let items  = field.options.items
                 items.forEach((it, ind) => {
-                    inputs.filter(`[data-index="${ind}"]`).prop('checked', value.includes(it.id) ? true : false)
+                    let input = inputs.filter(`[data-index="${ind}"]`)
+                    input.prop('checked', value.includes(it.id) ? true : false)
+                    // show or hide the whole line
+                    if (it.hidden === true) {
+                        input.parent().hide().next().hide() // next.hide is because it has <br>
+                    } else {
+                        input.parent().show().next().show()
+                    }
                 })
                 break
             }
             case 'list':
             case 'combo':
                 let item = value
+                // if options.itemMap is present
+                if (field.options?.itemMap) {
+                    let map = field.options.itemMap
+                    if (map.id != null && item[map.id] != null) {
+                        item = { ...item, id: item[map.id] } // need a new object
+                    }
+                    if (map.text != null && item[map.text] != null) {
+                        item = { ...item, text: item[map.text] } // need a new object
+                    }
+                }
                 // find item in options.items, if any
                 if (item?.id == null && Array.isArray(field.options?.items)) {
                     field.options.items.forEach(it => {
                         if (it.id === value) item = it
+                    })
+                }
+                // if item.id is there, but item.text is not there, then look up item.text in options.items
+                if (item?.id != null && item?.text == null && Array.isArray(field.options?.items)) {
+                    field.options.items.forEach(it => {
+                        if (it.id === item.id) item.text = it.text
                     })
                 }
                 // if item is found in field.options, update it in the this.records
@@ -20787,6 +20834,38 @@ class w2form extends w2base {
                 el.value = value ?? ''
                 break
         }
+        // now go through all fields and see if there is a dependent field
+        this.fields.forEach(fld => {
+            if (fld?.options?.parentList != null) {
+                let updated
+                let parent = this.getValue(fld.options.parentList).id
+                fld.options?.items?.forEach?.(item => {
+                    if (item.parentId == null) {
+                        return
+                    }
+                    let possible = w2utils.clone(Array.isArray(item.parentId) ? item.parentId : [item.parentId])
+                    possible.unshift('')
+                    if (possible.includes(parent) && item.hidden === true) {
+                        item.hidden = false
+                        updated = true
+                    } else if (!possible.includes(parent) && item.hidden !== true) {
+                        item.hidden = true
+                        updated = true
+                    }
+                })
+                if (updated) {
+                    let value = this.getValue(fld.field)
+                    if (value?.id != null) value = value.id
+                    // if item is not visible, then clear its field
+                    fld.options.items.forEach(it => {
+                        if (it.id == value && it.hidden) {
+                            this.setValue(fld.field, null, true)
+                        }
+                    })
+                    this.set(fld.field, { items: fld.options.items })
+                }
+            }
+        })
     }
     show() {
         let effected = []
@@ -21456,7 +21535,7 @@ class w2form extends w2base {
                     // normalized options
                     if (!Array.isArray(items)) items = []
                     if (items.length > 0) {
-                        items = w2utils.normMenu.call(this, items, field)
+                        items = w2utils.normMenu.call(this, items, field.options)
                     }
                     // generate
                     for (let i = 0; i < items.length; i++) {
@@ -21477,7 +21556,7 @@ class w2form extends w2base {
                     let items = field.options.items
                     if (!Array.isArray(items)) items = []
                     if (items.length > 0) {
-                        items = w2utils.normMenu.call(this, items, field)
+                        items = w2utils.normMenu.call(this, items, field.options)
                     }
                     // generate
                     for (let i = 0; i < items.length; i++) {
@@ -21499,7 +21578,7 @@ class w2form extends w2base {
                     let items = field.options.items
                     if (!Array.isArray(items)) items = []
                     if (items.length > 0) {
-                        items = w2utils.normMenu.call(this, items, field)
+                        items = w2utils.normMenu.call(this, items, field.options)
                     }
                     // generate
                     for (let i = 0; i < items.length; i++) {
@@ -21583,7 +21662,7 @@ class w2form extends w2base {
                         '\n         '+ label +
                         ((field.type === 'empty' || field.type == 'switch')
                             ? input
-                            : '\n         <div>'+ input + (field.type != 'array' && field.type != 'map' ? w2utils.lang(field.type != 'checkbox' ? field.html.text : '') : '') + '</div>') +
+                            : `\n         <div ${field.html.attr}>`+ input + (field.type != 'array' && field.type != 'map' ? w2utils.lang(field.type != 'checkbox' ? field.html.text : '') : '') + '</div>') +
                         '\n      </div>'
             } else {
                 pages[field.html.page].anchors = pages[field.html.page].anchors || {}
@@ -21913,7 +21992,7 @@ class w2form extends w2base {
                             : item
                     })
                 } else {
-                    field.options.items = w2utils.normMenu.call(this, items ?? [], field)
+                    field.options.items = w2utils.normMenu.call(this, items ?? [], field.options)
                 }
             }
             // switch
@@ -22022,7 +22101,7 @@ class w2form extends w2base {
                         let html = `<input type="text" ${(field.html.value.attr ?? '') + attr} class="w2ui-input ${field.html.class ?? ''} w2ui-map value">`
                             + `${field.html.value.text || ''}`
                         if (typeof field.html.render == 'function') {
-                            html = field.html.render.call(self, { empty: !!empty, ind: cnt, field, div })
+                            html = field.html.render.call(self, { empty: empty === true, ind: cnt, field, div })
                             // make sure all inputs have names as it is important for array objects
                             if (!field.el._errorDisplayed) {
                                 query.html(html).filter('input').each(inp => {
@@ -22066,11 +22145,8 @@ class w2form extends w2base {
                             if (!Array.isArray(map)) map = []
                             keys = map.map((item, ind) => { return ind })
                         }
-                        // delete extra fields (including empty one)
-                        let all = div.find('.w2ui-map-field')
-                        for (let i = all.length-1; i >= keys.length; i--) {
-                            div.find(`div[data-index='${i}']`).remove()
-                        }
+                        // delete fields (including empty one)
+                        div.find('.w2ui-map-field').remove()
                         for (let ind = 0; ind < keys.length; ind++) {
                             let key = keys[ind]
                             let fld = div.find(`div[data-index='${ind}']`)
@@ -22579,6 +22655,7 @@ class w2field extends w2base {
                 defaults = {
                     items           : [],       // array of items, can be a function
                     selected        : {},       // selected item
+                    itemMap         : null,     // can be { id: 'id', text: 'text' } to specify field mapping for an item
                     match           : 'begins', // ['contains', 'is', 'begins', 'ends']
                     filter          : true,     // weather to filter at all
                     compare         : null,     // compare function for filtering
@@ -22618,7 +22695,7 @@ class w2field extends w2base {
                     options._items_fun = options.items
                 }
                 // need to be first
-                options.items = w2utils.normMenu.call(this, options.items)
+                options.items = w2utils.normMenu.call(this, options.items, options)
                 if (this.type === 'list') {
                     // defaults.search = (options.items && options.items.length >= 10 ? true : false);
                     query(this.el).addClass('w2ui-select')
@@ -22654,6 +22731,7 @@ class w2field extends w2base {
                 defaults = {
                     items           : [],    // id, text, tooltip, icon
                     selected        : [],
+                    itemMap         : null,     // can be { id: 'id', text: 'text' } to specify field mapping for an item
                     max             : 0,     // max number of selected items, 0 - unlimited
                     match           : 'begins', // ['contains', 'is', 'begins', 'ends']
                     filter          : true,  // if true, will apply filtering
@@ -22704,8 +22782,8 @@ class w2field extends w2base {
                 if (!valid.includes(options.match)) {
                     console.log(`ERROR: invalid value "${options.match}" for option.match. It should be one of following: ${valid.join(', ')}.`)
                 }
-                options.items    = w2utils.normMenu.call(this, options.items)
-                options.selected = w2utils.normMenu.call(this, options.selected)
+                options.items    = w2utils.normMenu.call(this, options.items, options)
+                options.selected = w2utils.normMenu.call(this, options.selected, options)
                 this.options     = options
                 if (!Array.isArray(options.selected)) options.selected = []
                 this.selected = options.selected
@@ -22854,7 +22932,7 @@ class w2field extends w2base {
             if (focus.val() === '') {
                 focus.css('opacity', 0)
                 icon.css('opacity', 0)
-                if (this.selected?.id) {
+                if (this.selected?.id != null) { // id could be "", then it is valid
                     let text = this.selected.text
                     let ind = this.findItemIndex(options.items, this.selected.id)
                     if (text != null) {
@@ -23304,7 +23382,7 @@ class w2field extends w2base {
             }
             // regenerate items
             if (typeof this.options._items_fun == 'function') {
-                this.options.items = w2utils.normMenu.call(this, this.options._items_fun)
+                this.options.items = w2utils.normMenu.call(this, this.options._items_fun, this.options)
             }
             if (this.helpers.search) {
                 let search = this.helpers.search_focus
