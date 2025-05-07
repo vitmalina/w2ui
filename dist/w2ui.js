@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (5/7/2025, 1:22:31 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (5/7/2025, 3:17:55 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -20609,7 +20609,7 @@ class w2form extends w2base {
         }
         // radio list
         if (['radio'].includes(field.type)) {
-            let selected = query(el).closest('div').find('input:checked').get(0)
+            let selected = query(el).closest('.w2ui-field-group').find('input:checked').get(0)
             if (selected) {
                 let item = field.options.items[query(selected).data('index')]
                 current = item.id
@@ -20624,7 +20624,7 @@ class w2form extends w2base {
         // check list
         if (['check', 'checks'].indexOf(field.type) !== -1) {
             current = []
-            let selected = query(el).closest('div').find('input:checked')
+            let selected = query(el).closest('.w2ui-field-group').find('input:checked')
             if (selected.length > 0) {
                 selected.each(el => {
                     let item = field.options.items[query(el).data('index')]
@@ -20688,7 +20688,7 @@ class w2form extends w2base {
             }
             case 'radio': {
                 value = value?.id ?? value
-                let inputs = query(el).closest('div').find('input')
+                let inputs = query(el).closest('.w2ui-field-group').find('input')
                 let items  = field.options.items
                 items.forEach((it, ind) => {
                     let input = inputs.filter(`[data-index="${ind}"]`)
@@ -20699,9 +20699,9 @@ class w2form extends w2base {
                     }
                     // show or hide the whole line
                     if (it.hidden === true) {
-                        input.parent().hide().next().hide() // next.hide is because it has <br>
+                        input.closest('.w2ui-field-item').hide()
                     } else {
-                        input.parent().show().next().show()
+                        input.closest('.w2ui-field-item').show()
                     }
                 })
                 break
@@ -20716,16 +20716,16 @@ class w2form extends w2base {
                     }
                 }
                 value = value.map(val => val?.id ?? val) // convert if array of objects
-                let inputs = query(el).closest('div').find('input')
+                let inputs = query(el).closest('div.w2ui-field-group').find('input')
                 let items  = field.options.items
                 items.forEach((it, ind) => {
                     let input = inputs.filter(`[data-index="${ind}"]`)
                     input.prop('checked', value.includes(it.id) ? true : false)
                     // show or hide the whole line
                     if (it.hidden === true) {
-                        input.parent().hide().next().hide() // next.hide is because it has <br>
+                        input.closest('.w2ui-field-item').hide()
                     } else {
-                        input.parent().show().next().show()
+                        input.closest('.w2ui-field-item').show()
                     }
                 })
                 break
@@ -21531,7 +21531,7 @@ class w2form extends w2base {
                 case 'checks': {
                     if (field.options.items == null && field.html.items != null) field.options.items = field.html.items
                     let items = field.options.items
-                    input = ''
+                    input = `<div class="w2ui-field-group" ${field.html.attr}>`
                     // normalized options
                     if (!Array.isArray(items)) items = []
                     if (items.length > 0) {
@@ -21540,17 +21540,19 @@ class w2form extends w2base {
                     // generate
                     for (let i = 0; i < items.length; i++) {
                         input += `
-                            <label class="w2ui-box-label">
-                                <input id="${field.field + i}" name="${field.field}" class="w2ui-input ${field.html.class ?? ''}" type="checkbox"
-                                    ${field.html.attr + tabindex_str} data-value="${items[i].id}" data-index="${i}">
-                                <span>&#160;${items[i].text}</span>
-                            </label>
-                            <br>`
+                            <div class="w2ui-field-item">
+                                <label class="w2ui-box-label">
+                                    <input id="${field.field + i}" name="${field.field}" class="w2ui-input ${field.html.class ?? ''}" type="checkbox"
+                                        ${tabindex_str} data-value="${items[i].id}" data-index="${i}">
+                                    <span>&#160;${items[i].text}</span>
+                                </label>
+                            </div>`
                     }
+                    input += '</div>'
                     break
                 }
                 case 'radio': {
-                    input = ''
+                    input = `<div class="w2ui-field-group"${field.html.attr}>`
                     // normalized options
                     if (field.options.items == null && field.html.items != null) field.options.items = field.html.items
                     let items = field.options.items
@@ -21561,14 +21563,16 @@ class w2form extends w2base {
                     // generate
                     for (let i = 0; i < items.length; i++) {
                         input += `
-                            <label class="w2ui-box-label">
-                                <input id="${field.field + i}" name="${field.field}" class="w2ui-input ${field.html.class ?? ''}" type="radio"
-                                    ${field.html.attr + (i === 0 ? tabindex_str : '')}
-                                    data-value="${items[i].id}" data-index="${i}">
-                                <span>&#160;${items[i].text}</span>
-                            </label>
-                            <br>`
+                            <div class="w2ui-field-item">
+                                <label class="w2ui-box-label">
+                                    <input id="${field.field + i}" name="${field.field}" class="w2ui-input ${field.html.class ?? ''}" type="radio"
+                                        ${(i === 0 ? tabindex_str : '')}
+                                        data-value="${items[i].id}" data-index="${i}">
+                                    <span>&#160;${items[i].text}</span>
+                                </label>
+                            </div>`
                     }
+                    input += '</div>'
                     break
                 }
                 case 'select': {
@@ -21655,31 +21659,38 @@ class w2form extends w2base {
             if (field.html.anchor == null) {
                 let span = (field.html.span != null ? 'w2ui-span'+ field.html.span : '')
                 if (field.html.span == -1) span = 'w2ui-span-none'
-                let label = `<label ${span == 'none' ? ' style="display: none"' : ''}>`
-                    + w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text) +'</label>'
+                let label = `
+                    <label ${span == 'none' ? ' style="display: none"' : ''}>
+                        ${w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text)}
+                    </label>`
                 if (!field.html.label) label = ''
-                html += '\n      <div class="w2ui-field '+ span +'" style="'+ (field.hidden ? 'display: none;' : '') + field.html.style +'">'+
-                        '\n         '+ label +
-                        ((field.type === 'empty' || field.type == 'switch')
+                let text = (field.type != 'array' && field.type != 'map' ? w2utils.lang(field.type != 'checkbox' ? field.html.text : '') : '')
+                html += `
+                    <div class="w2ui-field ${span}" style="${(field.hidden ? 'display: none;' : '') + field.html.style}">
+                        ${label}
+                        ${['empty', 'switch', 'radio', 'check', 'checks'].includes(field.type)
                             ? input
-                            : `\n         <div ${field.html.attr}>`+ input + (field.type != 'array' && field.type != 'map' ? w2utils.lang(field.type != 'checkbox' ? field.html.text : '') : '') + '</div>') +
-                        '\n      </div>'
+                            : `<div>${input + text}</div>`
+                        }
+                    </div>`
             } else {
                 pages[field.html.page].anchors = pages[field.html.page].anchors || {}
                 pages[field.html.page].anchors[field.html.anchor] =
                     '<div class="w2ui-field w2ui-field-inline" style="'+ (field.hidden ? 'display: none;' : '') + field.html.style +'">'+
                         ((field.type === 'empty' || field.type == 'switch')
                             ? input
-                            : '<div>'+ w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text, true)
-                                + input + w2utils.lang(field.type != 'checkbox' ? field.html.text : '')
-                                + '</div>') +
+                            : ` <div>
+                                    ${w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text, true)}
+                                    ${input} ${w2utils.lang(field.type != 'checkbox' ? field.html.text : '')}
+                                </div>`
+                        ) +
                     '</div>'
             }
             if (pages[field.html.page] == null) pages[field.html.page] = {}
             if (pages[field.html.page][field.html.column] == null) pages[field.html.page][field.html.column] = ''
             pages[field.html.page][field.html.column] += html
-            page                                       = field.html.page
-            column                                     = field.html.column
+            page   = field.html.page
+            column = field.html.column
         }
         if (group !== '') pages[page][column] += '\n   </div>\n  </div>'
         if (this.tabs.tabs) {
