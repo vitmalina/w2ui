@@ -492,7 +492,7 @@ class w2field extends w2base {
             if (focus.val() === '') {
                 focus.css('opacity', 0)
                 icon.css('opacity', 0)
-                if (this.selected?.id) {
+                if (this.selected?.id != null) { // id could be "", then it is valid
                     let text = this.selected.text
                     let ind = this.findItemIndex(options.items, this.selected.id)
                     if (text != null) {

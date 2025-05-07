@@ -1,0 +1,169 @@
+<div class="content">
+    <div id="example_title" style="max-width: 900px">
+        <h1>Linked Lists</h1>
+        If a list is dependent on another list, now you can defined the parentList and parentId and it will automatically filter dependent
+        list to only have items with the same parent id
+    </div>
+    <div id="example_view">
+        See <a href="http://w2ui.com/web/docs/w2form.fields" target="_blank">options</a> for more information
+    </div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="form" style="width: 750px;"></div>
+
+<!--CODE-->
+<script type="module">
+import { w2form, query, w2ui, w2popup, w2alert, w2utils } from '__W2UI_PATH__'
+
+let samples = [
+    { id: "elephant", text: "Elephant", parentId: "mammals" },
+    { id: "dog", text: "Dog", parentId: "mammals" },
+    { id: "human", text: "Human", parentId: "mammals" },
+
+    { id: "eagle", text: "Eagle", parentId: "birds" },
+    { id: "parrot", text: "Parrot", parentId: "birds" },
+    { id: "penguin", text: "Penguin", parentId: "birds" },
+
+    { id: "snake", text: "Snake", parentId: "reptiles" },
+    { id: "lizard", text: "Lizard", parentId: ["weird", "reptiles"] },
+    { id: "crocodile", text: "Crocodile", parentId: "reptiles" },
+
+    { id: "frog", text: "Frog", parentId: "amphibians" },
+    { id: "salamander", text: "Salamander", parentId: "amphibians" },
+    { id: "newt", text: "Newt", parentId: ["weird", "amphibians"] },
+
+    { id: "salmon", text: "Salmon", parentId: "fish" },
+    { id: "shark", text: "Shark", parentId: "fish" },
+    { id: "clownfish", text: "Clownfish", parentId: ["weird", "fish"] },
+
+    { id: "ant", text: "Ant", parentId: "insects" },
+    { id: "butterfly", text: "Butterfly", parentId: "insects" },
+    { id: "beetle", text: "Beetle", parentId: "insects" },
+
+    { id: "spider", text: "Spider", parentId: "arachnids" },
+    { id: "scorpion", text: "Scorpion", parentId: "arachnids" },
+    { id: "tick", text: "Tick", parentId: "arachnids" },
+
+    { id: "crab", text: "Crab", parentId: "crustaceans" },
+    { id: "lobster", text: "Lobster", parentId: "crustaceans" },
+    { id: "shrimp", text: "Shrimp", parentId: "crustaceans" },
+
+    { id: "snail", text: "Snail", parentId: "mollusks" },
+    { id: "octopus", text: "Octopus", parentId: "mollusks" },
+    { id: "clam", text: "Clam", parentId: "mollusks" },
+
+    { id: "starfish", text: "Starfish", parentId: "echinoderms" },
+    { id: "sea_urchin", text: "Sea Urchin", parentId: ["weird", "echinoderms"] },
+    { id: "sea_cucumber", text: "Sea Cucumber", parentId: ["weird", "echinoderms"] }
+]
+let form = new w2form({
+    box: '#form',
+    name: 'form',
+    header: 'Linked Lists',
+    url: 'server/post',
+    fields: [
+    { field: 'group',  type: 'list', required: false,
+            html: {
+                label: 'Animal Group',
+                attr: 'style="width: 180px"',
+                text: '<div><span style="font-size: 16px">←</span> Change to trigger dependent fields</div>'
+            },
+            options: {
+                // you can optionally define itemMap were you can provide mapping to id and text fields
+                itemMap: {
+                    id: 'group',
+                    text: 'name'
+                },
+                items: [
+                    { group: '', name: 'Show All' },
+                    { group: "weird", name: 'Weird Ones' },
+                    { text: "--" }, // just a separator
+                    { group: "mammals", name: "Mammals" },
+                    { group: "birds", name: "Birds" },
+                    { group: "reptiles", name: "Reptiles" },
+                    { group: "amphibians", name: "Amphibians" },
+                    { group: "fish", name: "Fish" },
+                    { group: "insects", name: "Insects" },
+                    { group: "arachnids", name: "Arachnids" },
+                    { group: "crustaceans", name: "Crustaceans" },
+                    { group: "mollusks", name: "Mollusks" },
+                    { group: "echinoderms", name: "Echinoderms" },
+                ]
+            }
+        },
+        { field: 'list1',  type: 'list', required: false,
+            html: {
+                label: 'Dropdown List',
+                attr: 'style="width: 180px"',
+            },
+            options: {
+                parentList: 'group',
+                items: w2utils.clone(samples)
+            }
+        },
+        { field: 'list2',  type: 'switch', required: false,
+            html: {
+                label: 'Swtich',
+                attr: 'style="max-width: 550px"'
+            },
+            options: {
+                parentList: 'group',
+                items: w2utils.clone(samples)
+            }
+        },
+        { field: 'list3',  type: 'radio', required: false,
+            html: {
+                label: 'Radio List',
+                attr: 'style="max-width: 200px; max-height: 200px; overflow: auto"'
+            },
+            options: {
+                parentList: 'group',
+                items: w2utils.clone(samples)
+            }
+        },
+        { field: 'list4',  type: 'checks', required: false,
+            html: {
+                label: 'Check List',
+                attr: 'style="max-width: 200px; max-height: 200px; overflow: auto"'
+            },
+            options: {
+                parentList: 'group',
+                items: w2utils.clone(samples)
+            }
+        },
+    ],
+    record: {
+        group: { group: 'fish' },
+        list1: 'salmon',
+        list2: 'shark',
+        list3: 'shark',
+        list4: 'shark',
+    },
+    actions: {
+        Reset(event) {
+            this.clear();
+        },
+        Save(event) {
+            if (w2ui.form.validate().length == 0) {
+                w2popup.open({
+                    title: 'Form Data',
+                    with: 600,
+                    height: 550,
+                    body: `<pre>${JSON.stringify(this.getCleanRecord(), null, 4)}</pre>`,
+                    actions: { Ok: w2popup.close }
+                })
+            }
+        },
+        custom: {
+            text: '<span style="font-size: 16px">←</span> click to see data',
+            class: 'custom-class',
+            style: 'background-image: none; background-color: transparent; border: 0px; margin: 0 0 0 -10px;',
+            onClick() {
+                w2alert('Not me!! The other button')
+            }
+        }
+    }
+});
+</script>

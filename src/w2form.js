@@ -29,6 +29,7 @@
  *  - setValue(..., noRefresh)
  *  - rememberOriginal()
  *  - saveCleanRecord
+ *  - added options.itemMap = { id: 'id', text: 'text' }
  */
 
 import { w2base } from './w2base.js'
@@ -463,8 +464,17 @@ class w2form extends w2base {
                 let inputs = query(el).closest('div').find('input')
                 let items  = field.options.items
                 items.forEach((it, ind) => {
+                    let input = inputs.filter(`[data-index="${ind}"]`)
                     if (it.id === value) { // need exact match so to match empty string and 0
-                        inputs.filter(`[data-index="${ind}"]`).prop('checked', true)
+                        input.prop('checked', true)
+                    } else {
+                        input.prop('checked', false)
+                    }
+                    // show or hide the whole line
+                    if (it.hidden === true) {
+                        input.parent().hide().next().hide() // next.hide is because it has <br>
+                    } else {
+                        input.parent().show().next().show()
                     }
                 })
                 break
@@ -482,13 +492,30 @@ class w2form extends w2base {
                 let inputs = query(el).closest('div').find('input')
                 let items  = field.options.items
                 items.forEach((it, ind) => {
-                    inputs.filter(`[data-index="${ind}"]`).prop('checked', value.includes(it.id) ? true : false)
+                    let input = inputs.filter(`[data-index="${ind}"]`)
+                    input.prop('checked', value.includes(it.id) ? true : false)
+                    // show or hide the whole line
+                    if (it.hidden === true) {
+                        input.parent().hide().next().hide() // next.hide is because it has <br>
+                    } else {
+                        input.parent().show().next().show()
+                    }
                 })
                 break
             }
             case 'list':
             case 'combo':
                 let item = value
+                // if options.itemMap is present
+                if (field.options?.itemMap) {
+                    let map = field.options.itemMap
+                    if (map.id != null && item[map.id] != null) {
+                        item = { ...item, id: item[map.id] } // need a new object
+                    }
+                    if (map.text != null && item[map.text] != null) {
+                        item = { ...item, text: item[map.text] } // need a new object
+                    }
+                }
                 // find item in options.items, if any
                 if (item?.id == null && Array.isArray(field.options?.items)) {
                     field.options.items.forEach(it => {
@@ -500,18 +527,6 @@ class w2form extends w2base {
                     field.options.items.forEach(it => {
                         if (it.id === item.id) item.text = it.text
                     })
-                }
-                // if options.itemMap is present
-                if (field.options?.itemMap) {
-                    let map = field.options.itemMap
-                    if (map.id != null && item[map.id] != null) {
-                        item.id = item[map.id]
-                        value = null
-                    }
-                    if (map.text != null && item[map.text] != null) {
-                        item.text = item[map.text]
-                        value = null
-                    }
                 }
                 // if item is found in field.options, update it in the this.records
                 if (item != value) {
@@ -592,6 +607,38 @@ class w2form extends w2base {
                 el.value = value ?? ''
                 break
         }
+        // now go through all fields and see if there is a dependent field
+        this.fields.forEach(fld => {
+            if (fld?.options?.parentList != null) {
+                let updated
+                let parent = this.getValue(fld.options.parentList).id
+                fld.options?.items?.forEach?.(item => {
+                    if (item.parentId == null) {
+                        return
+                    }
+                    let possible = w2utils.clone(Array.isArray(item.parentId) ? item.parentId : [item.parentId])
+                    possible.unshift('')
+                    if (possible.includes(parent) && item.hidden === true) {
+                        item.hidden = false
+                        updated = true
+                    } else if (!possible.includes(parent) && item.hidden !== true) {
+                        item.hidden = true
+                        updated = true
+                    }
+                })
+                if (updated) {
+                    let value = this.getValue(fld.field)
+                    if (value?.id != null) value = value.id
+                    // if item is not visible, then clear its field
+                    fld.options.items.forEach(it => {
+                        if (it.id == value && it.hidden) {
+                            this.setValue(fld.field, null, true)
+                        }
+                    })
+                    this.set(fld.field, { items: fld.options.items })
+                }
+            }
+        })
     }
 
     show() {
@@ -1417,7 +1464,7 @@ class w2form extends w2base {
                         '\n         '+ label +
                         ((field.type === 'empty' || field.type == 'switch')
                             ? input
-                            : '\n         <div>'+ input + (field.type != 'array' && field.type != 'map' ? w2utils.lang(field.type != 'checkbox' ? field.html.text : '') : '') + '</div>') +
+                            : `\n         <div ${field.html.attr}>`+ input + (field.type != 'array' && field.type != 'map' ? w2utils.lang(field.type != 'checkbox' ? field.html.text : '') : '') + '</div>') +
                         '\n      </div>'
             } else {
                 pages[field.html.page].anchors = pages[field.html.page].anchors || {}
