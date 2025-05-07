@@ -501,6 +501,18 @@ class w2form extends w2base {
                         if (it.id === item.id) item.text = it.text
                     })
                 }
+                // if options.itemMap is present
+                if (field.options?.itemMap) {
+                    let map = field.options.itemMap
+                    if (map.id != null && item[map.id] != null) {
+                        item.id = item[map.id]
+                        value = null
+                    }
+                    if (map.text != null && item[map.text] != null) {
+                        item.text = item[map.text]
+                        value = null
+                    }
+                }
                 // if item is found in field.options, update it in the this.records
                 if (item != value) {
                     this.setValue(field.name, item, true)
@@ -1277,7 +1289,7 @@ class w2form extends w2base {
                     // normalized options
                     if (!Array.isArray(items)) items = []
                     if (items.length > 0) {
-                        items = w2utils.normMenu.call(this, items, field)
+                        items = w2utils.normMenu.call(this, items, field.options)
                     }
                     // generate
                     for (let i = 0; i < items.length; i++) {
@@ -1298,7 +1310,7 @@ class w2form extends w2base {
                     let items = field.options.items
                     if (!Array.isArray(items)) items = []
                     if (items.length > 0) {
-                        items = w2utils.normMenu.call(this, items, field)
+                        items = w2utils.normMenu.call(this, items, field.options)
                     }
                     // generate
                     for (let i = 0; i < items.length; i++) {
@@ -1320,7 +1332,7 @@ class w2form extends w2base {
                     let items = field.options.items
                     if (!Array.isArray(items)) items = []
                     if (items.length > 0) {
-                        items = w2utils.normMenu.call(this, items, field)
+                        items = w2utils.normMenu.call(this, items, field.options)
                     }
                     // generate
                     for (let i = 0; i < items.length; i++) {
@@ -1741,7 +1753,7 @@ class w2form extends w2base {
                             : item
                     })
                 } else {
-                    field.options.items = w2utils.normMenu.call(this, items ?? [], field)
+                    field.options.items = w2utils.normMenu.call(this, items ?? [], field.options)
                 }
             }
             // switch

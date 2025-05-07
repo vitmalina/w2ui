@@ -211,6 +211,7 @@ class w2field extends w2base {
                 defaults = {
                     items           : [],       // array of items, can be a function
                     selected        : {},       // selected item
+                    itemMap         : null,     // can be { id: 'id', text: 'text' } to specify field mapping for an item
                     match           : 'begins', // ['contains', 'is', 'begins', 'ends']
                     filter          : true,     // weather to filter at all
                     compare         : null,     // compare function for filtering
@@ -250,7 +251,7 @@ class w2field extends w2base {
                     options._items_fun = options.items
                 }
                 // need to be first
-                options.items = w2utils.normMenu.call(this, options.items)
+                options.items = w2utils.normMenu.call(this, options.items, options)
                 if (this.type === 'list') {
                     // defaults.search = (options.items && options.items.length >= 10 ? true : false);
                     query(this.el).addClass('w2ui-select')
@@ -286,6 +287,7 @@ class w2field extends w2base {
                 defaults = {
                     items           : [],    // id, text, tooltip, icon
                     selected        : [],
+                    itemMap         : null,     // can be { id: 'id', text: 'text' } to specify field mapping for an item
                     max             : 0,     // max number of selected items, 0 - unlimited
                     match           : 'begins', // ['contains', 'is', 'begins', 'ends']
                     filter          : true,  // if true, will apply filtering
@@ -336,8 +338,8 @@ class w2field extends w2base {
                 if (!valid.includes(options.match)) {
                     console.log(`ERROR: invalid value "${options.match}" for option.match. It should be one of following: ${valid.join(', ')}.`)
                 }
-                options.items    = w2utils.normMenu.call(this, options.items)
-                options.selected = w2utils.normMenu.call(this, options.selected)
+                options.items    = w2utils.normMenu.call(this, options.items, options)
+                options.selected = w2utils.normMenu.call(this, options.selected, options)
                 this.options     = options
                 if (!Array.isArray(options.selected)) options.selected = []
                 this.selected = options.selected
@@ -953,7 +955,7 @@ class w2field extends w2base {
             }
             // regenerate items
             if (typeof this.options._items_fun == 'function') {
-                this.options.items = w2utils.normMenu.call(this, this.options._items_fun)
+                this.options.items = w2utils.normMenu.call(this, this.options._items_fun, this.options)
             }
             if (this.helpers.search) {
                 let search = this.helpers.search_focus

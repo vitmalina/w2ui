@@ -22,6 +22,7 @@
  *  - w2utils.getStrHeight
  *  - w2utils.alrert() - same as w2utils.message()
  *  - w2utils.prompt() - similar to w2prompt
+ *  - w2utils.normMenu(..., options) got options parameter that can have itemMap
  */
 
 import { w2base } from './w2base.js'
@@ -2236,12 +2237,25 @@ class Utils {
         return 0
     }
 
-    normMenu(menu, el) {
+    /**
+     * Takes a menu (used in drop downs, context menu, field: list/combo/enum) and normalizes it to the common structure, which
+     * is { id: ..., text: ... }. In options you can pass { itemMap: { id: 'id_field', text: 'text_field' }} that will be used
+     * to find out id and text fields.
+     */
+    normMenu(menu, options) {
         if (Array.isArray(menu)) {
             menu.forEach((it, m) => {
                 if (typeof it === 'string' || typeof it === 'number') {
                     menu[m] = { id: it, text: String(it) }
                 } else if (it != null) {
+                    if (options.itemMap != null) {
+                        if (options.itemMap.id != null && it[options.itemMap.id] != null) {
+                            it.id = it[options.itemMap.id]
+                        }
+                        if (options.itemMap.text != null && it[options.itemMap.text] != null) {
+                            it.text = it[options.itemMap.text]
+                        }
+                    }
                     if (it.caption != null && it.text == null) it.text = it.caption
                     if (it.text != null && it.id == null) it.id = it.text
                     if (it.text == null && it.id != null) it.text = it.id
@@ -2252,7 +2266,7 @@ class Utils {
             return menu
         } else if (typeof menu === 'function') {
             let newMenu = menu.call(this, menu, el)
-            return w2utils.normMenu.call(this, newMenu)
+            return w2utils.normMenu.call(this, newMenu, options)
         } else if (typeof menu === 'object') {
             return Object.keys(menu).map(key => { return { id: key, text: menu[key] } })
         }

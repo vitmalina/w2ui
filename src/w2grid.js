@@ -3302,7 +3302,7 @@ class w2grid extends w2base {
         }
         // normalize items, if not yet normlized
         if (edit.items.length > 0 && !w2utils.isPlainObject(edit.items[0])) {
-            edit.items = w2utils.normMenu(edit.items)
+            edit.items = w2utils.normMenu(edit.items, edit)
         }
         let input
         let dropTypes = ['date', 'time', 'datetime', 'color', 'list', 'combo']

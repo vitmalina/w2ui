@@ -1482,7 +1482,7 @@ class MenuTooltip extends Tooltip {
         if (options.cacheMax <= 0) {
             console.log(`The option "cacheMax" is ${options.cacheMax} but should be more than 0`)
         }
-        options.items = w2utils.normMenu(options.items)
+        options.items = w2utils.normMenu(options.items, options)
         options.html = this.getMenuHTML(options)
         let ret = super.attach(options)
         let overlay = ret.overlay
@@ -2209,7 +2209,7 @@ class MenuTooltip extends Tooltip {
                         remote.emptySet = (search === '' && data.records.length === 0 ? true : false)
                         // event after
                         edata.finish()
-                        resolve(w2utils.normMenu(data.records))
+                        resolve(w2utils.normMenu(data.records, data))
                     })
                     .catch(error => {
                         let edata = this.trigger('error', { overlay, search, error })
