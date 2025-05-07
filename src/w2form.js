@@ -495,6 +495,12 @@ class w2form extends w2base {
                         if (it.id === value) item = it
                     })
                 }
+                // if item.id is there, but item.text is not there, then look up item.text in options.items
+                if (item?.id != null && item?.text == null && Array.isArray(field.options?.items)) {
+                    field.options.items.forEach(it => {
+                        if (it.id === item.id) item.text = it.text
+                    })
+                }
                 // if item is found in field.options, update it in the this.records
                 if (item != value) {
                     this.setValue(field.name, item, true)
