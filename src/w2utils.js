@@ -2265,7 +2265,7 @@ class Utils {
             })
             return menu
         } else if (typeof menu === 'function') {
-            let newMenu = menu.call(this, menu, el)
+            let newMenu = menu.call(this, menu, options)
             return w2utils.normMenu.call(this, newMenu, options)
         } else if (typeof menu === 'object') {
             return Object.keys(menu).map(key => { return { id: key, text: menu[key] } })

@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (5/8/2025, 6:37:15 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (5/8/2025, 6:42:39 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -3148,7 +3148,7 @@ class Utils {
             })
             return menu
         } else if (typeof menu === 'function') {
-            let newMenu = menu.call(this, menu, el)
+            let newMenu = menu.call(this, menu, options)
             return w2utils.normMenu.call(this, newMenu, options)
         } else if (typeof menu === 'object') {
             return Object.keys(menu).map(key => { return { id: key, text: menu[key] } })
