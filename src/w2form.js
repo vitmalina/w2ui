@@ -29,7 +29,7 @@
  *  - setValue(..., noRefresh)
  *  - rememberOriginal()
  *  - saveCleanRecord
- *  - added options.itemMap = { id: 'id', text: 'text' }
+ *  - added options.itemMap = { id: 'id', text: 'text' } - to map id, text fields if needed
  */
 
 import { w2base } from './w2base.js'
@@ -506,26 +506,25 @@ class w2form extends w2base {
             case 'list':
             case 'combo':
                 let item = value
-                // if options.itemMap is present
-                if (field.options?.itemMap) {
-                    let map = field.options.itemMap
-                    if (map.id != null && item?.[map.id] != null) {
-                        item = { ...item, id: item[map.id] } // need a new object
-                    }
-                    if (map.text != null && item?.[map.text] != null) {
-                        item = { ...item, text: item[map.text] } // need a new object
-                    }
-                }
-                // find item in options.items, if any
+                let map = field.options?.itemMap
+                /**
+                 * if it is a "simple" value, then find item in options.items
+                 */
                 if (item?.id == null && Array.isArray(field.options?.items)) {
                     field.options.items.forEach(it => {
-                        if (it.id === value) item = it
+                        let val = w2utils.getNested(it, map?.id ?? 'id')
+                        if (val === value) item = it
                     })
                 }
-                // if item.id is there, but item.text is not there, then look up item.text in options.items
+                /**
+                 * If item.id is there, but item.text is not there, then look up item.text in options.items
+                 */
                 if (item?.id != null && item?.text == null && Array.isArray(field.options?.items)) {
                     field.options.items.forEach(it => {
-                        if (it.id === item.id) item.text = it.text
+                        let id = w2utils.getNested(it, map?.id ?? 'id')
+                        if (id === item.id) {
+                            item.text = w2utils.getNested(it, map.text ?? 'text')
+                        }
                     })
                 }
                 // if item is found in field.options, update it in the this.records
@@ -611,17 +610,18 @@ class w2form extends w2base {
         this.fields.forEach(fld => {
             if (fld?.options?.parentList != null) {
                 let updated
-                let parent = this.getValue(fld.options.parentList).id
+                let parent_id = this.getValue(fld.options.parentList).id
                 fld.options?.items?.forEach?.(item => {
-                    if (item.parentId == null) {
+                    let parent = w2utils.getNested(item, fld.options.parentField ?? 'parentId')
+                    if (parent == null) {
                         return
                     }
-                    let possible = w2utils.clone(Array.isArray(item.parentId) ? item.parentId : [item.parentId])
+                    let possible = w2utils.clone(Array.isArray(parent) ? parent : [parent])
                     possible.unshift('')
-                    if (possible.includes(parent) && item.hidden === true) {
+                    if (possible.includes(parent_id) && item.hidden === true) {
                         item.hidden = false
                         updated = true
-                    } else if (!possible.includes(parent) && item.hidden !== true) {
+                    } else if (!possible.includes(parent_id) && item.hidden !== true) {
                         item.hidden = true
                         updated = true
                     }
@@ -1819,7 +1819,7 @@ class w2form extends w2base {
                 if (field.toolbar) {
                     w2ui[this.name + '_' + field.name + '_tb'].destroy()
                 }
-                let items = field.options.items
+                let items = w2utils.normMenu.call(this, field.options.items, field.options)
                 items.forEach(item => item.type ??= 'radio')
                 field.toolbar = new w2toolbar({
                     box: field.$el.prev().get(0),

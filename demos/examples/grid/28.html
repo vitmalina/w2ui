@@ -21,10 +21,10 @@ let grid = new w2grid({
     box: '#grid',
     columns: [
         { field: 'recid', text: 'ID', size: '70px', info: true },
-        { field: 'fname', text: 'First Name', size: '100px', info: {} },
-        { field: 'lname', text: 'Last Name', size: '100px',
+        { field: 'name.fname', text: 'First Name', size: '100px', info: {} },
+        { field: 'name.lname', text: 'Last Name', size: '100px',
             info: {
-                render: (rec, ind, col_ind) => { return '<i>' + rec.fname + '</i> <b>' + rec.lname + '</b>' }
+                render: (rec, ind, col_ind) => { return '<i>' + rec.name.fname + '</i> <b>' + rec.name.lname + '</b>' }
             }
         },
         { field: 'email', text: 'Email', size: '100%', info: { maxLength: 10, showEmpty: true } },
@@ -40,7 +40,7 @@ let grid = new w2grid({
         { field: 'sdate', text: 'Start Date', size: '100px',
             info: {
                 fields: {
-                    'Person': (rec, ind, col_ind) => { return rec.fname + ' ' + rec.lname },
+                    'Person': (rec, ind, col_ind) => { return rec.name.fname + ' ' + rec.name.lname },
                     'Spacer': '---',
                     'Email' : 'email',
                     'Date'  : 'sdate',
@@ -57,14 +57,14 @@ let grid = new w2grid({
         },
     ],
     records: [
-        { "recid": 1, "number": 123,  "fname": "John", "lname": "Doe", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
-        { "recid": 2, "number": 0,    "fname": "Stuart", "lname": "Motzart", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
-        { "recid": 3, "number": null, "fname": "Jin", "lname": "Franson", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
-        { "recid": 4, "number": 124,  "fname": "Susan", "lname": "Ottie", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
-        { "recid": 5, "number": 125,  "fname": "Kelly", "lname": "Silver", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
-        { "recid": 6, "number": 126,  "fname": "Francis", "lname": "Gatos", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
-        { "recid": 7, "number": 127,  "fname": "Mark", "lname": "Welldo", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
-        { "recid": 8, "number": 128,  "fname": "Thomas", "lname": "Bahh", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
+        { "recid": 1, "number": 123, name: { "fname": "John", "lname": "Doe" }, "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
+        { "recid": 2, "number": 0,   name: { "fname": "Stuart", "lname": "Motzart" }, "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
+        { "recid": 3, "number": null,name: { "fname": "Jin", "lname": "Franson" }, "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
+        { "recid": 4, "number": 124, name: { "fname": "Susan", "lname": "Ottie" }, "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
+        { "recid": 5, "number": 125, name: { "fname": "Kelly", "lname": "Silver" }, "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
+        { "recid": 6, "number": 126, name: { "fname": "Francis", "lname": "Gatos" }, "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
+        { "recid": 7, "number": 127, name: { "fname": "Mark", "lname": "Welldo" }, "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
+        { "recid": 8, "number": 128, name: { "fname": "Thomas", "lname": "Bahh" }, "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
     ],
     summary: [
         { "recid": 9, "number": 1,  "fname": "2", "lname": "3", "email": "4", "sdate": "5" },

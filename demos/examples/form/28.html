@@ -18,45 +18,45 @@
 import { w2form, query, w2ui, w2popup, w2alert, w2utils } from '__W2UI_PATH__'
 
 let samples = [
-    { id: "elephant", text: "Elephant", parentId: "mammals" },
-    { id: "dog", text: "Dog", parentId: "mammals" },
-    { id: "human", text: "Human", parentId: "mammals" },
+    { id: "elephant", text: "Elephant", parent: "mammals" },
+    { id: "dog", text: "Dog", parent: "mammals" },
+    { id: "human", text: "Human", parent: "mammals" },
 
-    { id: "eagle", text: "Eagle", parentId: "birds" },
-    { id: "parrot", text: "Parrot", parentId: "birds" },
-    { id: "penguin", text: "Penguin", parentId: "birds" },
+    { id: "eagle", text: "Eagle", parent: "birds" },
+    { id: "parrot", text: "Parrot", parent: "birds" },
+    { id: "penguin", text: "Penguin", parent: "birds" },
 
-    { id: "snake", text: "Snake", parentId: "reptiles" },
-    { id: "lizard", text: "Lizard", parentId: ["weird", "reptiles"] },
-    { id: "crocodile", text: "Crocodile", parentId: "reptiles" },
+    { id: "snake", text: "Snake", parent: "reptiles" },
+    { id: "lizard", text: "Lizard", parent: ["weird", "reptiles"] },
+    { id: "crocodile", text: "Crocodile", parent: "reptiles" },
 
-    { id: "frog", text: "Frog", parentId: "amphibians" },
-    { id: "salamander", text: "Salamander", parentId: "amphibians" },
-    { id: "newt", text: "Newt", parentId: ["weird", "amphibians"] },
+    { id: "frog", text: "Frog", parent: "amphibians" },
+    { id: "salamander", text: "Salamander", parent: "amphibians" },
+    { id: "newt", text: "Newt", parent: ["weird", "amphibians"] },
 
-    { id: "salmon", text: "Salmon", parentId: "fish" },
-    { id: "shark", text: "Shark", parentId: "fish" },
-    { id: "clownfish", text: "Clownfish", parentId: ["weird", "fish"] },
+    { id: "salmon", text: "Salmon", parent: "fish" },
+    { id: "shark", text: "Shark", parent: "fish" },
+    { id: "clownfish", text: "Clownfish", parent: ["weird", "fish"] },
 
-    { id: "ant", text: "Ant", parentId: "insects" },
-    { id: "butterfly", text: "Butterfly", parentId: "insects" },
-    { id: "beetle", text: "Beetle", parentId: "insects" },
+    { id: "ant", text: "Ant", parent: "insects" },
+    { id: "butterfly", text: "Butterfly", parent: "insects" },
+    { id: "beetle", text: "Beetle", parent: "insects" },
 
-    { id: "spider", text: "Spider", parentId: "arachnids" },
-    { id: "scorpion", text: "Scorpion", parentId: "arachnids" },
-    { id: "tick", text: "Tick", parentId: "arachnids" },
+    { id: "spider", text: "Spider", parent: "arachnids" },
+    { id: "scorpion", text: "Scorpion", parent: "arachnids" },
+    { id: "tick", text: "Tick", parent: "arachnids" },
 
-    { id: "crab", text: "Crab", parentId: "crustaceans" },
-    { id: "lobster", text: "Lobster", parentId: "crustaceans" },
-    { id: "shrimp", text: "Shrimp", parentId: "crustaceans" },
+    { id: "crab", text: "Crab", parent: "crustaceans" },
+    { id: "lobster", text: "Lobster", parent: "crustaceans" },
+    { id: "shrimp", text: "Shrimp", parent: "crustaceans" },
 
-    { id: "snail", text: "Snail", parentId: "mollusks" },
-    { id: "octopus", text: "Octopus", parentId: "mollusks" },
-    { id: "clam", text: "Clam", parentId: "mollusks" },
+    { id: "snail", text: "Snail", parent: "mollusks" },
+    { id: "octopus", text: "Octopus", parent: "mollusks" },
+    { id: "clam", text: "Clam", parent: "mollusks" },
 
-    { id: "starfish", text: "Starfish", parentId: "echinoderms" },
-    { id: "sea_urchin", text: "Sea Urchin", parentId: ["weird", "echinoderms"] },
-    { id: "sea_cucumber", text: "Sea Cucumber", parentId: ["weird", "echinoderms"] }
+    { id: "starfish", text: "Starfish", parent: "echinoderms" },
+    { id: "sea_urchin", text: "Sea Urchin", parent: ["weird", "echinoderms"] },
+    { id: "sea_cucumber", text: "Sea Cucumber", parent: ["weird", "echinoderms"] }
 ]
 let form = new w2form({
     box: '#form',
@@ -74,23 +74,23 @@ let form = new w2form({
             options: {
                 // you can optionally define itemMap were you can provide mapping to id and text fields
                 itemMap: {
-                    id: 'group',
-                    text: 'name'
+                    id: 'info.group', // can be nested, then it is parsed
+                    text: 'info.name'
                 },
                 items: [
-                    { group: '', name: 'Show All' },
-                    { group: "weird", name: 'Weird Ones' },
+                    { info: { group: '', name: 'Show All' }},
+                    { info: { group: "weird", name: 'Weird Ones' }},
                     { text: "--" }, // just a separator
-                    { group: "mammals", name: "Mammals" },
-                    { group: "birds", name: "Birds" },
-                    { group: "reptiles", name: "Reptiles" },
-                    { group: "amphibians", name: "Amphibians" },
-                    { group: "fish", name: "Fish" },
-                    { group: "insects", name: "Insects" },
-                    { group: "arachnids", name: "Arachnids" },
-                    { group: "crustaceans", name: "Crustaceans" },
-                    { group: "mollusks", name: "Mollusks" },
-                    { group: "echinoderms", name: "Echinoderms" },
+                    { info: { group: "mammals", name: "Mammals" }},
+                    { info: { group: "birds", name: "Birds" }},
+                    { info: { group: "reptiles", name: "Reptiles" }},
+                    { info: { group: "amphibians", name: "Amphibians" }},
+                    { info: { group: "fish", name: "Fish" }},
+                    { info: { group: "insects", name: "Insects" }},
+                    { info: { group: "arachnids", name: "Arachnids" }},
+                    { info: { group: "crustaceans", name: "Crustaceans" }},
+                    { info: { group: "mollusks", name: "Mollusks" }},
+                    { info: { group: "echinoderms", name: "Echinoderms" }},
                 ]
             }
         },
@@ -101,6 +101,7 @@ let form = new w2form({
             },
             options: {
                 parentList: 'group',
+                parentField: 'parent', // field inside items objects that contains id from parent list (default is "parentId")
                 items: w2utils.clone(samples)
             }
         },
@@ -111,6 +112,7 @@ let form = new w2form({
             },
             options: {
                 parentList: 'group',
+                parentField: 'parent', // field inside items objects that contains id from parent list (default is "parentId")
                 items: w2utils.clone(samples)
             }
         },
@@ -121,6 +123,7 @@ let form = new w2form({
             },
             options: {
                 parentList: 'group',
+                parentField: 'parent', // field inside items objects that contains id from parent list (default is "parentId")
                 items: w2utils.clone(samples)
             }
         },
@@ -131,6 +134,7 @@ let form = new w2form({
             },
             options: {
                 parentList: 'group',
+                parentField: 'parent', // field inside items objects that contains id from parent list (default is "parentId")
                 items: w2utils.clone(samples)
             }
         },

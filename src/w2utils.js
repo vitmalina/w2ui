@@ -23,6 +23,7 @@
  *  - w2utils.alrert() - same as w2utils.message()
  *  - w2utils.prompt() - similar to w2prompt
  *  - w2utils.normMenu(..., options) got options parameter that can have itemMap
+ *  - w2utils.getNested()
  */
 
 import { w2base } from './w2base.js'
@@ -2249,11 +2250,13 @@ class Utils {
                     menu[m] = { id: it, text: String(it) }
                 } else if (it != null) {
                     if (options.itemMap != null) {
-                        if (options.itemMap.id != null && it[options.itemMap.id] != null) {
-                            it.id = it[options.itemMap.id]
+                        let val = w2utils.getNested(it, options.itemMap.id)
+                        if (options.itemMap.id != null && val != null) {
+                            it.id = val
                         }
-                        if (options.itemMap.text != null && it[options.itemMap.text] != null) {
-                            it.text = it[options.itemMap.text]
+                        val = w2utils.getNested(it, options.itemMap.text)
+                        if (options.itemMap.text != null && val) {
+                            it.text = val
                         }
                     }
                     if (it.caption != null && it.text == null) it.text = it.caption
@@ -2402,6 +2405,21 @@ class Utils {
             clearTimeout(timeout)
             timeout = setTimeout(() => { func(...args) }, wait)
         }
+    }
+
+    getNested(obj, prop) {
+        let val
+        try { // need this to make sure no error in props
+            val = obj
+            let tmp = String(prop).split('.')
+            for (let i = 0; i < tmp.length; i++) {
+                val = val[tmp[i]]
+            }
+        } catch (event) {
+            val = undefined
+        }
+        return val
+
     }
 }
 var w2utils = new Utils() // eslint-disable-line -- needs to be functional/module scope variable

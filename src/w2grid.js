@@ -8611,21 +8611,13 @@ class w2grid extends w2base {
     }
 
     parseField(obj, field) {
+        let val
         if (this.nestedFields) {
-            let val = ''
-            try { // need this to make sure no error in fields
-                val     = obj
-                let tmp = String(field).split('.')
-                for (let i = 0; i < tmp.length; i++) {
-                    val = val[tmp[i]]
-                }
-            } catch (event) {
-                val = ''
-            }
-            return val
+            val = w2utils.getNested(obj, field)
         } else {
-            return obj ? obj[field] : ''
+            val = obj?.[field]
         }
+        return (val != null ? val : '')
     }
 
     prepareData() {
