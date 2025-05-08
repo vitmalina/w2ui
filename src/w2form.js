@@ -509,10 +509,10 @@ class w2form extends w2base {
                 // if options.itemMap is present
                 if (field.options?.itemMap) {
                     let map = field.options.itemMap
-                    if (map.id != null && item[map.id] != null) {
+                    if (map.id != null && item?.[map.id] != null) {
                         item = { ...item, id: item[map.id] } // need a new object
                     }
-                    if (map.text != null && item[map.text] != null) {
+                    if (map.text != null && item?.[map.text] != null) {
                         item = { ...item, text: item[map.text] } // need a new object
                     }
                 }
