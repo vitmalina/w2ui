@@ -2380,10 +2380,12 @@ class MenuTooltip extends Tooltip {
             if (ind != -1) {
                 let tmp = items.splice(ind, 1)
                 // delete from the parent too
-                let pind = overlay.options.parents[overlay.options.parents.length -1]
-                let pitems = parentOverlay.options.items[pind].items
-                if (pitems[ind].id == tmp[0].id) {
-                    pitems.splice(ind, 1)
+                if (overlay.options.parents) {
+                    let pind = overlay.options.parents[overlay.options.parents.length -1]
+                    let pitems = parentOverlay.options.items[pind].items
+                    if (pitems[ind].id == tmp[0].id) {
+                        pitems.splice(ind, 1)
+                    }
                 }
             }
             keepOpen = !options.hideOn.includes('item-remove')
