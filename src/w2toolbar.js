@@ -938,6 +938,7 @@ class w2toolbar extends w2base {
     spinner(id, action, event) {
         let it = this.get(id)
         let inc = 0
+        let edata = this.trigger('keyDown', { id, item: it, originalEvent: event })
         switch (action) {
             case 'inc': {
                 inc = (it.input?.step ?? 1)
@@ -971,6 +972,7 @@ class w2toolbar extends w2base {
         if (inc !== 0) {
             this.change(id, parseFloat(it.value ?? 0) + inc)
         }
+        edata.finish()
     }
 
     change(id, value, dynamic) {

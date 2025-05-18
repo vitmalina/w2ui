@@ -2243,7 +2243,7 @@ class Utils {
      * is { id: ..., text: ... }. In options you can pass { itemMap: { id: 'id_field', text: 'text_field' }} that will be used
      * to find out id and text fields.
      */
-    normMenu(menu, options) {
+    normMenu(menu, options = {}) {
         if (Array.isArray(menu)) {
             menu.forEach((it, m) => {
                 if (typeof it === 'string' || typeof it === 'number') {
