@@ -24,6 +24,7 @@
  *  - w2utils.prompt() - similar to w2prompt
  *  - w2utils.normMenu(..., options) got options parameter that can have itemMap
  *  - w2utils.getNested()
+ *  - w2utils.wait() - async timer
  */
 
 import { w2base } from './w2base.js'
@@ -1400,7 +1401,7 @@ class Utils {
      */
     confirm(where, options) {
         if (['string', 'number'].includes(typeof options)) {
-            options = { label: options }
+            options = { text: options }
         }
         if (arguments.length == 1) {
             options = where
@@ -2405,6 +2406,12 @@ class Utils {
             clearTimeout(timeout)
             timeout = setTimeout(() => { func(...args) }, wait)
         }
+    }
+
+    async wait(time = 0) {
+        return new Promise(resolve => {
+            setTimeout(() => resolve(), time)
+        })
     }
 
     getNested(obj, prop) {

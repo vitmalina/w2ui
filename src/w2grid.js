@@ -2467,6 +2467,8 @@ class w2grid extends w2base {
                 anchor: el,
                 align: 'both',
                 items: searches,
+                selected: false,
+                filter: true,
                 hideOn: ['doc-click', 'sleect', 'remove'],
                 render(item) {
                     let ret = item.text
@@ -2500,10 +2502,10 @@ class w2grid extends w2base {
                     event.preventDefault()
                     return
                 }
-                event.detail.overlay.hide()
+                queueMicrotask(() => event.detail.overlay.hide())
                 this.confirm(w2utils.lang('Do you want to delete search "${item}"?', { item: item.text }))
                     .yes(evt => {
-                    // remove from searches
+                        // remove from searches
                         let search = this.savedSearches.findIndex((s) => s.id == item.id ? true : false)
                         if (search !== -1) {
                             this.savedSearches.splice(search, 1)
@@ -2548,7 +2550,8 @@ class w2grid extends w2base {
                 this.message()
             })
             query(event.detail.box).find('#grid-search-save').on('click', () => {
-                let name = query(event.detail.box).find('.w2ui-message .search-name').val()
+                let input = query(event.detail.box).find('.w2ui-message .search-name')
+                let name = input.val()
                 // save in savedSearches
                 if (this.searchSelected && ind != -1) {
                     Object.assign(this.savedSearches[ind], {
@@ -2585,6 +2588,7 @@ class w2grid extends w2base {
                 }
                 edata.finish({ name })
             })
+            await w2utils.wait(100) // need this for dialog to be ready (sliding down) for focus to work
             query(event.detail.box).find('input, button')
                 .off('.message')
                 .on('keydown.message', evt => {
@@ -6465,6 +6469,7 @@ class w2grid extends w2base {
                                 }
                                 case 13: {
                                     // search on enter key
+                                    w2menu.hide(this.name + '-search-suggest')
                                     this.search(this.last.field, event.target.value)
                                     break
                                 }

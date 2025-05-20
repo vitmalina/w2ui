@@ -1491,9 +1491,11 @@ class MenuTooltip extends Tooltip {
                 let search = ''
                 // reset selected and active chain
                 overlay.selected = overlay.options.selected // this is needed so that menu item can be preselected
-                if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
-                    search = overlay.anchor.value
-                    overlay.selected = overlay.anchor.dataset.selectedIndex
+                if (overlay.options.selected !== false && overlay.options.selected !== -1 && overlay.anchor.dataset?.selectedIndex != null) {
+                    if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
+                        search = overlay.anchor.value
+                        overlay.selected = overlay.anchor.dataset.selectedIndex
+                    }
                 }
                 let actions = query(ret.overlay.box).find('.w2ui-eaction')
                 w2utils.bindEvents(actions, this)
