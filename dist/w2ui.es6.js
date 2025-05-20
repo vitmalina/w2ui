@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (5/8/2025, 4:40:39 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (5/20/2025, 4:30:46 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -1032,6 +1032,7 @@ query.version = Query.version
  *  - w2utils.prompt() - similar to w2prompt
  *  - w2utils.normMenu(..., options) got options parameter that can have itemMap
  *  - w2utils.getNested()
+ *  - w2utils.wait() - async timer
  */
 
 // variable that holds all w2ui objects
@@ -2321,7 +2322,7 @@ class Utils {
      */
     confirm(where, options) {
         if (['string', 'number'].includes(typeof options)) {
-            options = { label: options }
+            options = { text: options }
         }
         if (arguments.length == 1) {
             options = where
@@ -3126,7 +3127,7 @@ class Utils {
      * is { id: ..., text: ... }. In options you can pass { itemMap: { id: 'id_field', text: 'text_field' }} that will be used
      * to find out id and text fields.
      */
-    normMenu(menu, options) {
+    normMenu(menu, options = {}) {
         if (Array.isArray(menu)) {
             menu.forEach((it, m) => {
                 if (typeof it === 'string' || typeof it === 'number') {
@@ -3284,6 +3285,11 @@ class Utils {
             clearTimeout(timeout)
             timeout = setTimeout(() => { func(...args) }, wait)
         }
+    }
+    async wait(time = 0) {
+        return new Promise(resolve => {
+            setTimeout(() => resolve(), time)
+        })
     }
     getNested(obj, prop) {
         let val
@@ -5597,9 +5603,11 @@ class MenuTooltip extends Tooltip {
                 let search = ''
                 // reset selected and active chain
                 overlay.selected = overlay.options.selected // this is needed so that menu item can be preselected
-                if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
-                    search = overlay.anchor.value
-                    overlay.selected = overlay.anchor.dataset.selectedIndex
+                if (overlay.options.selected !== false && overlay.options.selected !== -1 && overlay.anchor.dataset?.selectedIndex != null) {
+                    if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
+                        search = overlay.anchor.value
+                        overlay.selected = overlay.anchor.dataset.selectedIndex
+                    }
                 }
                 let actions = query(ret.overlay.box).find('.w2ui-eaction')
                 w2utils.bindEvents(actions, this)
@@ -6471,10 +6479,12 @@ class MenuTooltip extends Tooltip {
             if (ind != -1) {
                 let tmp = items.splice(ind, 1)
                 // delete from the parent too
-                let pind = overlay.options.parents[overlay.options.parents.length -1]
-                let pitems = parentOverlay.options.items[pind].items
-                if (pitems[ind].id == tmp[0].id) {
-                    pitems.splice(ind, 1)
+                if (overlay.options.parents) {
+                    let pind = overlay.options.parents[overlay.options.parents.length -1]
+                    let pitems = parentOverlay.options.items[pind].items
+                    if (pitems[ind].id == tmp[0].id) {
+                        pitems.splice(ind, 1)
+                    }
                 }
             }
             keepOpen = !options.hideOn.includes('item-remove')
@@ -8043,6 +8053,7 @@ class w2toolbar extends w2base {
     spinner(id, action, event) {
         let it = this.get(id)
         let inc = 0
+        let edata = this.trigger('keyDown', { id, item: it, originalEvent: event })
         switch (action) {
             case 'inc': {
                 inc = (it.input?.step ?? 1)
@@ -8076,6 +8087,7 @@ class w2toolbar extends w2base {
         if (inc !== 0) {
             this.change(id, parseFloat(it.value ?? 0) + inc)
         }
+        edata.finish()
     }
     change(id, value, dynamic) {
         let it = this.get(id)
@@ -14106,6 +14118,8 @@ class w2grid extends w2base {
                 anchor: el,
                 align: 'both',
                 items: searches,
+                selected: false,
+                filter: true,
                 hideOn: ['doc-click', 'sleect', 'remove'],
                 render(item) {
                     let ret = item.text
@@ -14139,10 +14153,10 @@ class w2grid extends w2base {
                     event.preventDefault()
                     return
                 }
-                event.detail.overlay.hide()
+                queueMicrotask(() => event.detail.overlay.hide())
                 this.confirm(w2utils.lang('Do you want to delete search "${item}"?', { item: item.text }))
                     .yes(evt => {
-                    // remove from searches
+                        // remove from searches
                         let search = this.savedSearches.findIndex((s) => s.id == item.id ? true : false)
                         if (search !== -1) {
                             this.savedSearches.splice(search, 1)
@@ -14185,7 +14199,8 @@ class w2grid extends w2base {
                 this.message()
             })
             query(event.detail.box).find('#grid-search-save').on('click', () => {
-                let name = query(event.detail.box).find('.w2ui-message .search-name').val()
+                let input = query(event.detail.box).find('.w2ui-message .search-name')
+                let name = input.val()
                 // save in savedSearches
                 if (this.searchSelected && ind != -1) {
                     Object.assign(this.savedSearches[ind], {
@@ -14222,6 +14237,7 @@ class w2grid extends w2base {
                 }
                 edata.finish({ name })
             })
+            await w2utils.wait(100) // need this for dialog to be ready (sliding down) for focus to work
             query(event.detail.box).find('input, button')
                 .off('.message')
                 .on('keydown.message', evt => {
@@ -17974,6 +17990,7 @@ class w2grid extends w2base {
                                 }
                                 case 13: {
                                     // search on enter key
+                                    w2menu.hide(this.name + '-search-suggest')
                                     this.search(this.last.field, event.target.value)
                                     break
                                 }
@@ -18592,12 +18609,20 @@ class w2grid extends w2base {
                     </select>
                 </span>
             </div>
-            <table cellspacing="0"><tbody>
         `
+        let columns = []
+        let col_ind = 0
+        columns.push('<div><table cellspacing="0"><tbody>')
         for (let i = 0; i < this.searches.length; i++) {
             let s  = this.searches[i]
             s.type = String(s.type).toLowerCase()
             if (s.hidden) continue
+            if (s.type == 'new-column') {
+                columns[col_ind] += '</tbody></table></div>'
+                columns.push('<div><table cellspacing="0"><tbody>')
+                col_ind++
+                continue
+            }
             if (s.attr == null) s.attr = ''
             if (s.text == null) s.text = ''
             if (s.style == null) s.style = ''
@@ -18606,10 +18631,12 @@ class w2grid extends w2base {
                 console.log('NOTICE: grid search.caption property is deprecated, please use search.label. Search ->', s)
                 s.label = s.caption
             }
-            let operator =`<select id="grid_${this.name}_operator_${i}" class="w2ui-input" data-change="initOperator|${i}">
+            let operator =`
+                <select id="grid_${this.name}_operator_${i}" class="w2ui-input" data-change="initOperator|${i}">
                     ${this.getOperators(s.type, s.operators)}
-                </select>`
-            html += `<tr>
+                </select>
+            `
+            columns[col_ind] += `<tr>
                         <td class="caption">${(w2utils.lang(s.label ?? s.field) || '')}</td>
                         <td class="operator">${operator}</td>
                         <td class="value">`
@@ -18624,7 +18651,7 @@ class w2grid extends w2base {
                 case 'enum':
                     tmpStyle = 'width: 250px;'
                     if (['hex', 'color'].indexOf(s.type) != -1) tmpStyle = 'width: 90px;'
-                    html += `<input rel="search" type="text" id="grid_${this.name}_field_${i}" name="${s.field}"
+                    columns[col_ind] += `<input rel="search" type="text" id="grid_${this.name}_field_${i}" name="${s.field}"
                                class="w2ui-input" style="${tmpStyle + s.style}" ${s.attr}>`
                     break
                 case 'int':
@@ -18637,30 +18664,34 @@ class w2grid extends w2base {
                 case 'datetime':
                     tmpStyle = 'width: 90px;'
                     if (s.type == 'datetime') tmpStyle = 'width: 140px;'
-                    html += `<input id="grid_${this.name}_field_${i}" name="${s.field}" ${s.attr} rel="search" type="text"
+                    columns[col_ind] += `<input id="grid_${this.name}_field_${i}" name="${s.field}" ${s.attr} rel="search" type="text"
                                 class="w2ui-input" style="${tmpStyle + s.style}">
                             <span id="grid_${this.name}_range_${i}" style="display: none">&#160;-&#160;&#160;
                                 <input rel="search" type="text" class="w2ui-input" style="${tmpStyle + s.style}" id="grid_${this.name}_field2_${i}" name="${s.field}" ${s.attr}>
                             </span>`
                     break
                 case 'select':
-                    html += `<select rel="search" class="w2ui-input" style="${s.style}" id="grid_${this.name}_field_${i}"
+                    columns[col_ind] += `<select rel="search" class="w2ui-input" style="${s.style}" id="grid_${this.name}_field_${i}"
                                 name="${s.field}" ${s.attr}></select>`
                     break
             }
-            html += s.text +
+            columns[col_ind] += s.text +
                     '    </td>' +
                     '</tr>'
         }
-        html += `<tr>
-            <td colspan="2" class="actions">
+        columns[col_ind] += '</tbody></table></div>'
+        html += `
+            <div class="search-body">
+                ${columns.join('')}
+            </div>
+            <div class="search-bottom actions">
                 <button type="button" class="w2ui-btn close-btn" data-click="searchClose">${w2utils.lang('Close')}</button>
-            </td>
-            <td class="actions">
-                <button type="button" class="w2ui-btn" data-click="searchReset">${w2utils.lang('Reset')}</button>
-                <button type="button" class="w2ui-btn w2ui-btn-blue" data-click="search">${w2utils.lang('Search')}</button>
-            </td>
-        </tr></tbody></table>`
+                <div style="float: right; display: inline">
+                    <button type="button" class="w2ui-btn" data-click="searchReset">${w2utils.lang('Reset')}</button>
+                    <button type="button" class="w2ui-btn w2ui-btn-blue" data-click="search">${w2utils.lang('Search')}</button>
+                </div>
+            </div>
+        `
         return html
     }
     getOperators(type, opers) {
@@ -18680,7 +18711,7 @@ class w2grid extends w2base {
                 operValue = oper.oper
             }
             if (displayText == null) displayText = oper
-            html += `<option name="11" value="${operValue}">${w2utils.lang(displayText)}</option>\n`
+            html += `<option  value="${operValue}">${w2utils.lang(displayText)}</option>\n`
         })
         return html
     }
@@ -18776,6 +18807,9 @@ class w2grid extends w2base {
             let search  = this.searches[ind]
             let sdata   = this.getSearchData(search.field)
             search.type = String(search.type).toLowerCase()
+            if (search.type == 'new-column') {
+                continue
+            }
             if (typeof search.options != 'object') search.options = {}
             // operators
             let operator  = search.operator
@@ -20345,7 +20379,7 @@ class w2form extends w2base {
         this.ALL_TYPES    = [ 'text', 'textarea', 'email', 'pass', 'password', 'int', 'float', 'money', 'currency',
             'percent', 'hex', 'alphanumeric', 'color', 'date', 'time', 'datetime', 'toggle', 'checkbox', 'radio',
             'check', 'checks', 'list', 'combo', 'enum', 'file', 'select', 'switch', 'map', 'array', 'div', 'custom', 'html',
-            'empty']
+            'empty', 'columns']
         this.LIST_TYPES = ['select', 'radio', 'check', 'checks', 'list', 'combo', 'enum', 'switch']
         this.W2FIELD_TYPES = ['int', 'float', 'money', 'currency', 'percent', 'hex', 'alphanumeric', 'color',
             'date', 'time', 'datetime', 'list', 'combo', 'enum', 'file']
@@ -21502,15 +21536,22 @@ class w2form extends w2base {
         let group = ''
         let page
         let column
-        let html
         let tabindex
         let tabindex_str
         for (let f = 0; f < this.fields.length; f++) {
-            html         = ''
-            tabindex     = this.tabindexBase + f + 1
+            let html = ''
+            tabindex = this.tabindexBase + f + 1
             tabindex_str = ' tabindex="'+ tabindex +'"'
-            let field    = this.fields[f]
+            let field = this.fields[f]
             if (field.html == null) field.html = {}
+            if (typeof field.html == 'string') {
+                field.html = {
+                    html: field.html,
+                    span: 0,
+                    attr: 'tabindex'
+                }
+                tabindex_str = ''
+            }
             if (field.options == null) field.options = {}
             if (field.html.caption != null && field.html.label == null) {
                 console.log('NOTICE: form field.html.caption property is deprecated, please use field.html.label. Field ->', field)
@@ -21664,7 +21705,47 @@ class w2form extends w2base {
                     + '   <div class="w2ui-group-fields" style="'+ (field.html.groupStyle || '') +'">'
                 group = field.html.group
             }
-            if (field.html.anchor == null) {
+            if (field.type == 'columns') {
+                html += '<div class="w2ui-field-columns">'
+                field.columns.forEach(col => {
+                    html += `<div style="${col.style}"> ${col.content} </div>`
+                })
+                html += '</div>'
+            } else if (field.html.col_anchor != null) {
+                let span = (field.html.span != null ? 'w2ui-span'+ field.html.span : '')
+                if (field.html.span == -1) span = 'w2ui-span-none'
+                let label = `
+                    <label ${span == 'none' ? ' style="display: none"' : ''}>
+                        ${w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text)}
+                    </label>`
+                if (!field.html.label) label = ''
+                let text = (field.type != 'array' && field.type != 'map' ? w2utils.lang(field.type != 'checkbox' ? field.html.text : '') : '')
+                pages[field.html.page].anchors ??= {}
+                pages[field.html.page].anchors[field.html.col_anchor] =`
+                    <div class="w2ui-field ${span}" style="${(field.hidden ? 'display: none;' : '') + field.html.style}">
+                        ${label}
+                        ${['empty', 'switch', 'radio', 'check', 'checks'].includes(field.type)
+                            ? input
+                            : `<div>${input + text}</div>`
+                        }
+                    </div>`
+            } else if (field.html.anchor != null) {
+                let label = w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text, true)
+                let text = w2utils.lang(field.type != 'checkbox' ? field.html.text : '')
+                if (field.html.span == -1) {
+                    label = `<span style="position: absolute"> <span class="w2ui-anchor-span-none"> ${label} </span> </span>`
+                }
+                pages[field.html.page].anchors ??= {}
+                pages[field.html.page].anchors[field.html.anchor] =
+                    '<div class="w2ui-field w2ui-field-inline" style="'+ (field.hidden ? 'display: none;' : '') + field.html.style +'">'+
+                        ((field.type === 'empty' || field.type == 'switch')
+                            ? input
+                            : ` <div>
+                                    ${label} ${input} ${text}
+                                </div>`
+                        ) +
+                    '</div>'
+            } else {
                 let span = (field.html.span != null ? 'w2ui-span'+ field.html.span : '')
                 if (field.html.span == -1) span = 'w2ui-span-none'
                 let label = `
@@ -21681,18 +21762,6 @@ class w2form extends w2base {
                             : `<div>${input + text}</div>`
                         }
                     </div>`
-            } else {
-                pages[field.html.page].anchors = pages[field.html.page].anchors || {}
-                pages[field.html.page].anchors[field.html.anchor] =
-                    '<div class="w2ui-field w2ui-field-inline" style="'+ (field.hidden ? 'display: none;' : '') + field.html.style +'">'+
-                        ((field.type === 'empty' || field.type == 'switch')
-                            ? input
-                            : ` <div>
-                                    ${w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text, true)}
-                                    ${input} ${w2utils.lang(field.type != 'checkbox' ? field.html.text : '')}
-                                </div>`
-                        ) +
-                    '</div>'
             }
             if (pages[field.html.page] == null) pages[field.html.page] = {}
             if (pages[field.html.page][field.html.column] == null) pages[field.html.page][field.html.column] = ''
@@ -21730,7 +21799,7 @@ class w2form extends w2base {
             }
             buttons += '\n</div>'
         }
-        html = ''
+        let html = ''
         for (let p = 0; p < pages.length; p++){
             html += '<div class="w2ui-page page-'+ p +'" style="' + (p !== 0 ? 'display: none;' : '') + this.pageStyle + '">'
             if (!pages[p]) {
