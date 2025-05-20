@@ -96,7 +96,7 @@ class w2form extends w2base {
         this.ALL_TYPES    = [ 'text', 'textarea', 'email', 'pass', 'password', 'int', 'float', 'money', 'currency',
             'percent', 'hex', 'alphanumeric', 'color', 'date', 'time', 'datetime', 'toggle', 'checkbox', 'radio',
             'check', 'checks', 'list', 'combo', 'enum', 'file', 'select', 'switch', 'map', 'array', 'div', 'custom', 'html',
-            'empty']
+            'empty', 'columns']
         this.LIST_TYPES = ['select', 'radio', 'check', 'checks', 'list', 'combo', 'enum', 'switch']
         this.W2FIELD_TYPES = ['int', 'float', 'money', 'currency', 'percent', 'hex', 'alphanumeric', 'color',
             'date', 'time', 'datetime', 'list', 'combo', 'enum', 'file']
@@ -1295,15 +1295,22 @@ class w2form extends w2base {
         let group = ''
         let page
         let column
-        let html
         let tabindex
         let tabindex_str
         for (let f = 0; f < this.fields.length; f++) {
-            html         = ''
-            tabindex     = this.tabindexBase + f + 1
+            let html = ''
+            tabindex = this.tabindexBase + f + 1
             tabindex_str = ' tabindex="'+ tabindex +'"'
-            let field    = this.fields[f]
+            let field = this.fields[f]
             if (field.html == null) field.html = {}
+            if (typeof field.html == 'string') {
+                field.html = {
+                    html: field.html,
+                    span: 0,
+                    attr: 'tabindex'
+                }
+                tabindex_str = ''
+            }
             if (field.options == null) field.options = {}
             if (field.html.caption != null && field.html.label == null) {
                 console.log('NOTICE: form field.html.caption property is deprecated, please use field.html.label. Field ->', field)
@@ -1433,7 +1440,6 @@ class w2form extends w2base {
                                 (field && field.html ? (field.html.html || '') + (field.html.text || '') : '') +
                             '</div>'
                     break
-
             }
             if (group !== '') {
                 if (page != field.html.page || column != field.html.column || (field.html.group && (group != field.html.group))) {
@@ -1458,7 +1464,47 @@ class w2form extends w2base {
                     + '   <div class="w2ui-group-fields" style="'+ (field.html.groupStyle || '') +'">'
                 group = field.html.group
             }
-            if (field.html.anchor == null) {
+            if (field.type == 'columns') {
+                html += '<div class="w2ui-field-columns">'
+                field.columns.forEach(col => {
+                    html += `<div style="${col.style}"> ${col.content} </div>`
+                })
+                html += '</div>'
+            } else if (field.html.col_anchor != null) {
+                let span = (field.html.span != null ? 'w2ui-span'+ field.html.span : '')
+                if (field.html.span == -1) span = 'w2ui-span-none'
+                let label = `
+                    <label ${span == 'none' ? ' style="display: none"' : ''}>
+                        ${w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text)}
+                    </label>`
+                if (!field.html.label) label = ''
+                let text = (field.type != 'array' && field.type != 'map' ? w2utils.lang(field.type != 'checkbox' ? field.html.text : '') : '')
+                pages[field.html.page].anchors ??= {}
+                pages[field.html.page].anchors[field.html.col_anchor] =`
+                    <div class="w2ui-field ${span}" style="${(field.hidden ? 'display: none;' : '') + field.html.style}">
+                        ${label}
+                        ${['empty', 'switch', 'radio', 'check', 'checks'].includes(field.type)
+                            ? input
+                            : `<div>${input + text}</div>`
+                        }
+                    </div>`
+            } else if (field.html.anchor != null) {
+                let label = w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text, true)
+                let text = w2utils.lang(field.type != 'checkbox' ? field.html.text : '')
+                if (field.html.span == -1) {
+                    label = `<span style="position: absolute"> <span class="w2ui-anchor-span-none"> ${label} </span> </span>`
+                }
+                pages[field.html.page].anchors ??= {}
+                pages[field.html.page].anchors[field.html.anchor] =
+                    '<div class="w2ui-field w2ui-field-inline" style="'+ (field.hidden ? 'display: none;' : '') + field.html.style +'">'+
+                        ((field.type === 'empty' || field.type == 'switch')
+                            ? input
+                            : ` <div>
+                                    ${label} ${input} ${text}
+                                </div>`
+                        ) +
+                    '</div>'
+            } else {
                 let span = (field.html.span != null ? 'w2ui-span'+ field.html.span : '')
                 if (field.html.span == -1) span = 'w2ui-span-none'
                 let label = `
@@ -1475,18 +1521,6 @@ class w2form extends w2base {
                             : `<div>${input + text}</div>`
                         }
                     </div>`
-            } else {
-                pages[field.html.page].anchors = pages[field.html.page].anchors || {}
-                pages[field.html.page].anchors[field.html.anchor] =
-                    '<div class="w2ui-field w2ui-field-inline" style="'+ (field.hidden ? 'display: none;' : '') + field.html.style +'">'+
-                        ((field.type === 'empty' || field.type == 'switch')
-                            ? input
-                            : ` <div>
-                                    ${w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text, true)}
-                                    ${input} ${w2utils.lang(field.type != 'checkbox' ? field.html.text : '')}
-                                </div>`
-                        ) +
-                    '</div>'
             }
             if (pages[field.html.page] == null) pages[field.html.page] = {}
             if (pages[field.html.page][field.html.column] == null) pages[field.html.page][field.html.column] = ''
@@ -1525,7 +1559,7 @@ class w2form extends w2base {
             }
             buttons += '\n</div>'
         }
-        html = ''
+        let html = ''
         for (let p = 0; p < pages.length; p++){
             html += '<div class="w2ui-page page-'+ p +'" style="' + (p !== 0 ? 'display: none;' : '') + this.pageStyle + '">'
             if (!pages[p]) {

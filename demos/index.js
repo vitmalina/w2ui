@@ -331,6 +331,7 @@ query(async function () {
                         { id: 'form/26', text: 'Field Type: Switch', icon: 'fa fa-pencil-square-o' },
                         { id: 'form/27', text: 'Improved Array Fields', icon: 'fa fa-pencil-square-o' },
                         { id: 'form/28', text: 'Linked Lists', icon: 'fa fa-pencil-square-o' },
+                        { id: 'form/29', text: 'Inline Columns', icon: 'fa fa-pencil-square-o' },
                     ]
                 },
                 { id: 'fields', text: 'Fields Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,

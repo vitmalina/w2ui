@@ -1,0 +1,117 @@
+<div class="content">
+    <div id="example_title" style="max-width: 900px">
+        <h1>Inline Columns</h1>
+        There is an abstract field type: "columns" that allows to output other fields in any number of columns that are flexible and easy to use.
+    </div>
+    <div id="example_view">
+        See <a href="http://w2ui.com/web/docs/w2form.fields" target="_blank">options</a> for more information
+    </div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="form" style="width: 750px; height: 500px"></div>
+
+<!--CODE-->
+<script type="module">
+import { w2form, query, w2ui, w2popup, w2alert, w2utils } from '__W2UI_PATH__'
+
+let form = new w2form({
+    box: '#form',
+    name: 'form',
+    header: 'Linked Lists',
+    url: 'server/post',
+    fields: [
+        { field: 'field1', type: 'text',
+            html: {
+                group: 'Group A',
+                label: 'First Field',
+                span: -1,
+                attr: 'style="width: 50%"',
+                text: `
+                    <div style="display: inline-block; margin-left: 10px">
+                        %anchor_1%
+                    </div>
+                    <span style="font-size: 16px"> ← </span> anchored field
+                `
+            }
+        },
+        { field: 'field2', type: 'text',
+            html: {
+                label: 'Another Field',
+                span: -1,
+                anchor: '%anchor_1%',
+                attr: 'style="width: 100%"'
+            }
+        },
+        { type: 'html', html: `
+            <div style="margin: 10px -5px 0px -5px; background-color: #fafafa; padding: 10px; font-size: 14px">
+                Fields in columns are bleow
+            </div>
+            <div style="height: 15px"></div>`
+        },
+        { type: 'columns', columns: [
+            { content: '%anchor_a1% %anchor_a2% %anchor_a3%', style: 'width: calc(50% + 8px)' },
+            { content: '%anchor_b%', style: 'width: 50%; padding-left: 5px' }
+        ]},
+        { field: 'field7', type: 'text',
+            html: {
+                label: 'Field 7',
+                span: -1,
+                col_anchor: '%anchor_a1%',
+                attr: 'style="width: 100%"'
+            }
+        },
+        { field: 'field8', type: 'text',
+            html: {
+                label: 'Field 8',
+                span: -1,
+                col_anchor: '%anchor_a2%',
+                attr: 'style="width: 100%"'
+            }
+        },
+        { field: 'field9', type: 'text',
+            html: {
+                label: 'Field 9',
+                span: -1,
+                col_anchor: '%anchor_a3%',
+                attr: 'style="width: 100%"'
+            }
+        },
+        { field: 'field10', type: 'textarea',
+            html: {
+                label: 'Field 10',
+                span: -1,
+                col_anchor: '%anchor_b%',
+                attr: 'style="width: 100%; height: 140px; resizable: none"'
+            }
+        },
+    ],
+    record: {
+    },
+    actions: {
+        Reset(event) {
+            this.clear();
+        },
+        Save(event) {
+            if (w2ui.form.validate().length == 0) {
+                w2popup.open({
+                    title: 'Form Data',
+                    with: 600,
+                    height: 550,
+                    body: `<pre>${JSON.stringify(this.getCleanRecord(), null, 4)}</pre>`,
+                    actions: { Ok: w2popup.close }
+                })
+            }
+        },
+        custom: {
+            text: '<span style="font-size: 16px">←</span> click to see data',
+            class: 'custom-class',
+            style: 'background-image: none; background-color: transparent; border: 0px; margin: 0 0 0 -10px;',
+            onClick() {
+                w2alert('Not me!! The other button')
+            }
+        }
+    }
+});
+</script>
