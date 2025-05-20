@@ -7099,12 +7099,21 @@ class w2grid extends w2base {
                     </select>
                 </span>
             </div>
-            <table cellspacing="0"><tbody>
         `
+        let columns = []
+        let col_ind = 0
+        columns.push('<div><table cellspacing="0"><tbody>')
         for (let i = 0; i < this.searches.length; i++) {
             let s  = this.searches[i]
             s.type = String(s.type).toLowerCase()
             if (s.hidden) continue
+
+            if (s.type == 'new-column') {
+                columns[col_ind] += '</tbody></table></div>'
+                columns.push('<div><table cellspacing="0"><tbody>')
+                col_ind++
+                continue
+            }
             if (s.attr == null) s.attr = ''
             if (s.text == null) s.text = ''
             if (s.style == null) s.style = ''
@@ -7113,11 +7122,12 @@ class w2grid extends w2base {
                 console.log('NOTICE: grid search.caption property is deprecated, please use search.label. Search ->', s)
                 s.label = s.caption
             }
-            let operator =`<select id="grid_${this.name}_operator_${i}" class="w2ui-input" data-change="initOperator|${i}">
+            let operator =`
+                <select id="grid_${this.name}_operator_${i}" class="w2ui-input" data-change="initOperator|${i}">
                     ${this.getOperators(s.type, s.operators)}
-                </select>`
-
-            html += `<tr>
+                </select>
+            `
+            columns[col_ind] += `<tr>
                         <td class="caption">${(w2utils.lang(s.label ?? s.field) || '')}</td>
                         <td class="operator">${operator}</td>
                         <td class="value">`
@@ -7133,7 +7143,7 @@ class w2grid extends w2base {
                 case 'enum':
                     tmpStyle = 'width: 250px;'
                     if (['hex', 'color'].indexOf(s.type) != -1) tmpStyle = 'width: 90px;'
-                    html += `<input rel="search" type="text" id="grid_${this.name}_field_${i}" name="${s.field}"
+                    columns[col_ind] += `<input rel="search" type="text" id="grid_${this.name}_field_${i}" name="${s.field}"
                                class="w2ui-input" style="${tmpStyle + s.style}" ${s.attr}>`
                     break
 
@@ -7147,7 +7157,7 @@ class w2grid extends w2base {
                 case 'datetime':
                     tmpStyle = 'width: 90px;'
                     if (s.type == 'datetime') tmpStyle = 'width: 140px;'
-                    html += `<input id="grid_${this.name}_field_${i}" name="${s.field}" ${s.attr} rel="search" type="text"
+                    columns[col_ind] += `<input id="grid_${this.name}_field_${i}" name="${s.field}" ${s.attr} rel="search" type="text"
                                 class="w2ui-input" style="${tmpStyle + s.style}">
                             <span id="grid_${this.name}_range_${i}" style="display: none">&#160;-&#160;&#160;
                                 <input rel="search" type="text" class="w2ui-input" style="${tmpStyle + s.style}" id="grid_${this.name}_field2_${i}" name="${s.field}" ${s.attr}>
@@ -7155,24 +7165,29 @@ class w2grid extends w2base {
                     break
 
                 case 'select':
-                    html += `<select rel="search" class="w2ui-input" style="${s.style}" id="grid_${this.name}_field_${i}"
+                    columns[col_ind] += `<select rel="search" class="w2ui-input" style="${s.style}" id="grid_${this.name}_field_${i}"
                                 name="${s.field}" ${s.attr}></select>`
                     break
 
             }
-            html += s.text +
+            columns[col_ind] += s.text +
                     '    </td>' +
                     '</tr>'
         }
-        html += `<tr>
-            <td colspan="2" class="actions">
+        columns[col_ind] += '</tbody></table></div>'
+
+        html += `
+            <div class="search-body">
+                ${columns.join('')}
+            </div>
+            <div class="search-bottom actions">
                 <button type="button" class="w2ui-btn close-btn" data-click="searchClose">${w2utils.lang('Close')}</button>
-            </td>
-            <td class="actions">
-                <button type="button" class="w2ui-btn" data-click="searchReset">${w2utils.lang('Reset')}</button>
-                <button type="button" class="w2ui-btn w2ui-btn-blue" data-click="search">${w2utils.lang('Search')}</button>
-            </td>
-        </tr></tbody></table>`
+                <div style="float: right; display: inline">
+                    <button type="button" class="w2ui-btn" data-click="searchReset">${w2utils.lang('Reset')}</button>
+                    <button type="button" class="w2ui-btn w2ui-btn-blue" data-click="search">${w2utils.lang('Search')}</button>
+                </div>
+            </div>
+        `
         return html
     }
 
@@ -7193,7 +7208,7 @@ class w2grid extends w2base {
                 operValue = oper.oper
             }
             if (displayText == null) displayText = oper
-            html += `<option name="11" value="${operValue}">${w2utils.lang(displayText)}</option>\n`
+            html += `<option  value="${operValue}">${w2utils.lang(displayText)}</option>\n`
         })
         return html
     }
@@ -7295,6 +7310,9 @@ class w2grid extends w2base {
             let search  = this.searches[ind]
             let sdata   = this.getSearchData(search.field)
             search.type = String(search.type).toLowerCase()
+            if (search.type == 'new-column') {
+                continue
+            }
             if (typeof search.options != 'object') search.options = {}
             // operators
             let operator  = search.operator

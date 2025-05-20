@@ -10,6 +10,7 @@
             <li>allow to do All (AND) or Any (OR) logic</li>
             <li>show search bar when search is applied (2.0+)</li>
             <li>save searches into local sotrage (2.0+)</li>
+            <li>ability to have multiple columns in search fields (2.0+)</li>
         </ul>
     </div>
     <div id="example_view"></div>
@@ -43,10 +44,16 @@ let grid = new w2grid({
         { field: 'recid', label: 'ID ', type: 'int' },
         { field: 'lname', label: 'Last Name', type: 'text' },
         { field: 'fname', label: 'First Name', type: 'text' },
+        { type: 'new-column' },
         { field: 'email', label: 'Email', type: 'list',
-            options: { items: ['peter@gmail.com', 'jim@gmail.com', 'jdoe@gmail.com'] } },
+            options: {
+                items: ['peter@gmail.com', 'jim@gmail.com', 'jdoe@gmail.com']
+            }
+        },
         { field: 'status', label: 'Status', type: 'enum', style: 'width1: 350px',
-            options: { items: ['active', 'selected', 'submitted'] }
+            options: {
+                items: ['active', 'selected', 'submitted']
+            }
         },
         { field: 'sdate', label: 'Start Date', type: 'date' }
     ],
