@@ -1,7 +1,8 @@
 <div class="content">
     <div id="example_title" style="max-width: 900px">
         <h1>Inline Columns</h1>
-        There is an abstract field type: "columns" that allows to output other fields in any number of columns that are flexible and easy to use.
+        To make it easier to work with more common use cases, there is an abstract field type: "columns". It allows to use auto generated forms with
+        fields in any number of columns (users display: flex).
     </div>
     <div id="example_view">
         See <a href="http://w2ui.com/web/docs/w2form.fields" target="_blank">options</a> for more information
@@ -10,7 +11,7 @@
 </div>
 
 <!--CODE-->
-<div id="form" style="width: 750px; height: 500px"></div>
+<div id="form" style="width: 750px; height: 600px"></div>
 
 <!--CODE-->
 <script type="module">
@@ -45,7 +46,7 @@ let form = new w2form({
             }
         },
         { type: 'html', html: `
-            <div style="margin: 10px -5px 0px -5px; background-color: #fafafa; padding: 10px; font-size: 14px">
+            <div style="margin: 10px -5px 0px -5px; background-color: #fafafa; padding: 10px; font-size: 14px; color: #3988b9">
                 Fields in columns are bleow
             </div>
             <div style="height: 15px"></div>`
@@ -54,38 +55,73 @@ let form = new w2form({
             { content: '%anchor_a1% %anchor_a2% %anchor_a3%', style: 'width: calc(50% + 8px)' },
             { content: '%anchor_b%', style: 'width: 50%; padding-left: 5px' }
         ]},
-        { field: 'field7', type: 'text',
+        { field: 'field3', type: 'text',
             html: {
-                label: 'Field 7',
+                label: 'Field 3',
                 span: -1,
                 col_anchor: '%anchor_a1%',
                 attr: 'style="width: 100%"'
             }
         },
-        { field: 'field8', type: 'text',
+        { field: 'field4', type: 'text',
             html: {
-                label: 'Field 8',
+                label: 'Field 4',
                 span: -1,
                 col_anchor: '%anchor_a2%',
                 attr: 'style="width: 100%"'
             }
         },
-        { field: 'field9', type: 'text',
+        { field: 'field5', type: 'text',
             html: {
-                label: 'Field 9',
+                label: 'Field 5',
                 span: -1,
                 col_anchor: '%anchor_a3%',
                 attr: 'style="width: 100%"'
             }
         },
-        { field: 'field10', type: 'textarea',
+        { field: 'field6', type: 'textarea',
             html: {
-                label: 'Field 10',
+                label: 'Field 6',
                 span: -1,
                 col_anchor: '%anchor_b%',
                 attr: 'style="width: 100%; height: 140px; resizable: none"'
             }
         },
+        { type: 'columns', style: 'margin-top: 15px; padding: 10px 10px; background-color: #f0fbf2', columns: [
+            { content: '%anchor_c1% %anchor_c2%', style: 'width: 30%' },
+            { content: '%anchor_d1%', style: 'width: 30%' },
+            { content: '%anchor_e1%', style: 'width: 30%; padding-left: 5px;' }
+        ]},
+        { field: 'date1', type: 'date', required: true,
+            html: { label: 'Date 1', col_anchor: '%anchor_c1%', span: 2 }
+        },
+        { field: 'date2', type: 'date', required: true,
+            html: { label: 'Date 2', col_anchor: '%anchor_c2%', span: 2 }
+        },
+        { field: 'comments', type: 'textarea',
+            html: {
+                col_anchor: '%anchor_d1%',
+                span: 0,
+                attr: 'placeholder="Comments..." style="width: 100%; height: 66px; resize: none;"'
+            }
+        },
+        { field: 'list4',  type: 'checks', required: false,
+            html: {
+                label: 'Check List',
+                span: 0,
+                col_anchor: '%anchor_e1%',
+                attr: 'style="max-width: 200px; max-height: 200px; overflow: auto"'
+            },
+            options: {
+                items: [
+                    { id: 'check1', text: 'Check 1' },
+                    { id: 'check2', text: 'Check 2' },
+                    { id: 'check3', text: 'Check 3 (long text)' },
+                ]
+            }
+        },
+
+
     ],
     record: {
     },

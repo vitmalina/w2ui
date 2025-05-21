@@ -787,6 +787,9 @@ class w2form extends w2base {
         let errors = []
         for (let f = 0; f < this.fields.length; f++) {
             let field = this.fields[f]
+            if (field.type == 'columns' || field.field == null) {
+                continue
+            }
             if (this.getValue(field.field) == null) this.setValue(field.field, '')
             if (['int', 'float', 'currency', 'money'].indexOf(field.type) != -1) {
                 let val = this.getValue(field.field)
@@ -961,6 +964,9 @@ class w2form extends w2base {
     getCleanRecord(strict) {
         let data = w2utils.clone(this.record)
         this.fields.forEach((fld) => {
+            if (fld.type == 'columns' || fld.field == null) {
+                return
+            }
             if (['list', 'combo', 'enum'].indexOf(fld.type) != -1) {
                 let tmp = { nestedFields: true, record: data }
                 let val = this.getValue.call(tmp, fld.field)
@@ -1465,7 +1471,7 @@ class w2form extends w2base {
                 group = field.html.group
             }
             if (field.type == 'columns') {
-                html += '<div class="w2ui-field-columns">'
+                html += `<div class="w2ui-field-columns" style="${field.style ?? ''}">`
                 field.columns.forEach(col => {
                     html += `<div style="${col.style}"> ${col.content} </div>`
                 })
