@@ -2350,33 +2350,33 @@ class w2grid extends w2base {
             class: 'w2ui-grid-search-advanced',
             hideOn: ['doc-click']
         })
-            .then(event => {
-                this.initSearches()
-                this.last.search_opened = true
-                let overlay = query(`#w2overlay-${this.name}-search-overlay`)
-                overlay
-                    .data('gridName', this.name)
-                    .off('.grid-search')
-                    .on('click.grid-search', () => {
-                    // hide any tooltip opened by searches
-                        overlay.find('input, select').each(el => {
-                            let names = query(el).data('tooltipName')
-                            if (names) names.forEach(name => {
-                                w2tooltip.hide(name)
-                            })
+        .then(event => {
+            this.initSearches()
+            this.last.search_opened = true
+            let overlay = query(`#w2overlay-${this.name}-search-overlay`)
+            overlay
+                .data('gridName', this.name)
+                .off('.grid-search')
+                .on('click.grid-search', () => {
+                // hide any tooltip opened by searches
+                    overlay.find('input, select').each(el => {
+                        let names = query(el).data('tooltipName')
+                        if (names) names.forEach(name => {
+                            w2tooltip.hide(name)
                         })
                     })
-                w2utils.bindEvents(overlay.find('select, input, button'), this)
-                // init first field
-                let sfields = query(`#w2overlay-${this.name}-search-overlay *[rel=search]`)
-                if (sfields.length > 0) sfields[0].focus()
-                // event after
-                edata.finish()
-            })
-            .hide(event => {
-                $btn.removeClass('checked')
-                this.last.search_opened = false
-            })
+                })
+            w2utils.bindEvents(overlay.find('select, input, button'), this)
+            // init first field
+            let sfields = query(`#w2overlay-${this.name}-search-overlay *[rel=search]`)
+            if (sfields.length > 0) sfields[0].focus()
+            // event after
+            edata.finish()
+        })
+        .hide(event => {
+            $btn.removeClass('checked')
+            this.last.search_opened = false
+        })
     }
 
     searchClose() {
@@ -7280,10 +7280,18 @@ class w2grid extends w2base {
                 if (search.type == 'enum') options.selected = []
                 if (sdata) options.selected = sdata.value
                 if (!$fld1[0]._w2field) {
-                    let fld = new w2field(search.type, { el: $fld1[0], ...options })
+                    let fld = new w2field(search.type, {
+                        el: $fld1[0],
+                        ...options,
+                        onSelect: async (event) => {
+                            await event.complete
+                            this.initSearchLists(search.field)
+                        }
+                     })
                     if (sdata && sdata.text != null) {
                         fld.set({ id: sdata.value, text: sdata.text })
                     }
+                    search._w2field = fld
                 }
                 break
 
@@ -7306,6 +7314,40 @@ class w2grid extends w2base {
                 $fld1.html(options)
                 break
         }
+        this.initSearchLists()
+    }
+
+    initSearchLists(changedField) {
+        let fields = this.getSearch()
+        // set all fields that refer to chaned one to blank
+        if (changedField != null) {
+            fields.forEach(field => {
+                let search = this.getSearch(field)
+                if (search.options.parentList == changedField) {
+                    search._w2field.set(null)
+                }
+            })
+        }
+        fields.forEach(field => {
+            let search = this.getSearch(field)
+            if (search.options.parentList != null) {
+                let parent = this.getSearch(search.options.parentList)
+                let parent_id = this.getSearch(parent.field)._w2field?.get().id
+                search._w2field?.options?.items?.forEach?.(item => {
+                    let parent = w2utils.getNested(item, search.options.parentField ?? 'parentId')
+                    if (parent == null) {
+                        return
+                    }
+                    let possible = w2utils.clone(Array.isArray(parent) ? parent : [parent])
+                    possible.unshift('')
+                    if (possible.includes(parent_id) && item.hidden === true) {
+                        item.hidden = false
+                    } else if (!possible.includes(parent_id) && item.hidden !== true) {
+                        item.hidden = true
+                    }
+                })
+            }
+        })
     }
 
     initSearches() {

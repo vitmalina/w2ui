@@ -1,0 +1,156 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Linked Searches</h1>
+        Auto search on key presss with extra options - see example below.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="grid" style="width: 600px; height: 350px; overflow: hidden;"></div>
+<div style="clear:both; height: 10px;"></div>
+
+<!--CODE-->
+<script type="module">
+import { w2grid, w2utils } from '__W2UI_PATH__'
+
+let samples = [
+    { id: "elephant", text: "Elephant", parent: "mammals" },
+    { id: "dog", text: "Dog", parent: "mammals" },
+    { id: "human", text: "Human", parent: "mammals" },
+
+    { id: "eagle", text: "Eagle", parent: "birds" },
+    { id: "parrot", text: "Parrot", parent: "birds" },
+    { id: "penguin", text: "Penguin", parent: "birds" },
+
+    { id: "snake", text: "Snake", parent: "reptiles" },
+    { id: "lizard", text: "Lizard", parent: ["weird", "reptiles"] },
+    { id: "crocodile", text: "Crocodile", parent: "reptiles" },
+
+    { id: "frog", text: "Frog", parent: "amphibians" },
+    { id: "salamander", text: "Salamander", parent: "amphibians" },
+    { id: "newt", text: "Newt", parent: ["weird", "amphibians"] },
+
+    { id: "salmon", text: "Salmon", parent: "fish" },
+    { id: "shark", text: "Shark", parent: "fish" },
+    { id: "clownfish", text: "Clownfish", parent: ["weird", "fish"] },
+
+    { id: "ant", text: "Ant", parent: "insects" },
+    { id: "butterfly", text: "Butterfly", parent: "insects" },
+    { id: "beetle", text: "Beetle", parent: "insects" },
+
+    { id: "spider", text: "Spider", parent: "arachnids" },
+    { id: "scorpion", text: "Scorpion", parent: "arachnids" },
+    { id: "tick", text: "Tick", parent: "arachnids" },
+
+    { id: "crab", text: "Crab", parent: "crustaceans" },
+    { id: "lobster", text: "Lobster", parent: "crustaceans" },
+    { id: "shrimp", text: "Shrimp", parent: "crustaceans" },
+
+    { id: "snail", text: "Snail", parent: "mollusks" },
+    { id: "octopus", text: "Octopus", parent: "mollusks" },
+    { id: "clam", text: "Clam", parent: "mollusks" },
+
+    { id: "starfish", text: "Starfish", parent: "echinoderms" },
+    { id: "sea_urchin", text: "Sea Urchin", parent: ["weird", "echinoderms"] },
+    { id: "sea_cucumber", text: "Sea Cucumber", parent: ["weird", "echinoderms"] }
+]
+
+let grid = new w2grid({
+    box: '#grid',
+    name: 'grid',
+    multiSearch: true,
+    show: {
+        toolbar: true,
+        searchLogic: false
+    },
+    searches: [
+        { field: 'group', label: 'Group', type: 'list',
+            style: 'width: 150px',
+            options: {
+                // you can optionally define itemMap were you can provide mapping to id and text fields
+                itemMap: {
+                    id: 'info.group', // can be nested, then it is parsed
+                    text: 'info.name'
+                },
+                items: [
+                    { info: { group: '', name: 'Show All' }},
+                    { info: { group: "weird", name: 'Weird Ones' }},
+                    { text: "--" }, // just a separator
+                    { info: { group: "mammals", name: "Mammals" }},
+                    { info: { group: "birds", name: "Birds" }},
+                    { info: { group: "reptiles", name: "Reptiles" }},
+                    { info: { group: "amphibians", name: "Amphibians" }},
+                    { info: { group: "fish", name: "Fish" }},
+                    { info: { group: "insects", name: "Insects" }},
+                    { info: { group: "arachnids", name: "Arachnids" }},
+                    { info: { group: "crustaceans", name: "Crustaceans" }},
+                    { info: { group: "mollusks", name: "Mollusks" }},
+                    { info: { group: "echinoderms", name: "Echinoderms" }},
+                ]
+            }
+        },
+        { field: 'animal_id', label: 'Name', type: 'list',
+            style: 'width: 150px',
+            text: ' ← Linked to Group',
+            options: {
+                parentList: 'group',
+                parentField: 'parent', // field inside items objects that contains id from parent list (default is "parentId")
+                items: w2utils.clone(samples)
+
+            }
+        },
+    ],
+    columns: [
+        { field: 'animal', text: 'Name', size: '120px', sortable: true },
+        { field: 'group', text: 'Group', size: '120px', sortable: true },
+        { field: 'weight', text: 'Weight', size: '70px', sortable: true },
+        { field: 'speed', text: 'Speed', size: '70px', sortable: true },
+        { field: 'habitat', text: 'Habitat', size: '100^', sortable: true }
+    ],
+    records: [
+        { recid: 1, animal_id: 'elephant', "animal": "Elephant", "group": "mammals", "weight": 6000, "speed": 40, "habitat": "savanna" },
+        { recid: 2, animal_id: 'dog', "animal": "Dog", "group": "mammals", "weight": 30, "speed": 45, "habitat": "urban" },
+        { recid: 3, animal_id: 'human', "animal": "Human", "group": "mammals", "weight": 70, "speed": 28, "habitat": "varied" },
+
+        { recid: 4, animal_id: 'eagle', "animal": "Eagle", "group": "birds", "weight": 6, "speed": 160, "habitat": "mountains" },
+        { recid: 5, animal_id: 'parrot', "animal": "Parrot", "group": "birds", "weight": 1, "speed": 50, "habitat": "rainforest" },
+        { recid: 6, animal_id: 'penguin', "animal": "Penguin", "group": "birds", "weight": 30, "speed": 10, "habitat": "polar" },
+
+        { recid: 7, animal_id: 'snake', "animal": "Snake", "group": "reptiles", "weight": 5, "speed": 20, "habitat": "forest" },
+        { recid: 8, animal_id: 'lizard', "animal": "Lizard", "group": "reptiles", "weight": 0.2, "speed": 24, "habitat": "desert" },
+        { recid: 9, animal_id: 'crocodile', "animal": "Crocodile", "group": "reptiles", "weight": 500, "speed": 15, "habitat": "wetlands" },
+
+        { recid: 10, animal_id: 'frog', "animal": "Frog", "group": "amphibians", "weight": 0.3, "speed": 8, "habitat": "pond" },
+        { recid: 11, animal_id: 'salamander', "animal": "Salamander", "group": "amphibians", "weight": 0.1, "speed": 5, "habitat": "forest" },
+        { recid: 12, animal_id: 'newt', "animal": "Newt", "group": "amphibians", "weight": 0.05, "speed": 4, "habitat": "marsh" },
+
+        { recid: 13, animal_id: 'salmon', "animal": "Salmon", "group": "fish", "weight": 4, "speed": 13, "habitat": "rivers" },
+        { recid: 14, animal_id: 'shark', "animal": "Shark", "group": "fish", "weight": 800, "speed": 50, "habitat": "ocean" },
+        { recid: 15, animal_id: 'clownfish', "animal": "Clownfish", "group": "fish", "weight": 0.25, "speed": 5, "habitat": "reef" },
+
+        { recid: 16, animal_id: 'ant', "animal": "Ant", "group": "insects", "weight": 0.0003, "speed": 0.3, "habitat": "ground" },
+        { recid: 17, animal_id: 'vutterfly', "animal": "Butterfly", "group": "insects", "weight": 0.002, "speed": 20, "habitat": "meadow" },
+        { recid: 18, animal_id: 'veetle', "animal": "Beetle", "group": "insects", "weight": 0.005, "speed": 8, "habitat": "forest floor" },
+
+        { recid: 19, animal_id: 'spider', "animal": "Spider", "group": "arachnids", "weight": 0.01, "speed": 1.2, "habitat": "webs" },
+        { recid: 20, animal_id: 'scorpion', "animal": "Scorpion", "group": "arachnids", "weight": 0.05, "speed": 1, "habitat": "desert" },
+        { recid: 21, animal_id: 'tick', "animal": "Tick", "group": "arachnids", "weight": 0.001, "speed": 0.1, "habitat": "grassland" },
+
+        { recid: 22, animal_id: 'crab', "animal": "Crab", "group": "crustaceans", "weight": 1.5, "speed": 3, "habitat": "shoreline" },
+        { recid: 23, animal_id: 'lobster', "animal": "Lobster", "group": "crustaceans", "weight": 4, "speed": 5, "habitat": "sea floor" },
+        { recid: 24, animal_id: 'shrimp', "animal": "Shrimp", "group": "crustaceans", "weight": 0.03, "speed": 1.5, "habitat": "ocean" },
+
+        { recid: 25, animal_id: 'snail', "animal": "Snail", "group": "mollusks", "weight": 0.02, "speed": 0.03, "habitat": "garden" },
+        { recid: 26, animal_id: 'octopus', "animal": "Octopus", "group": "mollusks", "weight": 15, "speed": 40, "habitat": "coral reef" },
+        { recid: 27, animal_id: 'clam', "animal": "Clam", "group": "mollusks", "weight": 1.2, "speed": 0, "habitat": "sea floor" },
+
+        { recid: 28, animal_id: 'starfish', "animal": "Starfish", "group": "echinoderms", "weight": 0.5, "speed": 0.02, "habitat": "seabed" },
+        { recid: 29, animal_id: 'sea_urchin', "animal": "Sea Urchin", "group": "echinoderms", "weight": 0.1, "speed": 0.01, "habitat": "rocky shore" },
+        { recid: 30, animal_id: 'sea_cucumber', "animal": "Sea Cucumber", "group": "echinoderms", "weight": 0.8, "speed": 0.01, "habitat": "ocean floor" }
+    ]
+})
+</script>
+
+<!--CODE-->

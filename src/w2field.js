@@ -415,11 +415,12 @@ class w2field extends w2base {
 
     set(val, append) {
         if (['list', 'enum', 'file'].indexOf(this.type) !== -1) {
+            let overlay = w2menu.get(this.el.id + '_menu')
+            overlay?.hide()
             if (this.type !== 'list' && append) {
                 if (!Array.isArray(this.selected)) this.selected = []
                 this.selected.push(val)
                 // update selected array in overlay
-                let overlay = w2menu.get(this.el.id + '_menu')
                 if (overlay) overlay.options.selected = this.selected
                 query(this.el).trigger('input').trigger('change')
             } else {
@@ -436,6 +437,8 @@ class w2field extends w2base {
 
     setIndex(ind, append) {
         if (['list', 'enum'].indexOf(this.type) !== -1) {
+            let overlay = w2menu.get(this.el.id + '_menu')
+            overlay?.hide()
             let items = this.options.items
             if (items && items[ind]) {
                 if (this.type == 'list') {
@@ -445,7 +448,6 @@ class w2field extends w2base {
                     if (!append) this.selected = []
                     this.selected.push(items[ind])
                 }
-                let overlay = w2menu.get(this.el.id + '_menu')
                 if (overlay) overlay.options.selected = this.selected
                 query(this.el).trigger('input').trigger('change')
                 this.refresh()
