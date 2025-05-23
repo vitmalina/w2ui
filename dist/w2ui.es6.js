@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (5/20/2025, 5:14:07 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (5/23/2025, 6:21:47 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -14006,33 +14006,33 @@ class w2grid extends w2base {
             class: 'w2ui-grid-search-advanced',
             hideOn: ['doc-click']
         })
-            .then(event => {
-                this.initSearches()
-                this.last.search_opened = true
-                let overlay = query(`#w2overlay-${this.name}-search-overlay`)
-                overlay
-                    .data('gridName', this.name)
-                    .off('.grid-search')
-                    .on('click.grid-search', () => {
-                    // hide any tooltip opened by searches
-                        overlay.find('input, select').each(el => {
-                            let names = query(el).data('tooltipName')
-                            if (names) names.forEach(name => {
-                                w2tooltip.hide(name)
-                            })
+        .then(event => {
+            this.initSearches()
+            this.last.search_opened = true
+            let overlay = query(`#w2overlay-${this.name}-search-overlay`)
+            overlay
+                .data('gridName', this.name)
+                .off('.grid-search')
+                .on('click.grid-search', () => {
+                // hide any tooltip opened by searches
+                    overlay.find('input, select').each(el => {
+                        let names = query(el).data('tooltipName')
+                        if (names) names.forEach(name => {
+                            w2tooltip.hide(name)
                         })
                     })
-                w2utils.bindEvents(overlay.find('select, input, button'), this)
-                // init first field
-                let sfields = query(`#w2overlay-${this.name}-search-overlay *[rel=search]`)
-                if (sfields.length > 0) sfields[0].focus()
-                // event after
-                edata.finish()
-            })
-            .hide(event => {
-                $btn.removeClass('checked')
-                this.last.search_opened = false
-            })
+                })
+            w2utils.bindEvents(overlay.find('select, input, button'), this)
+            // init first field
+            let sfields = query(`#w2overlay-${this.name}-search-overlay *[rel=search]`)
+            if (sfields.length > 0) sfields[0].focus()
+            // event after
+            edata.finish()
+        })
+        .hide(event => {
+            $btn.removeClass('checked')
+            this.last.search_opened = false
+        })
     }
     searchClose() {
         w2tooltip.hide(this.name + '-search-overlay')
@@ -18774,10 +18774,18 @@ class w2grid extends w2base {
                 if (search.type == 'enum') options.selected = []
                 if (sdata) options.selected = sdata.value
                 if (!$fld1[0]._w2field) {
-                    let fld = new w2field(search.type, { el: $fld1[0], ...options })
+                    let fld = new w2field(search.type, {
+                        el: $fld1[0],
+                        ...options,
+                        onSelect: async (event) => {
+                            await event.complete
+                            this.initSearchLists(search.field)
+                        }
+                     })
                     if (sdata && sdata.text != null) {
                         fld.set({ id: sdata.value, text: sdata.text })
                     }
+                    search._w2field = fld
                 }
                 break
             case 'select':
@@ -18799,6 +18807,39 @@ class w2grid extends w2base {
                 $fld1.html(options)
                 break
         }
+        this.initSearchLists()
+    }
+    initSearchLists(changedField) {
+        let fields = this.getSearch()
+        // set all fields that refer to chaned one to blank
+        if (changedField != null) {
+            fields.forEach(field => {
+                let search = this.getSearch(field)
+                if (search.options.parentList == changedField) {
+                    search._w2field.set(null)
+                }
+            })
+        }
+        fields.forEach(field => {
+            let search = this.getSearch(field)
+            if (search.options.parentList != null) {
+                let parent = this.getSearch(search.options.parentList)
+                let parent_id = this.getSearch(parent.field)._w2field?.get().id
+                search._w2field?.options?.items?.forEach?.(item => {
+                    let parent = w2utils.getNested(item, search.options.parentField ?? 'parentId')
+                    if (parent == null) {
+                        return
+                    }
+                    let possible = w2utils.clone(Array.isArray(parent) ? parent : [parent])
+                    possible.unshift('')
+                    if (possible.includes(parent_id) && item.hidden === true) {
+                        item.hidden = false
+                    } else if (!possible.includes(parent_id) && item.hidden !== true) {
+                        item.hidden = true
+                    }
+                })
+            }
+        })
     }
     initSearches() {
         let overlay = query(`#w2overlay-${this.name}-search-overlay`)
@@ -22951,11 +22992,12 @@ class w2field extends w2base {
     }
     set(val, append) {
         if (['list', 'enum', 'file'].indexOf(this.type) !== -1) {
+            let overlay = w2menu.get(this.el.id + '_menu')
+            overlay?.hide()
             if (this.type !== 'list' && append) {
                 if (!Array.isArray(this.selected)) this.selected = []
                 this.selected.push(val)
                 // update selected array in overlay
-                let overlay = w2menu.get(this.el.id + '_menu')
                 if (overlay) overlay.options.selected = this.selected
                 query(this.el).trigger('input').trigger('change')
             } else {
@@ -22971,6 +23013,8 @@ class w2field extends w2base {
     }
     setIndex(ind, append) {
         if (['list', 'enum'].indexOf(this.type) !== -1) {
+            let overlay = w2menu.get(this.el.id + '_menu')
+            overlay?.hide()
             let items = this.options.items
             if (items && items[ind]) {
                 if (this.type == 'list') {
@@ -22980,7 +23024,6 @@ class w2field extends w2base {
                     if (!append) this.selected = []
                     this.selected.push(items[ind])
                 }
-                let overlay = w2menu.get(this.el.id + '_menu')
                 if (overlay) overlay.options.selected = this.selected
                 query(this.el).trigger('input').trigger('change')
                 this.refresh()
