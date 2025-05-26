@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (5/23/2025, 6:21:47 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (5/26/2025, 5:36:21 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -3011,16 +3011,21 @@ class Utils {
         if (Array.isArray(obj)) {
             ret = Array.from(obj)
             ret.forEach((value, ind) => {
-                ret[ind] = this.clone(value, options)
+                ret[ind] = this.clone(value, { ...options, parent: (options.parent ?? '') + '[]' })
             })
         } else if (this.isPlainObject(obj)) {
             ret = {}
             Object.assign(ret, obj)
-            if (options.exclude) {
-                options.exclude.forEach(key => { delete ret[key] }) // delete excluded keys
+            // delete excluded keys
+            if (Array.isArray(options.exclude)) {
+                options.exclude.forEach(key => { delete ret[key] })
             }
             Object.keys(ret).forEach(key => {
-                ret[key] = this.clone(ret[key], options)
+                if (typeof options.exclude == 'function' && options.exclude(key, { obj, parent: options.parent ?? '' })) {
+                    ret[key] = undefined
+                } else {
+                    ret[key] = this.clone(ret[key], { ...options, parent: (options.parent ?? '') + (options.parent != null ? '.' : '') + key })
+                }
                 if (ret[key] === undefined) delete ret[key] // do not include undefined elements
             })
         } else {
@@ -18811,18 +18816,18 @@ class w2grid extends w2base {
     }
     initSearchLists(changedField) {
         let fields = this.getSearch()
-        // set all fields that refer to chaned one to blank
+        // set all fields that refer to changed one to blank
         if (changedField != null) {
             fields.forEach(field => {
                 let search = this.getSearch(field)
-                if (search.options.parentList == changedField) {
+                if (search.options?.parentList == changedField) {
                     search._w2field.set(null)
                 }
             })
         }
         fields.forEach(field => {
             let search = this.getSearch(field)
-            if (search.options.parentList != null) {
+            if (search.options?.parentList != null) {
                 let parent = this.getSearch(search.options.parentList)
                 let parent_id = this.getSearch(parent.field)._w2field?.get().id
                 search._w2field?.options?.items?.forEach?.(item => {
