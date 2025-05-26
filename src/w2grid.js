@@ -7319,18 +7319,18 @@ class w2grid extends w2base {
 
     initSearchLists(changedField) {
         let fields = this.getSearch()
-        // set all fields that refer to chaned one to blank
+        // set all fields that refer to changed one to blank
         if (changedField != null) {
             fields.forEach(field => {
                 let search = this.getSearch(field)
-                if (search.options.parentList == changedField) {
+                if (search.options?.parentList == changedField) {
                     search._w2field.set(null)
                 }
             })
         }
         fields.forEach(field => {
             let search = this.getSearch(field)
-            if (search.options.parentList != null) {
+            if (search.options?.parentList != null) {
                 let parent = this.getSearch(search.options.parentList)
                 let parent_id = this.getSearch(parent.field)._w2field?.get().id
                 search._w2field?.options?.items?.forEach?.(item => {
