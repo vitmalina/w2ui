@@ -2120,20 +2120,24 @@ class Utils {
         if (Array.isArray(obj)) {
             ret = Array.from(obj)
             ret.forEach((value, ind) => {
-                ret[ind] = this.clone(value, options)
+                ret[ind] = this.clone(value, { ...options, parent: (options.parent ?? '') + '[]' })
             })
         } else if (this.isPlainObject(obj)) {
             ret = {}
             Object.assign(ret, obj)
-            if (options.exclude) {
-                options.exclude.forEach(key => { delete ret[key] }) // delete excluded keys
+            // delete excluded keys
+            if (Array.isArray(options.exclude)) {
+                options.exclude.forEach(key => { delete ret[key] })
             }
             Object.keys(ret).forEach(key => {
-                ret[key] = this.clone(ret[key], options)
+                if (typeof options.exclude == 'function' && options.exclude(key, { obj, parent: options.parent ?? '' })) {
+                    ret[key] = undefined
+                } else {
+                    ret[key] = this.clone(ret[key], { ...options, parent: (options.parent ?? '') + (options.parent != null ? '.' : '') + key })
+                }
                 if (ret[key] === undefined) delete ret[key] // do not include undefined elements
             })
         } else {
-
             if ((obj instanceof Function && !options.functions)
                     || (obj instanceof Node && !options.elements)
                     || (obj instanceof Event && !options.events)
