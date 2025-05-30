@@ -7325,15 +7325,6 @@ class w2grid extends w2base {
 
     initSearchLists(changedField) {
         let fields = this.getSearch()
-        // set all fields that refer to changed one to blank
-        if (changedField != null) {
-            fields.forEach(field => {
-                let search = this.getSearch(field)
-                if (search.options?.parentList == changedField) {
-                    search._w2field.set(null)
-                }
-            })
-        }
         fields.forEach(field => {
             let search = this.getSearch(field)
             if (search.options?.parentList != null) {
@@ -7360,6 +7351,23 @@ class w2grid extends w2base {
                 })
             }
         })
+        // set all fields that refer to changed one to blank
+        if (changedField != null) {
+            fields.forEach(field => {
+                let search = this.getSearch(field)
+                if (search.options?.parentList == changedField) {
+                    let fld = search._w2field
+                    let items = fld.options.items.filter(it => !it.hidden).map(it => it.id)
+                    if (fld.type == 'list' && !items.includes(fld.get().id)) {
+                        fld.set(null)
+                    }
+                    if (fld.type == 'enum') {
+                        let new_sel = fld.get().filter(it => items.includes(it.id))
+                        fld.set(new_sel)
+                    }
+                }
+            })
+        }
     }
 
     initSearches() {
