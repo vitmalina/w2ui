@@ -7358,12 +7358,12 @@ class w2grid extends w2base {
                 if (search.options?.parentList == changedField) {
                     let fld = search._w2field
                     let items = fld.options.items.filter(it => !it.hidden).map(it => it.id)
-                    if (fld.type == 'list' && !items.includes(fld.get().id)) {
+                    if (fld.type == 'list' && !items.includes(fld.get()?.id)) {
                         fld.set(null)
                     }
                     if (fld.type == 'enum') {
-                        let new_sel = fld.get().filter(it => items.includes(it.id))
-                        fld.set(new_sel)
+                        let new_sel = fld.get()?.filter(it => items.includes(it.id))
+                        fld.set(new_sel || [])
                     }
                 }
             })

@@ -931,6 +931,9 @@ class w2field extends w2base {
                     event.stopPropagation()
                 }
             }
+            if (this.type == 'enum') {
+                this.updateOverlay()
+            }
         }
         // other fields with drops
         if (['date', 'time', 'datetime', 'color'].includes(this.type)) {
@@ -973,7 +976,7 @@ class w2field extends w2base {
             }
             this.resize()
             // update overlay if needed
-            if (event.showMenu !== false && (this.options.openOnFocus !== false || query(this.el).hasClass('has-focus'))
+            if (event.showMenu !== false && (this.options.openOnFocus !== false && query(this.el).hasClass('has-focus'))
                     && !this.tmp.overlay?.overlay?.displayed) {
                 setTimeout(() => {
                     this.tmp.openedOnFocus = true
@@ -1037,6 +1040,8 @@ class w2field extends w2base {
         // clear search input
         if (this.type === 'enum') {
             query(this.helpers.multi).find('input').val('').css('width', '15px')
+            // don't hide menu on blur, it should be hidden on tab key up instead, or it will not alow select with click
+            // w2menu.hide(this.el.id + '_menu')
         }
         if (this.type == 'file') {
             let prev = this.el.previousElementSibling
@@ -1044,6 +1049,8 @@ class w2field extends w2base {
         }
         if (this.type === 'list') {
             this.el.value = this.selected?.text ?? ''
+            // don't hide menu on blur, it should be hidden on tab key up instead, or it will not alow select with click
+            // w2menu.hide(this.el.id + '_menu')
         }
     }
 
@@ -1186,6 +1193,7 @@ class w2field extends w2base {
                     break
                 case 9: // tab key
                 case 16: // shift key (when shift+tab)
+                    w2menu.hide(this.el.id + '_menu')
                     break
                 case 27: // escape
                     w2menu.hide(this.el.id + '_menu')
@@ -1236,8 +1244,12 @@ class w2field extends w2base {
                 `font-family: ${styles['font-family']}; font-size: ${styles['font-size']};`)
             search.css({ width: (width + 15) + 'px' })
             this.resize()
-            // if arrows are clicked, it will show overlay
-            if ([38, 40].includes(event.keyCode) && !this.tmp.overlay?.overlay?.displayed) {
+            // if delete, backspace, tab, shift, escape - hide menu
+            if ([8, 46, 9, 16, 27].includes(event.keyCode)) {
+                if (this.tmp.overlay?.overlay?.displayed) {
+                    w2menu.hide(this.el.id + '_menu')
+                }
+            } else {
                 this.updateOverlay()
             }
         }
@@ -1554,12 +1566,12 @@ class w2field extends w2base {
         this.helpers.search_focus = query(helper).find('input').get(0)
         let styles = getComputedStyle(this.el)
         query(helper).css({
-            width           : this.el.clientWidth + 'px',
-            'margin-top'    : styles['margin-top'],
-            'margin-left'   : styles['margin-left'],
-            'margin-bottom' : styles['margin-bottom'],
-            'margin-right'  : styles['margin-right']
-        })
+                width           : this.el.clientWidth + 'px',
+                'margin-top'    : styles['margin-top'],
+                'margin-left'   : styles['margin-left'],
+                'margin-bottom' : styles['margin-bottom'],
+                'margin-right'  : styles['margin-right']
+            })
             .find('input')
             .css({
                 cursor   : 'default',
@@ -1679,8 +1691,11 @@ class w2field extends w2base {
         this.helpers.multi = div
         query(this.el).attr('tabindex', -1)
         // click anywhere on the field
-        div.on('click', event => { this.focus(event) })
-        // search field
+        div.on('mousedown', event => { query(event.target).addClass('has-focus') })  // this is needed so that visually focus is there
+            .on('mouseup', event => { query(event.target).removeClass('has-focus') })
+            .on('click', event => { this.focus(event); this.updateOverlay() })
+
+        // search field (small and growing one)
         div.find('input:not(.file-input)')
             .on('click', event => { this.click(event) })
             .on('focus', event => { this.focus(event) })

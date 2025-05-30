@@ -1491,10 +1491,14 @@ class MenuTooltip extends Tooltip {
                 let search = ''
                 // reset selected and active chain
                 overlay.selected = overlay.options.selected // this is needed so that menu item can be preselected
-                if (overlay.options.selected !== false && overlay.options.selected !== -1 && overlay.anchor.dataset?.selectedIndex != null) {
+                let index = overlay.anchor.dataset?.selectedIndex
+                if ((overlay.options.selected !== false && overlay.options.selected !== -1) || index != null) {
                     if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
                         search = overlay.anchor.value
-                        overlay.selected = overlay.anchor.dataset.selectedIndex
+                        overlay.selected = null // no element should be pre-selected
+                        if (index != null) {
+                            overlay.selected = index
+                        }
                     }
                 }
                 let actions = query(ret.overlay.box).find('.w2ui-eaction')
@@ -1502,12 +1506,17 @@ class MenuTooltip extends Tooltip {
                 this.applyFilter(overlay.name, null, search)
                     .then(data => {
                         if (!Tooltip.active[overlay.name].displayed) {
-                        // if toolitp is not visible, do not proceed as it would make it visible
+                            // if toolitp is not visible, do not proceed as it would make it visible
                             return
                         }
+                        this.getActiveChain(overlay.name, options.items) // need this to update chain for up/down key navigation
                         overlay.tmp.searchCount = data.count
                         overlay.tmp.search = data.search
-                        if (options.prefilter) {
+                        if (options.prefilter || search !== '') {
+                            // if selected is not in searched items
+                            if (data.count === 0 || !this.getActiveChain(overlay.name, options.items).includes(overlay.selected)) {
+                                overlay.selected = null
+                            }
                             this.refreshSearch(overlay.name)
                         }
                         this.initControls(ret.overlay)
@@ -2248,8 +2257,8 @@ class MenuTooltip extends Tooltip {
     }
 
     /**
-     * Builds an array of item ids that sequencial in navigation with up/down keys.
-     * Skips hidden and disabled items and goes into nested structures.
+     * Builds an array of item ids that sequencial order for navigation with up/down keys. Skips hidden and disabled items
+     * and goes into nested structures. It will remember last active chain in 'overlay.tmp.activeChain'
      */
     getActiveChain(name, items, parents = [], res = [], noSave) {
         let overlay = Tooltip.active[name.replace(/[\s\.#]/g, '_')]
