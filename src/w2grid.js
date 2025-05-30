@@ -7288,6 +7288,10 @@ class w2grid extends w2base {
                         onSelect: async (event) => {
                             await event.complete
                             this.initSearchLists(search.field)
+                        },
+                        onRemove: async (event) => {
+                            await event.complete
+                            this.initSearchLists(search.field)
                         }
                      })
                     if (sdata && sdata.text != null) {
@@ -7334,7 +7338,12 @@ class w2grid extends w2base {
             let search = this.getSearch(field)
             if (search.options?.parentList != null) {
                 let parent = this.getSearch(search.options.parentList)
-                let parent_id = this.getSearch(parent.field)._w2field?.get().id
+                let values = this.getSearch(parent.field)._w2field?.get()
+                if (Array.isArray(values)) {
+                    values = values.map(vv => vv.id)
+                } else {
+                    values = values?.id != null ? [values.id] : []
+                }
                 search._w2field?.options?.items?.forEach?.(item => {
                     let parent = w2utils.getNested(item, search.options.parentField ?? 'parentId')
                     if (parent == null) {
@@ -7342,9 +7351,10 @@ class w2grid extends w2base {
                     }
                     let possible = w2utils.clone(Array.isArray(parent) ? parent : [parent])
                     possible.unshift('')
-                    if (possible.includes(parent_id) && item.hidden === true) {
+                    let includes = values.some(item => possible.includes(item))
+                    if (includes && item.hidden === true) {
                         item.hidden = false
-                    } else if (!possible.includes(parent_id) && item.hidden !== true) {
+                    } else if (!includes && item.hidden !== true) {
                         item.hidden = true
                     }
                 })

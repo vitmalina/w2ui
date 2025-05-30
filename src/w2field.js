@@ -686,8 +686,8 @@ class w2field extends w2base {
 
                             })
                         }
-                        edata.finish()
                     }
+                    edata.finish()
                 })
                 .on('mouseenter.w2item', (event) => {
                     let target = query(event.target).closest('.li-item')
@@ -1161,19 +1161,26 @@ class w2field extends w2base {
                     if (this.type == 'list') {
                         let search = query(this.helpers.search_focus)
                         if (search.val() == '') {
+                            let edata = this.trigger('remove', { target: this.el, originalEvent: event, item: this.selected })
+                            if (edata.isCancelled === true) return
                             this.selected = null
                             w2menu.hide(this.el.id + '_menu')
                             query(this.el).val('').trigger('input').trigger('change')
+                            edata.finish()
                         }
                     } else {
                         let search = query(this.helpers.multi).find('input')
                         if (search.val() == '') {
+                            let edata = this.trigger('remove', { target: this.el, originalEvent: event, item: this.selected[this.selected.length - 1] })
+                            if (edata.isCancelled === true) return
+
                             w2menu.hide(this.el.id + '_menu')
                             this.selected.pop()
                             // update selected array in overlay
                             let overlay = w2menu.get(this.el.id + '_menu')
                             if (overlay) overlay.options.selected = this.selected
                             this.refresh()
+                            edata.finish()
                         }
                     }
                     break
