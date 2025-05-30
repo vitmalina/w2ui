@@ -1699,12 +1699,15 @@ class MenuTooltip extends Tooltip {
     }
 
     getCurrent(name, id) {
-        let overlay  = Tooltip.active[name.replace(/[\s\.#]/g, '_')]
-        let options  = overlay.options
-        let selected = (id ? id : overlay.selected ?? '').split('-')
-        let last     = selected.length-1
-        let index    = selected[last]
-        let parents  = selected.slice(0, selected.length-1).join('-')
+        let overlay = Tooltip.active[name.replace(/[\s\.#]/g, '_')]
+        let options = overlay.options
+        let selected = String(id ? id : (overlay.selected || '')).split('-')
+        if (selected?.[0] === '') {
+            selected.shift()
+        }
+        let last = selected.length - 1
+        let index = selected[last]
+        let parents = selected.slice(0, selected.length - 1).join('-')
         index = w2utils.isInt(index) ? parseInt(index) : 0
         // items
         let items = options.items
