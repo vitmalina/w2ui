@@ -449,6 +449,10 @@ class w2form extends w2base {
         return { current, previous, original } // current - in input, previous - in form.record, original - before form change
     }
 
+    findItem(item, items) {
+        return items.find(it => (it.id === item || it.id === item?.id))
+    }
+
     setFieldValue(name, value) {
         let field = this.get(name)
         if (field == null) return
@@ -610,7 +614,12 @@ class w2form extends w2base {
         this.fields.forEach(fld => {
             if (fld?.options?.parentList != null) {
                 let updated
-                let parent_id = this.getValue(fld.options.parentList).id
+                let values = this.getValue(fld.options.parentList)
+                if (Array.isArray(values)) {
+                    values = values.map(vv => vv.id)
+                } else {
+                    values = values?.id != null ? [values.id] : []
+                }
                 fld.options?.items?.forEach?.(item => {
                     let parent = w2utils.getNested(item, fld.options.parentField ?? 'parentId')
                     if (parent == null) {
@@ -618,10 +627,11 @@ class w2form extends w2base {
                     }
                     let possible = w2utils.clone(Array.isArray(parent) ? parent : [parent])
                     possible.unshift('')
-                    if (possible.includes(parent_id) && item.hidden === true) {
+                    let includes = values.some(item => possible.includes(item))
+                    if (includes && item.hidden === true) {
                         item.hidden = false
                         updated = true
-                    } else if (!possible.includes(parent_id) && item.hidden !== true) {
+                    } else if (!includes && item.hidden !== true) {
                         item.hidden = true
                         updated = true
                     }
@@ -630,11 +640,27 @@ class w2form extends w2base {
                     let value = this.getValue(fld.field)
                     if (value?.id != null) value = value.id
                     // if item is not visible, then clear its field
-                    fld.options.items.forEach(it => {
-                        if (it.id == value && it.hidden) {
-                            this.setValue(fld.field, null, true)
-                        }
-                    })
+                    if (fld.type == 'enum') {
+                        let valid = fld.options.items.filter(it => !it.hidden).map(it => it.id)
+                        let values = this.getValue(fld.field)
+                        if (!Array.isArray(values)) values = [values]
+                        // make sure they are objects
+                        values = values.map(it => {
+                            if (typeof it == 'string' || typeof it == 'number') {
+                                it = fld.options.items.find(ii => ii.id == it)
+                            }
+                            return it
+                        })
+                        let new_values = values.filter(it => valid.includes(it.id))
+                        this.setValue(fld.field, new_values, true)
+                    } else {
+                        fld.options.items.forEach(it => {
+                            if (it.id == value && it.hidden) {
+                                this.setValue(fld.field, null, true)
+                            }
+                        })
+                    }
+                    // set new items
                     this.set(fld.field, { items: fld.options.items })
                 }
             }
