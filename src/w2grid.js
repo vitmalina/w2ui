@@ -8513,12 +8513,12 @@ class w2grid extends w2base {
                     if (html.id != null && html.text != null) {
                         // normalized menu kind of return
                         value = html.text
-                    } else if (typeof html.html == 'string') {
-                        value = (html.html || '').trim()
+                    } else if (typeof html.html == 'string' || typeof html.html == 'number') {
+                        value = String(html.html ?? '').trim()
                     } else {
                         value = ''
                         console.log('ERROR: render function should return a primitive or an object of the following structure.',
-                            { html: '', attr: '', style: '', class: '', divAttr: '' })
+                            { html: '', attr: '', style: '', class: '', divAttr: '' }, '... but it returned:', html)
                     }
                     attr = html.attr ?? ''
                     style = html.style ?? ''
