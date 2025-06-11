@@ -1576,7 +1576,7 @@ class Utils {
                 }
                 let html = `
                     <div id="w2ui-notify" style="${options.where == document.body ? 'position: fixed' : ''}">
-                        <div class="${options.class ?? ''} ${options.error ? 'w2ui-notify-error' : ''}">
+                        <div class="${options.class ?? ''} ${options.error ? 'w2ui-notify-error' : ''} ${options.success ? 'w2ui-notify-success' : ''}">
                             ${text}
                             <span class="w2ui-notify-close w2ui-icon-cross"></span>
                         </div>
