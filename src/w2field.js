@@ -824,7 +824,7 @@ class w2field extends w2base {
                     }
                 }
                 val = val.replace(/\s+/g, '')
-                         .replace(new RegExp(options.groupSymbol, 'g'), '')
+                         .replace(options.groupSymbol, '')
                          .replace(options.decimalSymbol, '.')
             }
             if (val !== '' && w2utils.isFloat(val)) val = Number(val); else val = ''
