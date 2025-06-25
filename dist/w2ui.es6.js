@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (6/6/2025, 11:18:17 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (6/25/2025, 2:49:59 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -2494,7 +2494,7 @@ class Utils {
                 }
                 let html = `
                     <div id="w2ui-notify" style="${options.where == document.body ? 'position: fixed' : ''}">
-                        <div class="${options.class ?? ''} ${options.error ? 'w2ui-notify-error' : ''}">
+                        <div class="${options.class ?? ''} ${options.error ? 'w2ui-notify-error' : ''} ${options.success ? 'w2ui-notify-success' : ''}">
                             ${text}
                             <span class="w2ui-notify-close w2ui-icon-cross"></span>
                         </div>
@@ -22197,6 +22197,7 @@ class w2form extends w2base {
                 if (field.toolbar) {
                     w2ui[this.name + '_' + field.name + '_tb'].destroy()
                 }
+                field.options?.items?.forEach?.(it => it.text === undefined ? it.text = '' : '')
                 let items = w2utils.normMenu.call(this, field.options.items, field.options)
                 items.forEach(item => item.type ??= 'radio')
                 field.toolbar = new w2toolbar({
