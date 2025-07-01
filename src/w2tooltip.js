@@ -1502,6 +1502,13 @@ class MenuTooltip extends Tooltip {
                     }
                 }
                 let actions = query(ret.overlay.box).find('.w2ui-eaction')
+                if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
+                    overlay.tmp._new_search = false
+                    query(overlay.anchor).on('input.search-trigger', () => {
+                        overlay.tmp._new_search = true
+                        query(overlay.anchor).off('input.search-trigger')
+                    })
+                }
                 w2utils.bindEvents(actions, this)
                 this.applyFilter(overlay.name, null, search)
                     .then(data => {
@@ -2013,10 +2020,6 @@ class MenuTooltip extends Tooltip {
         let overlay = Tooltip.active[name.replace(/[\s\.#]/g, '_')]
         let options = overlay.options
         let resolve, reject
-        let prom = new Promise((res, rej) => {
-            resolve = res
-            reject = rej
-        })
         if (search == null) {
             if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
                 search = overlay.anchor.value
@@ -2024,6 +2027,17 @@ class MenuTooltip extends Tooltip {
                 search = ''
             }
         }
+        /**
+         * If it is input control that has a menu, and if filter is true, then show all the items unfiltered, unless user
+         * starts filtering again.
+         */
+        if (overlay.tmp._new_search === false) {
+            search = ''
+        }
+        let prom = new Promise((res, rej) => {
+            resolve = res
+            reject = rej
+        })
         let selectedIds = []
         if (options.selected) {
             if (Array.isArray(options.selected)) {

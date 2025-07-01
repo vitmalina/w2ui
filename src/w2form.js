@@ -1885,7 +1885,7 @@ class w2form extends w2base {
                 if (field.toolbar) {
                     w2ui[this.name + '_' + field.name + '_tb'].destroy()
                 }
-                field.options?.items?.forEach?.(it => it.text === undefined ? it.text = '' : '')
+                field.options?.items?.forEach?.(it => it.text == null ? it.text = '' : '')
                 let items = w2utils.normMenu.call(this, field.options.items, field.options)
                 items.forEach(item => item.type ??= 'radio')
                 field.toolbar = new w2toolbar({
