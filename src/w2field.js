@@ -944,6 +944,14 @@ class w2field extends w2base {
     focus(event) {
         if (this.type == 'list' && document.activeElement == this.el) {
             this.helpers.search_focus.focus()
+            // update overlay if needed
+            if (event.showMenu !== false && (this.options.openOnFocus !== false && query(this.el).hasClass('has-focus'))
+                    && !this.tmp.overlay?.overlay?.displayed) {
+                setTimeout(() => {
+                    this.tmp.openedOnFocus = true
+                    this.updateOverlay()
+                }, 0) // execute at the end of event loop
+            }
             return
         }
         // color, date, time
@@ -1584,25 +1592,27 @@ class w2field extends w2base {
             })
         // INPUT events
         query(helper).find('input')
-            .off('.helper')
-            .on('focus.helper', event => {
+            .off('.w2ui-helper')
+            .on('focus.w2ui-helper', event => {
                 query(event.target).val('')
                 this.tmp.pholder = query(this.el).attr('placeholder') ?? ''
                 this.focus(event)
                 event.stopPropagation()
             })
-            .on('blur.helper', event => {
+            .on('blur.w2ui-helper', event => {
                 query(event.target).val('')
                 if (this.tmp.pholder != null) query(this.el).attr('placeholder', this.tmp.pholder)
                 this.blur(event)
                 event.stopPropagation()
             })
-            .on('keydown.helper', event => { this.keyDown(event) })
-            .on('keyup.helper', event => { this.keyUp(event) })
+            .on('keydown.w2ui-helper', event => { this.keyDown(event) })
+            .on('keyup.w2ui-helper', event => { this.keyUp(event) })
         // MAIN div
-        query(helper).on('click', event => {
-            query(event.target).find('input').focus()
-        })
+        query(helper)
+            .off('.w2ui-helper')
+            .on('click.w2ui-helper', event => {
+                query(helper).find('input').get(0).focus()
+            })
     }
 
     // Used in enum/file

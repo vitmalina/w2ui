@@ -5427,7 +5427,7 @@ class w2grid extends w2base {
                     let index = query(event.delegate).attr('index') // don't read recid directly as it could be a number or a string
                     let recid = this.records[index]?.recid
                     // do not generate click if empty record is clicked
-                    if (recid != '-none-') {
+                    if (recid != '-none-' && !this.last.inEditMode) {
                         this.click(recid, event)
                     }
                 })
