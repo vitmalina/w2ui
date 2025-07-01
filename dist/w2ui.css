@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (5/20/2025, 6:42:59 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (7/1/2025, 8:46:00 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -569,6 +569,17 @@ input[type=range]:focus::-ms-fill-upper {
 #w2ui-notify > div.w2ui-notify-error .w2ui-notify-close:hover {
   background-color: #fcadad;
   color: rgba(255, 0, 0, 0.8);
+}
+#w2ui-notify > div.w2ui-notify-success {
+  text-shadow: none;
+  background-color: rgba(21, 192, 70, 0.8);
+}
+#w2ui-notify > div.w2ui-notify-success .w2ui-notify-close {
+  color: #ffffff;
+}
+#w2ui-notify > div.w2ui-notify-success .w2ui-notify-close:hover {
+  background-color: #7ae097;
+  color: rgba(21, 192, 70, 0.8);
 }
 input[type=button].w2ui-btn,
 button.w2ui-btn {
@@ -1735,7 +1746,7 @@ button.w2ui-btn:disabled {
 }
 .w2ui-form .w2ui-field-columns {
   display: flex;
-  flex-flow: row nowrap;
+  flex-flow: row;
 }
 .w2ui-form .w2ui-buttons {
   position: absolute;

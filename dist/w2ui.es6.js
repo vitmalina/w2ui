@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (6/25/2025, 2:49:59 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (7/1/2025, 8:46:00 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -5619,6 +5619,13 @@ class MenuTooltip extends Tooltip {
                     }
                 }
                 let actions = query(ret.overlay.box).find('.w2ui-eaction')
+                if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
+                    overlay.tmp._new_search = false
+                    query(overlay.anchor).on('input.search-trigger', () => {
+                        overlay.tmp._new_search = true
+                        query(overlay.anchor).off('input.search-trigger')
+                    })
+                }
                 w2utils.bindEvents(actions, this)
                 this.applyFilter(overlay.name, null, search)
                     .then(data => {
@@ -6120,10 +6127,6 @@ class MenuTooltip extends Tooltip {
         let overlay = Tooltip.active[name.replace(/[\s\.#]/g, '_')]
         let options = overlay.options
         let resolve, reject
-        let prom = new Promise((res, rej) => {
-            resolve = res
-            reject = rej
-        })
         if (search == null) {
             if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
                 search = overlay.anchor.value
@@ -6131,6 +6134,17 @@ class MenuTooltip extends Tooltip {
                 search = ''
             }
         }
+        /**
+         * If it is input control that has a menu, and if filter is true, then show all the items unfiltered, unless user
+         * starts filtering again.
+         */
+        if (overlay.tmp._new_search === false) {
+            search = ''
+        }
+        let prom = new Promise((res, rej) => {
+            resolve = res
+            reject = rej
+        })
         let selectedIds = []
         if (options.selected) {
             if (Array.isArray(options.selected)) {
@@ -17012,7 +17026,7 @@ class w2grid extends w2base {
                     let index = query(event.delegate).attr('index') // don't read recid directly as it could be a number or a string
                     let recid = this.records[index]?.recid
                     // do not generate click if empty record is clicked
-                    if (recid != '-none-') {
+                    if (recid != '-none-' && !this.last.inEditMode) {
                         this.click(recid, event)
                     }
                 })
@@ -22197,7 +22211,7 @@ class w2form extends w2base {
                 if (field.toolbar) {
                     w2ui[this.name + '_' + field.name + '_tb'].destroy()
                 }
-                field.options?.items?.forEach?.(it => it.text === undefined ? it.text = '' : '')
+                field.options?.items?.forEach?.(it => it.text == null ? it.text = '' : '')
                 let items = w2utils.normMenu.call(this, field.options.items, field.options)
                 items.forEach(item => item.type ??= 'radio')
                 field.toolbar = new w2toolbar({
@@ -23569,6 +23583,14 @@ class w2field extends w2base {
     focus(event) {
         if (this.type == 'list' && document.activeElement == this.el) {
             this.helpers.search_focus.focus()
+            // update overlay if needed
+            if (event.showMenu !== false && (this.options.openOnFocus !== false && query(this.el).hasClass('has-focus'))
+                    && !this.tmp.overlay?.overlay?.displayed) {
+                setTimeout(() => {
+                    this.tmp.openedOnFocus = true
+                    this.updateOverlay()
+                }, 0) // execute at the end of event loop
+            }
             return
         }
         // color, date, time
@@ -24195,25 +24217,27 @@ class w2field extends w2base {
             })
         // INPUT events
         query(helper).find('input')
-            .off('.helper')
-            .on('focus.helper', event => {
+            .off('.w2ui-helper')
+            .on('focus.w2ui-helper', event => {
                 query(event.target).val('')
                 this.tmp.pholder = query(this.el).attr('placeholder') ?? ''
                 this.focus(event)
                 event.stopPropagation()
             })
-            .on('blur.helper', event => {
+            .on('blur.w2ui-helper', event => {
                 query(event.target).val('')
                 if (this.tmp.pholder != null) query(this.el).attr('placeholder', this.tmp.pholder)
                 this.blur(event)
                 event.stopPropagation()
             })
-            .on('keydown.helper', event => { this.keyDown(event) })
-            .on('keyup.helper', event => { this.keyUp(event) })
+            .on('keydown.w2ui-helper', event => { this.keyDown(event) })
+            .on('keyup.w2ui-helper', event => { this.keyUp(event) })
         // MAIN div
-        query(helper).on('click', event => {
-            query(event.target).find('input').focus()
-        })
+        query(helper)
+            .off('.w2ui-helper')
+            .on('click.w2ui-helper', event => {
+                query(helper).find('input').get(0).focus()
+            })
     }
     // Used in enum/file
     addMultiSearch() {
