@@ -2020,6 +2020,13 @@ class MenuTooltip extends Tooltip {
         let overlay = Tooltip.active[name.replace(/[\s\.#]/g, '_')]
         let options = overlay.options
         let resolve, reject
+        let prom = new Promise((res, rej) => {
+            resolve = res
+            reject = rej
+        })
+        if (overlay.tmp._skip_filter === true) {
+            return prom
+        }
         if (search == null) {
             if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
                 search = overlay.anchor.value
@@ -2034,10 +2041,6 @@ class MenuTooltip extends Tooltip {
         if (overlay.tmp._new_search === false) {
             search = ''
         }
-        let prom = new Promise((res, rej) => {
-            resolve = res
-            reject = rej
-        })
         let selectedIds = []
         if (options.selected) {
             if (Array.isArray(options.selected)) {
@@ -2080,8 +2083,24 @@ class MenuTooltip extends Tooltip {
             if (proceed) {
                 this.request(overlay, search, debounce)
                     .then(remoteItems => {
+                        overlay.tmp._skip_filter = true
                         this.update(name, remoteItems)
-                        this.applyFilter(name, null, search).then(data => {
+                        delete overlay.tmp._skip_filter
+                        overlay.tmp._new_search = true
+                        this.applyFilter(name, remoteItems, search).then(data => {
+                            this.getActiveChain(overlay.name, options.items) // need this to update chain for up/down key navigation
+                            overlay.tmp.searchCount = data.count
+                            overlay.tmp.search = data.search
+                            if (options.prefilter || search !== '') {
+                                // if selected is not in searched items
+                                if (data.count === 0 || !this.getActiveChain(overlay.name, options.items).includes(overlay.selected)) {
+                                    overlay.selected = null
+                                }
+                                this.refreshSearch(overlay.name)
+                            }
+                            this.initControls(overlay)
+                            this.refreshIndex(overlay.name, true)
+
                             resolve(data)
                         })
                     })
