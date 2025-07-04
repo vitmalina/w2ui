@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (7/1/2025, 8:46:00 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (7/4/2025, 9:47:34 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -6127,6 +6127,13 @@ class MenuTooltip extends Tooltip {
         let overlay = Tooltip.active[name.replace(/[\s\.#]/g, '_')]
         let options = overlay.options
         let resolve, reject
+        let prom = new Promise((res, rej) => {
+            resolve = res
+            reject = rej
+        })
+        if (overlay.tmp._skip_filter === true) {
+            return prom
+        }
         if (search == null) {
             if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
                 search = overlay.anchor.value
@@ -6141,10 +6148,6 @@ class MenuTooltip extends Tooltip {
         if (overlay.tmp._new_search === false) {
             search = ''
         }
-        let prom = new Promise((res, rej) => {
-            resolve = res
-            reject = rej
-        })
         let selectedIds = []
         if (options.selected) {
             if (Array.isArray(options.selected)) {
@@ -6187,8 +6190,23 @@ class MenuTooltip extends Tooltip {
             if (proceed) {
                 this.request(overlay, search, debounce)
                     .then(remoteItems => {
+                        overlay.tmp._skip_filter = true
                         this.update(name, remoteItems)
-                        this.applyFilter(name, null, search).then(data => {
+                        delete overlay.tmp._skip_filter
+                        overlay.tmp._new_search = true
+                        this.applyFilter(name, remoteItems, search).then(data => {
+                            this.getActiveChain(overlay.name, options.items) // need this to update chain for up/down key navigation
+                            overlay.tmp.searchCount = data.count
+                            overlay.tmp.search = data.search
+                            if (options.prefilter || search !== '') {
+                                // if selected is not in searched items
+                                if (data.count === 0 || !this.getActiveChain(overlay.name, options.items).includes(overlay.selected)) {
+                                    overlay.selected = null
+                                }
+                                this.refreshSearch(overlay.name)
+                            }
+                            this.initControls(overlay)
+                            this.refreshIndex(overlay.name, true)
                             resolve(data)
                         })
                     })
@@ -21681,6 +21699,9 @@ class w2form extends w2base {
                 field.html.label = field.html.caption
             }
             if (field.html.label == null) field.html.label = field.field
+            if (field.html.anchor != null && field.html.span == null) {
+                field.html.span = ''
+            }
             field.html = w2utils.extend({ label: '', span: 6, attr: '', text: '', style: '', page: 0, column: 0 }, field.html)
             if (page == null) page = field.html.page
             if (column == null) column = field.html.column
@@ -21853,21 +21874,24 @@ class w2form extends w2base {
                         }
                     </div>`
             } else if (field.html.anchor != null) {
+                let span = (field.html.span != null ? 'w2ui-span'+ field.html.span : 'w2ui-span0')
                 let label = w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text, true)
                 let text = w2utils.lang(field.type != 'checkbox' ? field.html.text : '')
                 if (field.html.span == -1) {
-                    label = `<span style="position: absolute"> <span class="w2ui-anchor-span-none"> ${label} </span> </span>`
+                    label = `<span style="position: absolute"> <span class="w2ui-anchor-span-none w2ui-inline-label"> ${label} </span> </span>`
+                } else {
+                    label = `<span class="w2ui-inline-label"> ${label} </span>`
                 }
                 pages[field.html.page].anchors ??= {}
-                pages[field.html.page].anchors[field.html.anchor] =
-                    '<div class="w2ui-field w2ui-field-inline" style="'+ (field.hidden ? 'display: none;' : '') + field.html.style +'">'+
-                        ((field.type === 'empty' || field.type == 'switch')
+                pages[field.html.page].anchors[field.html.anchor] = `
+                    <div class="w2ui-field w2ui-field-inline ${span}" style="${(field.hidden ? 'display: none;' : '') + field.html.style}">
+                        ${((field.type === 'empty' || field.type == 'switch')
                             ? input
                             : ` <div>
                                     ${label} ${input} ${text}
                                 </div>`
-                        ) +
-                    '</div>'
+                        )}
+                    </div>`
             } else {
                 let span = (field.html.span != null ? 'w2ui-span'+ field.html.span : '')
                 if (field.html.span == -1) span = 'w2ui-span-none'

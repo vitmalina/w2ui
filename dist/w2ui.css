@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (7/1/2025, 8:46:00 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (7/4/2025, 6:27:39 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -1831,18 +1831,29 @@ button.w2ui-btn:disabled {
   margin-left: -8px;
   color: red;
 }
-.w2ui-field.w2ui-required.w2ui-field-inline > div::before {
-  content: '' !important;
+.w2ui-field.w2ui-required.w2ui-field-inline > div .w2ui-inline-label::after {
+  content: '*';
+  color: red;
 }
 .w2ui-field.w2ui-disabled {
-  opacity: 0.45;
   background-color: transparent !important;
 }
-.w2ui-field.w2ui-disabled input:not([type=button]):not([type=submit]):not([type=checkbox]):not([type=radio]),
-.w2ui-field.w2ui-disabled select,
-.w2ui-field.w2ui-disabled textarea {
+.w2ui-field.w2ui-disabled > label,
+.w2ui-field.w2ui-disabled.w2ui-field-inline span.w2ui-inline-label {
+  opacity: 0.45;
+}
+.w2ui-field.w2ui-disabled > div > input:not([type=button]):not([type=submit]):not([type=checkbox]):not([type=radio]),
+.w2ui-field.w2ui-disabled > div > select,
+.w2ui-field.w2ui-disabled > div > textarea {
+  opacity: 0.45;
+  color: #777;
   border: 1px solid #bdc0c3 !important;
-  background-color: #f5f5f5 !important;
+  background-color: #f3f3f3 !important;
+}
+.w2ui-field > div > .w2ui-inline-label {
+  display: inline-block;
+  overflow: hidden;
+  text-align: right;
 }
 .w2ui-field.w2ui-span-none > label {
   margin: 0;
@@ -1860,67 +1871,78 @@ button.w2ui-btn:disabled {
   top: -15px;
   left: 3px;
 }
-.w2ui-field.w2ui-span0 > label {
+.w2ui-field.w2ui-span0 > label,
+.w2ui-field.w2ui-span0 > div > .w2ui-inline-label {
   display: none;
 }
 .w2ui-field.w2ui-span0 > div {
   margin-left: 0;
 }
-.w2ui-field.w2ui-span1 > label {
+.w2ui-field.w2ui-span1 > label,
+.w2ui-field.w2ui-span1 > div > .w2ui-inline-label {
   width: 20px;
 }
 .w2ui-field.w2ui-span1 > div {
   margin-left: 28px;
 }
-.w2ui-field.w2ui-span2 > label {
+.w2ui-field.w2ui-span2 > label,
+.w2ui-field.w2ui-span2 > div > .w2ui-inline-label {
   width: 40px;
 }
 .w2ui-field.w2ui-span2 > div {
   margin-left: 48px;
 }
-.w2ui-field.w2ui-span3 > label {
+.w2ui-field.w2ui-span3 > label,
+.w2ui-field.w2ui-span3 > div > .w2ui-inline-label {
   width: 60px;
 }
 .w2ui-field.w2ui-span3 > div {
   margin-left: 68px;
 }
-.w2ui-field.w2ui-span4 > label {
+.w2ui-field.w2ui-span4 > label,
+.w2ui-field.w2ui-span4 > div > .w2ui-inline-label {
   width: 80px;
 }
 .w2ui-field.w2ui-span4 > div {
   margin-left: 88px;
 }
-.w2ui-field.w2ui-span5 > label {
+.w2ui-field.w2ui-span5 > label,
+.w2ui-field.w2ui-span5 > div > .w2ui-inline-label {
   width: 100px;
 }
 .w2ui-field.w2ui-span5 > div {
   margin-left: 108px;
 }
-.w2ui-field.w2ui-span6 > label {
+.w2ui-field.w2ui-span6 > label,
+.w2ui-field.w2ui-span6 > div > .w2ui-inline-label {
   width: 120px;
 }
 .w2ui-field.w2ui-span6 > div {
   margin-left: 128px;
 }
-.w2ui-field.w2ui-span7 > label {
+.w2ui-field.w2ui-span7 > label,
+.w2ui-field.w2ui-span7 > div > .w2ui-inline-label {
   width: 140px;
 }
 .w2ui-field.w2ui-span7 > div {
   margin-left: 148px;
 }
-.w2ui-field.w2ui-span8 > label {
+.w2ui-field.w2ui-span8 > label,
+.w2ui-field.w2ui-span8 > div > .w2ui-inline-label {
   width: 160px;
 }
 .w2ui-field.w2ui-span8 > div {
   margin-left: 168px;
 }
-.w2ui-field.w2ui-span9 > label {
+.w2ui-field.w2ui-span9 > label,
+.w2ui-field.w2ui-span9 > div > .w2ui-inline-label {
   width: 180px;
 }
 .w2ui-field.w2ui-span9 > div {
   margin-left: 188px;
 }
-.w2ui-field.w2ui-span10 > label {
+.w2ui-field.w2ui-span10 > label,
+.w2ui-field.w2ui-span10 > div > .w2ui-inline-label {
   width: 200px;
 }
 .w2ui-field.w2ui-span10 > div {
