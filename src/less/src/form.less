@@ -200,16 +200,32 @@
         margin-left: -8px;
         color: @form-required-color;
     }
-    &.w2ui-required.w2ui-field-inline > div::before {
-        content: ''!important;
+    &.w2ui-required.w2ui-field-inline > div .w2ui-inline-label::after {
+        content: '*';
+        color: @form-required-color;
     }
     &.w2ui-disabled {
-        opacity: 0.45;
         background-color: transparent !important;
-        input:not([type=button]):not([type=submit]):not([type=checkbox]):not([type=radio]), select, textarea {
-            border: 1px solid #bdc0c3 !important;
-            background-color: #f5f5f5 !important;
+        // this is needed so that anchored fields will nto get disabled
+        > label,
+        &.w2ui-field-inline span.w2ui-inline-label {
+            opacity: 0.45;
         }
+        > div {
+            & > input:not([type=button]):not([type=submit]):not([type=checkbox]):not([type=radio]),
+            & > select,
+            & > textarea {
+                opacity: 0.45;
+                color: #777;
+                border: 1px solid #bdc0c3 !important;
+                background-color: #f3f3f3 !important;
+            }
+        }
+    }
+    > div > .w2ui-inline-label {
+        display: inline-block;
+        overflow: hidden;
+        text-align: right;
     }
     &.w2ui-span-none {
         > label {
@@ -228,47 +244,47 @@
         left: 3px;
     }
     &.w2ui-span0 {
-        > label { display: none; }
+        > label, > div > .w2ui-inline-label { display: none; }
         > div { margin-left: 0; }
     }
     &.w2ui-span1 {
-        > label { width: (@form-step-label * 1); }
+        > label, > div > .w2ui-inline-label { width: (@form-step-label * 1); }
         > div { margin-left: ((@form-step-label * 1) + @form-step-field); }
     }
     &.w2ui-span2 {
-        > label { width: (@form-step-label * 2); }
+        > label, > div > .w2ui-inline-label { width: (@form-step-label * 2); }
         > div { margin-left: ((@form-step-label * 2) + @form-step-field); }
     }
     &.w2ui-span3 {
-        > label { width: (@form-step-label * 3); }
+        > label, > div > .w2ui-inline-label { width: (@form-step-label * 3); }
         > div { margin-left: ((@form-step-label * 3) + @form-step-field); }
     }
     &.w2ui-span4 {
-        > label { width: (@form-step-label * 4); }
+        > label, > div > .w2ui-inline-label { width: (@form-step-label * 4); }
         > div { margin-left: ((@form-step-label * 4) + @form-step-field); }
     }
     &.w2ui-span5 {
-        > label { width: (@form-step-label * 5); }
+        > label, > div > .w2ui-inline-label { width: (@form-step-label * 5); }
         > div { margin-left: ((@form-step-label * 5) + @form-step-field); }
     }
     &.w2ui-span6 {
-        > label { width: (@form-step-label * 6); }
+        > label, > div > .w2ui-inline-label { width: (@form-step-label * 6); }
         > div { margin-left: ((@form-step-label * 6) + @form-step-field); }
     }
     &.w2ui-span7 {
-        > label { width: (@form-step-label * 7); }
+        > label, > div > .w2ui-inline-label { width: (@form-step-label * 7); }
         > div { margin-left: ((@form-step-label * 7) + @form-step-field); }
     }
     &.w2ui-span8 {
-        > label { width: (@form-step-label * 8); }
+        > label, > div > .w2ui-inline-label { width: (@form-step-label * 8); }
         > div { margin-left: ((@form-step-label * 8) + @form-step-field); }
     }
     &.w2ui-span9 {
-        > label { width: (@form-step-label * 9); }
+        > label, > div > .w2ui-inline-label { width: (@form-step-label * 9); }
         > div { margin-left: ((@form-step-label * 9) + @form-step-field); }
     }
     &.w2ui-span10 {
-        > label { width: (@form-step-label * 10); }
+        > label, > div > .w2ui-inline-label { width: (@form-step-label * 10); }
         > div { margin-left: ((@form-step-label * 10) + @form-step-field); }
     }
     &.w2ui-field-inline {

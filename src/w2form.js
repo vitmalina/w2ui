@@ -1349,6 +1349,9 @@ class w2form extends w2base {
                 field.html.label = field.html.caption
             }
             if (field.html.label == null) field.html.label = field.field
+            if (field.html.anchor != null && field.html.span == null) {
+                field.html.span = ''
+            }
             field.html = w2utils.extend({ label: '', span: 6, attr: '', text: '', style: '', page: 0, column: 0 }, field.html)
             if (page == null) page = field.html.page
             if (column == null) column = field.html.column
@@ -1521,21 +1524,24 @@ class w2form extends w2base {
                         }
                     </div>`
             } else if (field.html.anchor != null) {
+                let span = (field.html.span != null ? 'w2ui-span'+ field.html.span : 'w2ui-span0')
                 let label = w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text, true)
                 let text = w2utils.lang(field.type != 'checkbox' ? field.html.text : '')
                 if (field.html.span == -1) {
-                    label = `<span style="position: absolute"> <span class="w2ui-anchor-span-none"> ${label} </span> </span>`
+                    label = `<span style="position: absolute"> <span class="w2ui-anchor-span-none w2ui-inline-label"> ${label} </span> </span>`
+                } else {
+                    label = `<span class="w2ui-inline-label"> ${label} </span>`
                 }
                 pages[field.html.page].anchors ??= {}
-                pages[field.html.page].anchors[field.html.anchor] =
-                    '<div class="w2ui-field w2ui-field-inline" style="'+ (field.hidden ? 'display: none;' : '') + field.html.style +'">'+
-                        ((field.type === 'empty' || field.type == 'switch')
+                pages[field.html.page].anchors[field.html.anchor] = `
+                    <div class="w2ui-field w2ui-field-inline ${span}" style="${(field.hidden ? 'display: none;' : '') + field.html.style}">
+                        ${((field.type === 'empty' || field.type == 'switch')
                             ? input
                             : ` <div>
                                     ${label} ${input} ${text}
                                 </div>`
-                        ) +
-                    '</div>'
+                        )}
+                    </div>`
             } else {
                 let span = (field.html.span != null ? 'w2ui-span'+ field.html.span : '')
                 if (field.html.span == -1) span = 'w2ui-span-none'
