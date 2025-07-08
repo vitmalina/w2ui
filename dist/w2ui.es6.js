@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (7/4/2025, 9:47:34 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (7/7/2025, 10:19:28 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -22176,14 +22176,12 @@ class w2form extends w2base {
                         field.$el.data('tabIndex', field.$el.prop('tabIndex'))
                     }
                     field.$el
-                        .prop('readOnly', true)
                         .prop('disabled', true)
                         .prop('tabIndex', -1)
                         .closest('.w2ui-field')
                         .addClass('w2ui-disabled')
                 } else {
                     field.$el
-                        .prop('readOnly', false)
                         .prop('disabled', false)
                         .prop('tabIndex', field.$el.data('tabIndex') ?? field.$el.prop('tabIndex') ?? 0)
                         .closest('.w2ui-field')
@@ -24215,7 +24213,8 @@ class w2field extends w2base {
         let html = `
             <div class="w2ui-field-helper">
                 <span class="w2ui-icon w2ui-icon-search"></span>
-                <input ${searchId} type="text" tabIndex="${tabIndex}" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false"/>
+                <input ${searchId} type="text" tabIndex="${tabIndex}" ${query(this.el).prop('readOnly') ? 'readonly' : ''}
+                    autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false"/>
             </div>`
         query(this.el).attr('tabindex', -1).before(html)
         let helper = query(this.el).get(0).previousElementSibling

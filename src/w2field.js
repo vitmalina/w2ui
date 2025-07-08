@@ -1566,7 +1566,8 @@ class w2field extends w2base {
         let html = `
             <div class="w2ui-field-helper">
                 <span class="w2ui-icon w2ui-icon-search"></span>
-                <input ${searchId} type="text" tabIndex="${tabIndex}" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false"/>
+                <input ${searchId} type="text" tabIndex="${tabIndex}" ${query(this.el).prop('readOnly') ? 'readonly' : ''}
+                    autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false"/>
             </div>`
         query(this.el).attr('tabindex', -1).before(html)
         let helper = query(this.el).get(0).previousElementSibling
