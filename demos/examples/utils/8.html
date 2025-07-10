@@ -13,6 +13,7 @@
     <button class="w2ui-btn notify-btn" value="2">Show an Error</button>
     <button class="w2ui-btn notify-btn" value="3">With actions</button>
     <button class="w2ui-btn notify-btn" value="4">Quick one</button>
+    <button class="w2ui-btn notify-btn" value="5">Show success Notification</button>
 </div>
 
 <div id="preview-box" style="width: 700px; height: 300px; border: 1px solid #efefef; position: relative;
@@ -55,6 +56,9 @@ query('.notify-btn').on('click', event => {
             break
         case "4":
             w2utils.notify('Message will auto close in 2 seconds', { timeout: 2000, where: query('#preview-box'), where })
+            break
+        case "5":
+            w2utils.notify('Success: you did it', { success: true, where })
             break
     }
 })
