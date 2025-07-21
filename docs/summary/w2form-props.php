@@ -22,6 +22,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2form.dataType">dataType</a> <span>- String, default = null</span>
+</div>
+<div class="obj-property-desc">
+    Defines dateType for the form
+</div>
+
+<div class="obj-property">
     <a href="w2form.fields">fields</a> <span>- Object, default = []</span>
 </div>
 <div class="obj-property-desc">
@@ -110,6 +117,13 @@
 </div>
 <div class="obj-property-desc">
     Message that appears when form is being saved.
+</div>
+
+<div class="obj-property">
+    <a href="w2form.msgServerError">msgServerError</a> <span>- String, default = 'Server error'</span>
+</div>
+<div class="obj-property-desc">
+    Default server error message that appears when server responed with an error but w/o message.
 </div>
 
 <div class="obj-property">

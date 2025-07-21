@@ -141,13 +141,6 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2grid.method">method</a> <span>- String, default = null</span>
-</div>
-<div class="obj-property-desc">
-    Overwrites method for ajax requests.
-</div>
-
-<div class="obj-property">
     <a href="w2grid.msgAJAXerror">msgAJAXerror</a> <span>- String, default = 'AJAX error. See console for more details.'</span>
 </div>
 <div class="obj-property-desc">
@@ -187,6 +180,13 @@
 </div>
 <div class="obj-property-desc">
     Message that appears when grid refreshes.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.msgServerError">msgServerError</a> <span>- String, default = 'Server error'</span>
+</div>
+<div class="obj-property-desc">
+    Default server error message that appears when server responed with an error but w/o message.
 </div>
 
 <div class="obj-property">

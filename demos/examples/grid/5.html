@@ -22,7 +22,6 @@ let grid = new w2grid({
     name: 'grid',
     box: '#grid',
     show: { toolbar: true, },
-    method: 'GET', // need this to avoid 412 error on Safari
     columns: [
         { field: 'lname', text: 'Last Name', size: '30%', searchable: true, sortable: true },
         { field: 'fname', text: 'First Name', size: '30%', searchable: true, sortable: true },

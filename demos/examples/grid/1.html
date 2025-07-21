@@ -18,7 +18,6 @@ let grid = new w2grid({
     name: 'grid',
     box: '#grid',
     url: 'data/list.json',
-    method: 'GET', // need this to avoid 412 error on Safari
     columns: [
         { field: 'fname', text: 'First Name', size: '30%' },
         { field: 'lname', text: 'Last Name', size: '30%' },
