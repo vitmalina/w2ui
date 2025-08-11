@@ -1,57 +1,35 @@
-Renders the object into <span class="argument">box</span>.
+Renders the widget into the specified HTML element
 
 <div class="definition">
-    render([box])
+    render(box)
 </div>
 
 <div class="arguments">
     <table>
     <tr>
         <td>box</td>
-        <td><b>DOM element</b>, container for the widget</td>
+        <td><b>string</b> or <b>object</b>, HTML element or selector where to render the widget</td>
     </tr>
     </table>
 </div>
-Returns number of milliseconds it took to render.
 
 <h4>Description</h4>
 
-If the <span class="argument">box</span> argument is not specified, the widget will be rendered into the DOM element
-specified by the <span class="argument">.box</span> property. The <span class="method">.render()</span> method will also
-create related objects by calling their <span class="method">.render()</span> methods. For example, each w2grid has a toolbar,
-which is a w2toolbar object. When grid is rendered, the toolbar object will be rendered as well.
-<div style="height: 10px"></div>
+The <span class="argument">box</span> parameter can be either a DOM element or a CSS selector string. If it's a string, it will be converted to a DOM element using query selector.
 
-If you pass a selector during object creation it will be automatically rendered into that element:
+This method creates the widget's HTML structure, initializes event handlers, and sets up any necessary observers. It also triggers the 'render' event before and after rendering.
+
 <textarea class="javascript">
-let layout = new w2layout({
-    name    : 'layout',
-    panels  : [
-        { type: 'top', size: 40 },
-        { type: 'main', content: 'This is main panel' },
-        { type: 'preview', size: 200, hidden: true }
-    ]
+// Render into an existing div
+let widget = new w2[widgetType]({
+    name: 'myWidget',
+    // ... other options
 });
+widget.render('#myContainer');
+
+// Or render into a DOM element
+let container = document.getElementById('myContainer');
+widget.render(container);
 </textarea>
 
-You could have created layout in the following way:
-<textarea class="javascript">
-let layout = new w2layout({
-    name    : 'layout',
-    panels  : [
-        { type: 'top', size: 40 },
-        { type: 'main', content: 'This is main panel' },
-        { type: 'preview', size: 200, hidden: true }
-    ]
-});
-</textarea>
-
-The widget will be created in memory and you can render it by:
-<textarea class="javascript">
-w2ui.layout.render($('#layout')[0]);
-</textarea>
-
-But preferred way to do:
-<textarea class="javascript">
-$('#layout').w2render('layout');
-</textarea>
+The method returns the time taken to render the widget in milliseconds.

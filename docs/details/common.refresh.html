@@ -1,70 +1,35 @@
-Refreshes the object without completely re-inserting it.
+Refreshes the widget or a specific part of it
 
 <div class="definition">
-    refresh([id])
+    refresh(part)
 </div>
 
 <div class="arguments">
     <table>
     <tr>
-        <td>id</td>
-        <td><b>string</b>, id of the element</td>
+        <td>part</td>
+        <td><b>string</b>, optional, specific part of the widget to refresh. If not specified, refreshes the entire widget.</td>
     </tr>
     </table>
 </div>
-Returns number of milliseconds it took to refresh.
 
 <h4>Description</h4>
 
-This method is common for all w2ui widgets. It has slight differences from widget to widget. In general
-the <span class="argument">render()</span> method  is called once during the initial creation and rendering
-of the object. The <span class="argument">refresh()</span> method is called when you need to update content
-if you have changed object's properties.
-<div style="height: 10px"></div>
+The <span class="argument">part</span> parameter is optional. If provided, it refreshes only the specified part of the widget. If not provided or null, it refreshes the entire widget.
+
+This method updates the widget's display, applies any changes, and triggers the 'refresh' event before refreshing.
 
 <textarea class="javascript">
-let layout = new w2layout({
-    name    : 'layout',
-    panels  : [
-        { type: 'top', size: 40 },
-        { type: 'main', content: 'This is main panel' },
-        { type: 'preview', size: 200, hidden: true }
-    ]
+let widget = new w2[widgetType]({
+    name: 'myWidget',
+    // ... other options
 });
 
-// ...
-// some code
-// ...
+// Refresh the entire widget
+widget.refresh();
 
-w2ui.layout.refresh();
+// Refresh only a specific part (if applicable)
+widget.refresh('somePart');
 </textarea>
 
-If no arguments provided, the entire widget will be refreshed. However, for some widget an optional second parameter can be
-specified to refresh that portion only.
-<div style="height: 10px"></div>
-
-For w2layout it is the panel:
-<textarea class="javascript">
-w2ui.layout.refresh('main');
-</textarea>
-
-For w2form it is id of the field:
-<textarea class="javascript">
-w2ui.form.refresh('field');
-</textarea>
-
-
-For w2sidebar it is id of the node:
-<textarea class="javascript">
-w2ui.sidebar.refresh('node-id');
-</textarea>
-
-For w2tabs it is id of the tab:
-<textarea class="javascript">
-w2ui.tabs.refresh('tab-id');
-</textarea>
-
-For w2toolbar it is id of the toolbar item:
-<textarea class="javascript">
-w2ui.toolbar.refresh('toolbar-id');
-</textarea>
+The method returns the time taken to refresh in milliseconds.

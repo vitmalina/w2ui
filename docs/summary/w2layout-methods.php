@@ -1,4 +1,4 @@
-<link rel="stylesheet" type="text/css" href="../summary.css"/> 
+<link rel="stylesheet" type="text/css" href="../summary.css"/>
 <div class="container">
 <div class="obj-property">
     <a href="w2layout.assignToolbar">assignToolbar</a> <span>- assignToolbar(panel, toolbar)</span>

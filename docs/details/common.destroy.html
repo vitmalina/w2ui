@@ -1,36 +1,30 @@
-Destroys the object.
+Destroys the widget and removes it from the global w2ui object
 
 <div class="definition">
     destroy()
 </div>
-Returns <i>undefined</i>.
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td colspan="2">No arguments</td>
+    </tr>
+    </table>
+</div>
 
 <h4>Description</h4>
 
-The <span class="argument">destroy()</span> method will remove the object from the screen (if it is rendered), remove it
-from <span class="argument">w2ui</span> object array and destroy all related objects. For example, if it is a grid, it will destroy
-grid's toolbar. This method emits <a class="method" href="w2grid.onDestroy">.onDestroy</a> event.
-<div style="height: 10px"></div>
+This method completely destroys the widget by cleaning up all associated objects, unmounting the widget, removing it from the global w2ui object, and cleaning up event handlers. It triggers the 'destroy' event before and after destruction.
 
 <textarea class="javascript">
-let layout = new w2layout({
-    name    : 'layout',
-    panels  : [
-        { type: 'top', size: 40 },
-        { type: 'main', content: 'This is main panel' },
-        { type: 'preview', size: 200, hidden: true }
-    ]
+let widget = new w2[widgetType]({
+    name: 'myWidget',
+    // ... other options
 });
 
-// ...
-// some code
-// ...
-
-w2ui.layout.destroy();
+// Later, when you want to completely destroy the widget
+widget.destroy();
+// widget is now removed from w2ui object and all resources are cleaned up
 </textarea>
 
-You can also use <span class="argument">w2destroy()</span> method defined in <a href="utils">utilities</a>.
-
-<textarea class="javascript">
-$().w2destroy('layout');
-</textarea>
+The method returns <b>true</b> if the widget was successfully destroyed, <b>false</b> if the widget was not found in the global w2ui object.

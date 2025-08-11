@@ -1,0 +1,29 @@
+Unmounts the widget and cleans up resources
+
+<div class="definition">
+    unmount()
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td colspan="2">No arguments</td>
+    </tr>
+    </table>
+</div>
+
+<h4>Description</h4>
+
+This method unmounts the widget by calling the parent class unmount method and cleaning up any associated objects. It also disconnects any observers and removes event handlers.
+
+<textarea class="javascript">
+let widget = new w2[widgetType]({
+    name: 'myWidget',
+    // ... other options
+});
+
+// Later, when you want to clean up
+widget.unmount();
+</textarea>
+
+This method is typically called automatically when the widget is destroyed or when re-rendering into a new container.

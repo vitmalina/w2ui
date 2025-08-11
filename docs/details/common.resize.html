@@ -1,30 +1,31 @@
-Resizes the object to the width and height of its container.
+Resizes the widget to fit its container
 
 <div class="definition">
     resize()
 </div>
-Returns number of milliseconds it took to resize.
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td colspan="2">No arguments</td>
+    </tr>
+    </table>
+</div>
 
 <h4>Description</h4>
 
-The <span class="argument">.resize()</span> method is often called internally, but it is not limited to internal use only. You
-do not need to call this method when window is resized by the user, because the library already has an event listener for it. But
-you need to call it when you change the size of the container.
-<div style="height: 10px"></div>
+This method recalculates and applies the size and position of the widget to fit its container. It handles responsive behavior and ensures the widget displays correctly when its container size changes.
+
+The method triggers the 'resize' event before and after resizing.
 
 <textarea class="javascript">
-let layout = new w2layout({
-    name    : 'layout',
-    panels  : [
-        { type: 'top', size: 40 },
-        { type: 'main', content: 'This is main panel' },
-        { type: 'preview', size: 200, hidden: true }
-    ]
+let widget = new w2[widgetType]({
+    name: 'myWidget',
+    // ... other options
 });
 
-// ...
-// some code
-// ...
-
-w2ui.layout.resize();
+// Resize the widget (typically called automatically when container size changes)
+widget.resize();
 </textarea>
+
+The method returns the time taken to resize in milliseconds.

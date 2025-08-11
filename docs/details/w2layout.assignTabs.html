@@ -1,0 +1,56 @@
+Assigns new w2tabs object to a panel
+
+<div class="definition">
+    assignTabs(panel, tabs)
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>panel</td>
+        <td><b>string</b>, name of the panel</td>
+    </tr>
+    <tr>
+        <td>tabs</td>
+        <td><b>string</b> or <b>object</b>, tabs to assign</td>
+    </tr>
+    </table>
+</div>
+
+<h4>Description</h4>
+
+The first argument <span class="argument">panel</span> is the name of the panel. It can be one of the following:
+<ul style="margin-left: 50px">
+    <li>top
+    <li>left
+    <li>main
+    <li>right
+    <li>preview
+    <li>bottom
+</ul>
+
+Initially you can set a tabs object for the panel when you initialize it in the following way:
+<textarea class="javascript">
+let layout = new w2layout({
+    name    : 'layout',
+    panels  : [
+        { type: 'top', size: 40 },
+        { type: 'main', content: 'This is main panel',
+            tabs: {
+                active: 'tab1',
+                tabs: [
+                    { id: 'tab1', text: 'Tab 1', content: 'Content 1' },
+                    { id: 'tab2', text: 'Tab 2', content: 'Content 2' }
+                ]
+            }
+        },
+        { type: 'preview', size: 200 }
+    ]
+});
+</textarea>
+
+However, if you already have a w2tabs object created, you can assign it to the panel with assignTabs method. If second
+argument <span class="argument">tabs</span> is a string, it will look for tabs in the global w2ui object.
+<textarea class="javascript">
+layout.assignTabs('main', 'myTabs');
+</textarea>

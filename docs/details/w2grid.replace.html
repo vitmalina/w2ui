@@ -1,0 +1,48 @@
+Replaces an existing record in the grid
+
+<div class="definition">
+    replace(recid, record, noRefresh)
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>recid</td>
+        <td><b>string</b>, record ID to replace</td>
+    </tr>
+    <tr>
+        <td>record</td>
+        <td><b>object</b>, new record data</td>
+    </tr>
+    <tr>
+        <td>noRefresh</td>
+        <td><b>boolean</b>, optional, if true, does not refresh the row after replacement</td>
+    </tr>
+    </table>
+</div>
+
+<h4>Description</h4>
+
+This method replaces an existing record in the grid with new data. It works with both regular records and summary records. If the record is found in the summary array, it updates the summary record; otherwise, it updates the regular records array.
+
+<textarea class="javascript">
+let grid = new w2grid({
+    name: 'grid',
+    columns: [
+        { field: 'fname', text: 'First Name' },
+        { field: 'lname', text: 'Last Name' }
+    ],
+    records: [
+        { recid: 1, fname: 'John', lname: 'Doe' },
+        { recid: 2, fname: 'Jane', lname: 'Smith' }
+    ]
+});
+
+// Replace a record
+grid.replace(1, { recid: 1, fname: 'Johnny', lname: 'Doe' });
+
+// Replace without refreshing the row
+grid.replace(2, { recid: 2, fname: 'Janet', lname: 'Smith' }, true);
+</textarea>
+
+The method returns <b>true</b> if the record was successfully replaced, <b>false</b> if the record was not found.
