@@ -21,10 +21,10 @@ Returns a <i>promise</i>.
 
 <h4>Description</h4>
 
-The first parameter can be a string or a path to the file or an object or an array of strings/pathes. If it is a string (ex: ru-ru) it is the name of the locale. It will attempt
+The first parameter can be a string or a path to the file or an object or an array of strings/paths. If it is a string (ex: ru-ru) it is the name of the locale. It will attempt
 to load the JSON file from the /locale folder. If you want to load locale file from some other folder, you need to provide full path to it.
 If it's an object than the settings object will be extended with properties of this locale object.
-If it's an array of strings or pathes, all JSON files will be loaded in order and then be merged.
+If it's an array of strings or paths, all JSON files will be loaded in order and then be merged.
 <div style="height: 10px"></div>
 
 The method will perform <b>synchronous</b> load of the locale, so it will pause until locale is loaded.
