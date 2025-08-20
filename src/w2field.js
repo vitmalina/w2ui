@@ -636,6 +636,13 @@ class w2field extends w2base {
                         this.selected.splice(index, 1)
                         query(this.el).trigger('input').trigger('change')
                         query(event.target).remove()
+                        // remove file from input element
+                        let transfer = new DataTransfer()
+                        let input = query(event.target.previousElementSibling).find('input.file-input').get(0)
+                        Array.from(input.files)
+                            .filter(f => f.name != item.name)
+                            .forEach(f => transfer.items.add(f))
+                        input.files = transfer.files
                     } else {
                         // trigger event
                         edata = this.trigger('click', { target: this.el, originalEvent: event.originalEvent, item })
