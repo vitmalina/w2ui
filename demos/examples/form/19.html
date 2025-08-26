@@ -10,11 +10,13 @@
 <!--CODE-->
 <div id="form" style="width: 750px; height: 500px"></div>
 <br>
-<button class="w2ui-btn" onclick="toggleGroup('General')">Toggle General</button>
-<button class="w2ui-btn" onclick="toggleGroup('Address Group 2')">Toggle Address Group 2</button>
-<button class="w2ui-btn" onclick="toggleGroup('Address Group 3', false)">Collapse Address Group 3</button>
-<button class="w2ui-btn" onclick="toggleGroup('Address Group 3', true)">Expand Address Group 3</button>
-<br>
+<button class="w2ui-btn" onclick="action('toggleGroup', 'General')">Toggle General</button>
+<button class="w2ui-btn" onclick="action('toggleGroup', 'Address Group 2')">Toggle Address Group 2</button>
+<button class="w2ui-btn" onclick="action('toggleGroup', 'Address Group 3', false)">Collapse Address Group 3</button>
+<button class="w2ui-btn" onclick="action('toggleGroup', 'Address Group 3', true)">Expand Address Group 3</button>
+<br><br>
+<button class="w2ui-btn" onclick="action('hideGroup', 'General')">Hide General</button>
+<button class="w2ui-btn" onclick="action('showGroup', 'General')">Show General</button>
 
 <!--CODE-->
 <script type="module">
@@ -144,7 +146,7 @@ let form = new w2form({
     }
 })
 
-window.toggleGroup = function(txt, flag) {
-    w2ui.form.toggleGroup(txt, flag)
+window.action = function(method, txt, flag) {
+    w2ui.form[method](txt, flag)
 }
 </script>
