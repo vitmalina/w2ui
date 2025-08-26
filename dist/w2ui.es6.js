@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (7/7/2025, 10:19:28 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (8/25/2025, 5:14:05 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -11829,7 +11829,6 @@ class w2layout extends w2base {
  *  - requestComplete(data, action, callBack, resolve, reject) - new argument list
  *  - msgAJAXError -> msgHTTPError
  *  - aded msgServerError
- *  - deleted grid.method
  *  - added mouseEnter/mouseLeave
  *  - grid.show.columnReorder -> grid.reorderRows
  *  - updagte docs search.label (not search.text)
@@ -20431,6 +20430,7 @@ class w2grid extends w2base {
  *  - rememberOriginal()
  *  - saveCleanRecord
  *  - added options.itemMap = { id: 'id', text: 'text' } - to map id, text fields if needed
+ *  - hideGroup/showGroup - new methods
  */
 
 class w2form extends w2base {
@@ -21109,6 +21109,52 @@ class w2form extends w2base {
                 if (el.style.display != 'none') flag = false
             })
             return flag
+        }
+    }
+    hideGroup(groupName) {
+        let fields = []
+        let current = ''
+        this.fields.forEach(fld => {
+            if (fld.html.group != null && fld.html.group !== '') {
+                current = String(fld.html.group).toLowerCase()
+            }
+            if (groupName.toLowerCase() == current) {
+                fields.push(fld.field)
+            }
+        })
+        this.hide(...fields)
+        this.resize()
+    }
+    showGroup(groupName) {
+        let fields = []
+        let current = ''
+        this.fields.forEach(fld => {
+            if (fld.html.group != null && fld.html.group !== '') {
+                current = String(fld.html.group).toLowerCase()
+            }
+            if (groupName.toLowerCase() == current) {
+                fields.push(fld.field)
+            }
+        })
+        this.show(...fields)
+        this.resize()
+    }
+    /**
+     * When user clicks on group title, it will toggle the group (collapse or expand it).
+     */
+    toggleGroup(groupName, show) {
+        let el = query(this.box).find('.w2ui-group-title[data-group="' + w2utils.base64encode(groupName) + '"]')
+        if (el.length === 0) return
+        let el_next = query(el.prop('nextElementSibling'))
+        if (typeof show === 'undefined') {
+            show = (el_next.css('display') == 'none')
+        }
+        if (show) {
+            el_next.show()
+            el.find('span').addClass('w2ui-icon-collapse').removeClass('w2ui-icon-expand')
+        } else {
+            el_next.hide()
+            el.find('span').addClass('w2ui-icon-expand').removeClass('w2ui-icon-collapse')
         }
     }
     change() {
@@ -21976,21 +22022,6 @@ class w2form extends w2base {
         }
         html += buttons
         return html
-    }
-    toggleGroup(groupName, show) {
-        let el = query(this.box).find('.w2ui-group-title[data-group="' + w2utils.base64encode(groupName) + '"]')
-        if (el.length === 0) return
-        let el_next = query(el.prop('nextElementSibling'))
-        if (typeof show === 'undefined') {
-            show = (el_next.css('display') == 'none')
-        }
-        if (show) {
-            el_next.show()
-            el.find('span').addClass('w2ui-icon-collapse').removeClass('w2ui-icon-expand')
-        } else {
-            el_next.hide()
-            el.find('span').addClass('w2ui-icon-expand').removeClass('w2ui-icon-collapse')
-        }
     }
     action(action, event) {
         let act   = this.actions[action]
