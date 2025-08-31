@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>w2go example</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" type="text/css" href="https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="main" style="width: 100vw; height: 100vh; min-width: 800px">Loading...</div>
+  <script type="module">
+    import {w2ui, w2form, w2grid, w2popup, w2utils} from 'https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.es6.min.js'
+
+    window.w2ui = w2ui
+
+    w2utils.settings.dataType = 'JSON'
+    w2utils.formatters['string'] = (_, extra) => w2utils.encodeTags(extra.value)
+    w2utils.formatters['dropdown'] = (_, extra) => w2utils.encodeTags(extra.value?.text)
+
+    function getDropdownListOptions(url) {
+      return {
+        url: url,
+        type: 'list',
+        align: 'left',
+        match: 'contains',
+        minLength: 0,
+        cacheMax: 5000,
+        openOnFocus: true,
+        renderDrop: value => w2utils.encodeTags(value?.text),
+      }
+    }
+
+    function getDropdownBoolOptions() {
+      return {
+        items: [
+          {id: '1', text: 'True'},
+          {id: '0', text: 'False'},
+        ]
+      }
+    }
+
+    new w2grid({
+      name: 'todoGrid',
+      box: '#main',
+      url: {
+        get: '/api/v1/todo/grid/records',
+        save: '/api/v1/todo/grid/save',
+        remove: '/api/v1/todo/grid/remove',
+      },
+      recid: 'id',
+      multiSearch: true,
+      show: {
+        footer: true,
+        toolbar: true,
+        toolbarAdd: true,
+        toolbarEdit: true,
+        toolbarDelete: true,
+        toolbarSave: true,
+        toolbarSearch: true,
+        toolbarReload: true,
+        searchSave: false,
+      },
+      columns: [
+        {field: 'id', text: 'ID', size: '60px', sortable: true},
+        {field: 'name', text: 'Name', size: '250px', render: 'string', sortable: true},
+        {field: 'description', text: 'Description', size: '400px', render: 'string', sortable: true, editable: {type: 'text'}},
+        {field: 'status', text: 'Status', size: '88px', render: 'dropdown', sortable: true, editable: getDropdownListOptions('/api/v1/status/dropdown')},
+        {field: 'quantity', text: 'Quantity', size: '88px', render: 'int', sortable: true, editable: {type: 'int'}},
+      ],
+      searches: [
+        {field: 'id', label: 'ID', type: 'int'},
+        {field: 'name', label: 'Name', type: 'text'},
+        {field: 'description', label: 'Description', type: 'text'},
+        {field: 'status', label: 'Status', type: 'enum', options: getDropdownListOptions('/api/v1/status/dropdown')},
+        {field: 'quantity', label: 'Quantity', type: 'int'},
+      ],
+      defaultOperator: {
+        'text': 'contains',
+      },
+      sortData: [
+        {field: 'id', direction: 'asc'},
+      ],
+      toolbar: {
+        items: [
+          {type: 'break'},
+          {id: 'status', type: 'button', text: 'Status Enum', icon: 'w2ui-icon-settings', onClick: () => openStatusPopup()},
+        ],
+      },
+      onAdd: function (event) {openTodoPopup(event)},
+      onEdit: function (event) {openTodoPopup(event)},
+      onDblClick: function (event) {
+        const isEditable = column => Object.keys(column.editable).length > 0
+        if (!isEditable(this.columns[event.detail.column])) {
+          openTodoPopup(event)
+        }
+      },
+      onSave: function (event) {
+        event.onComplete = () => {
+          if (event.detail.data?.status == 'success') {
+            w2utils.notify('Data has been successfully saved!', {timeout: 4000})
+            this.reload()
+          }
+        }
+      },
+      onDelete: function (event) {
+        if (event.detail.data?.status == 'success') {
+          w2utils.notify('Data has been successfully deleted!', {timeout: 4000})
+        }
+      },
+    })
+
+    function openTodoPopup(event) {
+      const todoForm = new w2form({
+        name: `todoForm`,
+        url: '/api/v1/todo/form',
+        recid: event.detail.recid,
+        saveCleanRecord: false,
+        fields: [
+          {field: 'id', type: 'text', hidden: event.type == 'add', html: {label: 'ID', attr: 'size="10" readonly', span: 4}},
+          {field: 'name', type: 'text', required: true, html: {label: 'Name', attr: 'style="width: 100%; ; min-width:100px;', span: 4}},
+          {field: 'description', type: 'text', required: true, html: {label: 'Description', attr: 'style="width: 100%; ; min-width:100px;', span: 4}},
+          {field: 'status', type: 'list', required: true, options: getDropdownListOptions('/api/v1/status/dropdown'), html: {label: 'Status', attr: 'style="width: 100%; ; min-width:100px;', span: 4}},
+          {field: 'quantity', type: 'int', required: true, html: {label: 'Quantity', attr: 'style="width: 100%; ; min-width:100px;', span: 4}},
+        ],
+        actions: {
+          async Save() {
+            const res = await this.save()
+            if (res.status == 'success') {
+              if (event.type == 'add') {
+                this.clear()
+              } else {
+                this.reload()
+              }
+              event.owner.reload()
+              w2utils.notify('Data has been successfully saved!', {timeout: 4000})
+            }
+          },
+          Cancel() {w2popup.close()},
+        },
+      })
+
+      w2popup.open({
+        title: event.type == 'add' ? 'New Todo' : 'Edit Todo',
+        body: '<div id="todo-form" style="width: 100%; height: 100%;"></div>',
+        width: 500, height: 350, showMax: true, resizable: true,
+      })
+        .then(() => todoForm.render('#todo-form'))
+        .close(() => todoForm.destroy())
+    }
+
+    function openStatusPopup() {
+      const statusGrid = new w2grid({
+        name: 'statusGrid',
+        url: '/api/v1/status/grid/records',
+        recid: 'id',
+        reorderRows: true,
+        show: {
+          footer: true,
+          toolbar: false,
+        },
+        columns: [
+          {field: 'id', text: 'ID', size: '60px'},
+          {field: 'name', text: 'Name', size: '250px', render: 'string'},
+        ],
+        onReorderRow: async function (event) {
+          this.lock('Reordering...')
+
+          const res = await fetch('/api/v1/status/grid/reorder', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(event.detail),
+          })
+
+          if (res.status == 200) {
+            w2utils.notify('Data has been successfully reordered!', {timeout: 4000})
+          } else {
+            const err = await res.json()
+            this.error(`${res.status}: ${err.message ?? res.statusText}`)
+            this.reload()
+          }
+
+          this.unlock()
+        },
+      })
+
+      w2popup.open({
+        title: 'Status Enum',
+        body: '<div id="status-grid" style="width: 100%; height: 100%;"></div>',
+        width: 500, height: 350, showMax: true, resizable: true,
+      })
+        .then(() => statusGrid.render('#status-grid'))
+        .close(() => statusGrid.destroy())
+    }
+  </script>
+</body>
+
+</html>
