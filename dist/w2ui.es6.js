@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (8/25/2025, 5:14:05 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (9/1/2025, 8:07:09 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -14360,27 +14360,13 @@ class w2grid extends w2base {
         this.searchSelected = null
         this.last.search = ''
         this.last.logic = (hasHiddenSearches ? 'AND' : this.last.logic)
-        // --- do not reset to All Fields (I think)
-        input.next().hide() // advanced search button
-        if (this.searches.length > 0) {
-            if (!this.multiSearch || !this.show.searchAll) {
-                let tmp = 0
-                while (tmp < this.searches.length && (this.searches[tmp].hidden || this.searches[tmp].simple === false)) tmp++
-                if (tmp >= this.searches.length) {
-                    // all searches are hidden
-                    this.last.field = ''
-                    this.last.label = ''
-                } else {
-                    this.last.field = this.searches[tmp].field
-                    this.last.label = this.searches[tmp].label
-                }
-            } else {
-                this.last.field = 'all'
-                this.last.label = 'All Fields'
-                input.next().show() // advanced search button
-            }
+        // advanced search button
+        if (this.multiSearch) {
+            input.next().show()
+        } else {
+            input.next().hide()
         }
-        this.last.multi      = false
+        this.last.multi = false
         this.last.fetch.offset = 0
         // reset scrolling position
         this.last.vscroll.scrollTop = 0
@@ -14392,7 +14378,9 @@ class w2grid extends w2base {
         let all = input.val('').get(0)
         if (all?._w2field) { all._w2field.reset() }
         // apply search
-        if (!noReload) this.reload()
+        if (!noReload) {
+            this.reload()
+        }
         // event after
         edata.finish()
     }
@@ -16827,14 +16815,39 @@ class w2grid extends w2base {
         }
         // -- make sure search is closed
         this.searchClose()
-        // search placeholder
-        let sInput = query(this.box).find('#grid_'+ this.name +'_search_all')
-        if (!this.multiSearch && this.last.field == 'all' && this.searches.length > 0) {
-            this.last.field = this.searches[0].field
-            this.last.label = this.searches[0].label
+        // --- default search field
+        let getFirstSearchField = () => {
+            let tmp = 0
+            while (tmp < this.searches.length && (this.searches[tmp].hidden || this.searches[tmp].simple === false)) {
+                tmp++
+            }
+            if (tmp >= this.searches.length) return { field: '', label: '' } // all searches are hidden or simple
+            return this.searches[tmp]
         }
-        for (let s = 0; s < this.searches.length; s++) {
-            if (this.searches[s].field == this.last.field) this.last.label = this.searches[s].label
+        if (!this.multiSearch && this.last.field == 'all') {
+            let fld = getFirstSearchField()
+            this.last.field = fld.field
+            this.last.label = fld.label
+        }
+        if (this.last.field == 'all' && !this.show.searchAll) {
+            this.last.field = ''
+        }
+        if (!this.last.field) {
+            if (this.show.searchAll) {
+                this.last.field = 'all'
+                this.last.label = 'All Fields'
+            } else {
+                let fld = getFirstSearchField()
+                this.last.field = fld.field
+                this.last.label = fld.label
+            }
+        }
+        let sInput = query(this.box).find('#grid_'+ this.name +'_search_all')
+        // find right search label
+        for (let ss = 0; ss < this.searches.length; ss++) {
+            if (this.searches[ss].field == this.last.field) {
+                this.last.label = this.searches[ss].label
+            }
         }
         if (this.last.multi) {
             sInput.attr('placeholder', '[' + w2utils.lang('Multiple Fields') + ']')
@@ -17243,24 +17256,6 @@ class w2grid extends w2base {
         let url = this.url?.get ?? this.url
         // reset needed if grid existed
         this.reset(true)
-        // --- default search field
-        if (!this.last.field) {
-            if (!this.multiSearch || !this.show.searchAll) {
-                let tmp = 0
-                while (tmp < this.searches.length && (this.searches[tmp].hidden || this.searches[tmp].simple === false)) tmp++
-                if (tmp >= this.searches.length) {
-                    // all searches are hidden
-                    this.last.field = ''
-                    this.last.label = ''
-                } else {
-                    this.last.field = this.searches[tmp].field
-                    this.last.label = this.searches[tmp].label
-                }
-            } else {
-                this.last.field = 'all'
-                this.last.label = 'All Fields'
-            }
-        }
         // insert elements
         query(this.box)
             .attr('name', this.name)
