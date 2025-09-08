@@ -830,9 +830,12 @@ class w2field extends w2base {
                         val = String(val).replace(options.numberRE, '')
                     }
                 }
+                // escape group symbol for regex as it could be a ., which is wild card in regex
+                let esc_gsroupSymbol = options.groupSymbol.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+                let esc_decimalSymbol = options.decimalSymbol.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
                 val = val.replace(/\s+/g, '')
-                         .replace(new RegExp(options.groupSymbol, 'g'), '')
-                         .replace(options.decimalSymbol, '.')
+                        .replace(new RegExp(esc_gsroupSymbol, 'g'), '')
+                        .replace(new RegExp(esc_decimalSymbol, 'g'), '.')
             }
             if (val !== '' && w2utils.isFloat(val)) val = Number(val); else val = ''
         }
