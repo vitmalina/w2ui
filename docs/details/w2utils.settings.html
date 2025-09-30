@@ -23,12 +23,12 @@ settings : {
     shortdays         : ["M", "T", "W", "T", "F", "S","S"],
     fulldays          : ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday",
                             "Saturday", "Sunday"],
-    weekStarts        : "M",        // can be "M" for Monday or "S" for Sunday
-    dataType          : 'HTTPJSON', // can be HTTP, HTTPJSON, RESTFULL, RESTFULLJSON, JSON
-    phrases           : {}          // empty object for phrases
-    warnNoPhrase      : true,       // warns if a phrase translation is missing
-    dateStartYear     : 1950,       // start year for date-picker
-    dateEndYear       : 2020        // end year for date picker
+    weekStarts        : "M",     // can be "M" for Monday or "S" for Sunday
+    dataType          : 'JSON',  // can be JSON, HTTP, RESTFULL
+    phrases           : {}       // empty object for phrases
+    warnNoPhrase      : true,    // warns if a phrase translation is missing
+    dateStartYear     : 1950,    // start year for date-picker
+    dateEndYear       : 2020     // end year for date picker
 }
 </textarea>
 
@@ -41,7 +41,7 @@ for more information. All locale specific files are located in <a href="https://
 w2utils.settings<span class="property">.dataType</span> can be one of the following.
 <div style="height: 20px"></div>
 
-<b>JSON</b> (default) - will encode params as a JSON string and will submit GET request for most of the actions in grid, forms, remote drop down, except for the form save, which will be submitted as POST. The body of the POST request will be encoded as JSON.
+<b>JSON</b> (default) - will encode params as a JSON string and will submit GET request for most of the actions in grid, forms, remote drop down, except for the form save, which will be submitted as POST. The body of the POST request will be encoded as JSON. For w2grid the GET request will look like this:
 <textarea class="javascript">
 request: {
     "limit":100,
@@ -59,7 +59,7 @@ request: {
 </textarea>
 <div style="height: 20px"></div>
 
-<b>HTTP</b> - will encode params as HTTP string and will submit GET request, except form save, that will be submitted as POST. The body of the POST request will be encoded as JSON.
+<b>HTTP</b> - will encode params as HTTP string and will submit GET request, except form save, that will be submitted as POST. The body of the POST request will be encoded as JSON. For the grid the GET request will look like this:
 <textarea class="javascript">
 limit: 100
 &offset: 0
@@ -80,7 +80,7 @@ limit: 100
 </textarea>
 <div style="height: 20px"></div>
 
-<b>RESTFULL</b> - will encode params as HTTP string and will submit GET for list, PUT for save, DELETE for delete, POST for update actions in w2grid and w2forms. The body of the POST, PUT, DELETE requests will be encoded as JSON. For w2grid the GET request will look like this:
+<b>RESTFULL</b> - will encode params as HTTP string and will submit GET for list, PUT for save, DELETE for delete, POST for update actions in w2grid and w2forms. The body of the POST, PUT, DELETE requests will be encoded as JSON. You can use RESTFULLJSON to encode GET requests with JSON. For w2grid the GET request will look like this:
 <textarea  class="javascript">
 limit: 100
 &offset: 0
@@ -101,4 +101,4 @@ limit: 100
 </textarea>
 <div style="height: 20px"></div>
 
-<b>dataType</b> can also be a JavaScript function. If it is a function, it will receive thsese arguments (url, fetchOptions, options) and it must return fetchOptions. This fetchOptions will be used in the fetch() call. This way you can fully customize how the request will be sent to the server.
+<b>dataType</b> can also be a JavaScript function. If it is a function, it will receive (url, fetchOptions, options) as arguments and it must return fetchOptions. This fetchOptions will be used in the browser fetch() call. This way you can fully customize how the request will be sent to the server.
