@@ -2933,7 +2933,7 @@ class w2grid extends w2base {
             method: edata.detail.httpMethod,
             headers: edata.detail.httpHeaders,
             body: edata.detail.postData
-        }, this.dataType)
+        }, { dataType: this.dataType, caller: this, action })
         Object.assign(this.last.fetch, {
             action: action,
             options: fetchOptions,

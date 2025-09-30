@@ -2195,7 +2195,7 @@ class MenuTooltip extends Tooltip {
                     method: edata.detail.httpMethod,
                     headers: edata.detail.httpHeaders,
                     body: edata.detail.postData
-                })
+                }, { caller: this, overlay, search })
                 // Create new abort controller
                 remote.controller = new AbortController()
                 fetchOptions.signal = remote.controller.signal

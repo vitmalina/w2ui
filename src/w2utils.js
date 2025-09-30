@@ -39,7 +39,7 @@ class Utils {
         this.version = '2.0.x'
         this.tmp = {}
         this.settings = this.extend({}, {
-            'dataType'       : 'HTTPJSON', // can be HTTP, HTTPJSON, RESTFULL, JSON (case sensitive)
+            'dataType'       : 'JSON', // can be HTTP, JSON, RESTFULL (case sensitive)
             'dateStartYear'  : 1950,  // start year for date-picker
             'dateEndYear'    : 2030,  // end year for date picker
             'macButtonOrder' : false, // if true, Yes on the right side
@@ -2284,42 +2284,42 @@ class Utils {
      * Takes Url object and fetchOptions and changes it in place applying selected user dataType. Since
      * dataType is in w2utils. This method is used in grid, form and tooltip to prepare fetch parameters
      */
-    prepareParams(url, fetchOptions, defDataType) {
-        let dataType = defDataType ?? w2utils.settings.dataType
+    prepareParams(url, fetchOptions, options = {}) {
+        let dataType = options?.dataType ?? w2utils.settings.dataType
         let postParams = fetchOptions.body
         fetchOptions.method = String(fetchOptions.method).toUpperCase()
         switch (dataType) {
-            case 'HTTPJSON': {
-                if (['PUT', 'DELETE'].includes(fetchOptions.method)) {
-                    fetchOptions.method = 'POST'
-                }
-                if (fetchOptions.method == 'GET') {
-                    postParams = { request: postParams }
-                    body2params()
-                }
-                break
-            }
-            case 'HTTP': {
-                if (['PUT', 'DELETE'].includes(fetchOptions.method)) {
-                    fetchOptions.method = 'POST'
-                }
-                if (fetchOptions.method == 'GET') {
-                    body2params()
-                }
-                break
-            }
-            case 'RESTFULL': {
-                if (['PUT', 'DELETE'].includes(fetchOptions.method)) {
+            /**
+             * Will submit GET, POST, PUT, DELETE
+             * - if GET - it will be in URL
+             * - if POST, PUT, DELETE it will be JSON encoded
+             */
+            case 'RESTFULL':
+            case 'RESTFULJSON': {
+                if (['POST', 'PUT', 'DELETE'].includes(fetchOptions.method)) {
                     fetchOptions.headers['Content-Type'] = 'application/json'
                 }
                 if (fetchOptions.method == 'GET') {
+                    if (dataType == 'RESTFULLJSON') {
+                        postParams = { request: postParams }
+                    }
                     body2params()
                 }
                 break
             }
+            /**
+             * Will submit either GET or POST and
+             * - if POST it will be JSON encoded
+             * - if GET it will be in URL
+             * - if HTTPJSON and GET then it will be JSON encoded
+             */
+            case 'HTTP':
+            case 'HTTPJSON':
             case 'JSON': {
                 if (fetchOptions.method == 'GET') {
-                    postParams = { request: postParams }
+                    if (dataType == 'JSON' || dataType === 'HTTPJSON') {
+                        postParams = { request: postParams }
+                    }
                     body2params()
                 } else {
                     fetchOptions.headers['Content-Type'] = 'application/json'
@@ -2327,8 +2327,18 @@ class Utils {
                 }
                 break
             }
+            default: {
+                if (typeof dataType == 'fuction') {
+                    // do nothing, it is custom function that will handle everything
+                    fetchOptions = dataType(url, fetchOptions, options)
+                } else {
+                    console.log(`ERROR: Unsupported dataType "${dataType}". Supported types are JSON (default), HTTP, RESTFULL. For backward compatibility HTTPJSON is same as JSON. RESTULFLJSON will encode GET request as JSON.`)
+                }
+            }
         }
-        fetchOptions.body = typeof fetchOptions.body == 'string' ? fetchOptions.body : JSON.stringify(fetchOptions.body)
+        if (fetchOptions.body != null) {
+            fetchOptions.body = typeof fetchOptions.body == 'string' ? fetchOptions.body : JSON.stringify(fetchOptions.body)
+        }
         return fetchOptions
 
         function body2params() {
