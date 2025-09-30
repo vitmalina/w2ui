@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (9/1/2025, 8:07:09 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (9/30/2025, 7:39:40 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -1042,7 +1042,7 @@ class Utils {
         this.version = '2.0.x'
         this.tmp = {}
         this.settings = this.extend({}, {
-            'dataType'       : 'HTTPJSON', // can be HTTP, HTTPJSON, RESTFULL, JSON (case sensitive)
+            'dataType'       : 'JSON', // can be HTTP, JSON, RESTFULL (case sensitive)
             'dateStartYear'  : 1950,  // start year for date-picker
             'dateEndYear'    : 2030,  // end year for date picker
             'macButtonOrder' : false, // if true, Yes on the right side
@@ -1195,7 +1195,7 @@ class Utils {
     }
     isFloat(val) {
         if (typeof val === 'string') {
-            val = val.replace(this.settings.groupSymbol, '')
+            val = val.replace(new RegExp(this.settings.groupSymbol, 'g'), '')
                 .replace(this.settings.decimalSymbol, '.')
         }
         return (typeof val === 'number' || (typeof val === 'string' && val !== '')) && !isNaN(Number(val))
@@ -3167,41 +3167,61 @@ class Utils {
      * Takes Url object and fetchOptions and changes it in place applying selected user dataType. Since
      * dataType is in w2utils. This method is used in grid, form and tooltip to prepare fetch parameters
      */
-    prepareParams(url, fetchOptions, defDataType) {
-        let dataType = defDataType ?? w2utils.settings.dataType
+    prepareParams(url, fetchOptions, options = {}) {
+        let dataType = options?.dataType ?? w2utils.settings.dataType
         let postParams = fetchOptions.body
+        fetchOptions.method = String(fetchOptions.method).toUpperCase()
         switch (dataType) {
-            case 'HTTPJSON':
-                postParams = { request: postParams }
-                if (['PUT', 'DELETE'].includes(fetchOptions.method)) {
-                    fetchOptions.method = 'POST'
-                }
-                body2params()
-                break
-            case 'HTTP':
-                if (['PUT', 'DELETE'].includes(fetchOptions.method)) {
-                    fetchOptions.method = 'POST'
-                }
-                body2params()
-                break
+            /**
+             * Will submit GET, POST, PUT, DELETE
+             * - if GET - it will be in URL
+             * - if POST, PUT, DELETE it will be JSON encoded
+             */
             case 'RESTFULL':
-                if (['PUT', 'DELETE'].includes(fetchOptions.method)) {
+            case 'RESTFULJSON': {
+                if (['POST', 'PUT', 'DELETE'].includes(fetchOptions.method)) {
                     fetchOptions.headers['Content-Type'] = 'application/json'
-                } else {
+                }
+                if (fetchOptions.method == 'GET') {
+                    if (dataType == 'RESTFULLJSON') {
+                        postParams = { request: postParams }
+                    }
                     body2params()
                 }
                 break
-            case 'JSON':
+            }
+            /**
+             * Will submit either GET or POST and
+             * - if POST it will be JSON encoded
+             * - if GET it will be in URL
+             * - if HTTPJSON and GET then it will be JSON encoded
+             */
+            case 'HTTP':
+            case 'HTTPJSON':
+            case 'JSON': {
                 if (fetchOptions.method == 'GET') {
-                    postParams = { request: postParams }
+                    if (dataType == 'JSON' || dataType === 'HTTPJSON') {
+                        postParams = { request: postParams }
+                    }
                     body2params()
                 } else {
                     fetchOptions.headers['Content-Type'] = 'application/json'
                     fetchOptions.method = 'POST'
                 }
                 break
+            }
+            default: {
+                if (typeof dataType == 'fuction') {
+                    // do nothing, it is custom function that will handle everything
+                    fetchOptions = dataType(url, fetchOptions, options)
+                } else {
+                    console.log(`ERROR: Unsupported dataType "${dataType}". Supported types are JSON (default), HTTP, RESTFULL. For backward compatibility HTTPJSON is same as JSON. RESTULFLJSON will encode GET request as JSON.`)
+                }
+            }
         }
-        fetchOptions.body = typeof fetchOptions.body == 'string' ? fetchOptions.body : JSON.stringify(fetchOptions.body)
+        if (fetchOptions.body != null) {
+            fetchOptions.body = typeof fetchOptions.body == 'string' ? fetchOptions.body : JSON.stringify(fetchOptions.body)
+        }
         return fetchOptions
         function body2params() {
             Object.keys(postParams).forEach(key => {
@@ -6300,7 +6320,7 @@ class MenuTooltip extends Tooltip {
                     method: edata.detail.httpMethod,
                     headers: edata.detail.httpHeaders,
                     body: edata.detail.postData
-                })
+                }, { caller: this, overlay, search })
                 // Create new abort controller
                 remote.controller = new AbortController()
                 fetchOptions.signal = remote.controller.signal
@@ -6404,7 +6424,7 @@ class MenuTooltip extends Tooltip {
         }
         if (items == null) items = overlay.options.items
         items.forEach((item, ind) => {
-            if (!item.hidden && !item.disabled && !item?.text?.startsWith('--')) {
+            if (!item.hidden && !item.disabled && !item?.text?.startsWith?.('--')) {
                 res.push(parents.concat([ind]).join('-'))
                 if (Array.isArray(item.items) && item.items.length > 0 && item.expanded) {
                     parents.push(ind)
@@ -10067,6 +10087,7 @@ class w2tabs extends w2base {
         this.tab_template = {
             id: null,
             text: null,
+            icon: null,
             route: null,
             hidden: false,
             disabled: false,
@@ -10336,6 +10357,10 @@ class w2tabs extends w2base {
                 data-mousedown="stop" data-mouseup="clickClose|${tab.id}|event">
             </div>`
         }
+        let icon = ''
+        if (tab.icon) {
+            icon = `<span class="w2ui-tab-icon ${tab.icon}"></span>`
+        }
         return `
             <div id="tabs_${this.name}_tab_${tab.id}" style="${addStyle} ${tab.style}"
                 class="w2ui-tab w2ui-eaction ${this.active === tab.id ? 'active' : ''} ${tab.closable ? 'closable' : ''} ${tab.class ? tab.class : ''}"
@@ -10343,9 +10368,8 @@ class w2tabs extends w2base {
                 data-mouseleave="mouseAction|Leave|${tab.id}|event]"
                 data-mousedown="mouseAction|Down|${tab.id}|event"
                 data-mouseup="mouseAction|Up|${tab.id}|event"
-                data-click="click|${tab.id}|event"
-               >
-                    ${w2utils.lang(text) + closable}
+                data-click="click|${tab.id}|event">
+                    ${icon + w2utils.lang(text) + closable}
             </div>`
     }
     refresh(id) {
@@ -14619,7 +14643,7 @@ class w2grid extends w2base {
             method: edata.detail.httpMethod,
             headers: edata.detail.httpHeaders,
             body: edata.detail.postData
-        }, this.dataType)
+        }, { dataType: this.dataType, caller: this, action })
         Object.assign(this.last.fetch, {
             action: action,
             options: fetchOptions,
@@ -14668,7 +14692,7 @@ class w2grid extends w2base {
                 console.log('ERROR: Server communication failed.',
                     '\n   EXPECTED:', { total: 5, records: [{ recid: 1, field: 'value' }] },
                     '\n         OR:', { error: true, message: 'error message' })
-                self.requestComplete({ error: true, message: w2utils.lang(this.msgHTTPError), response }, action, callBack, resolve, reject)
+                self.requestComplete({ error: true, message: w2utils.lang(self.msgHTTPError), response }, action, callBack, resolve, reject)
             }
             // event after
             edata2.finish()
@@ -21479,7 +21503,7 @@ class w2form extends w2base {
             method: edata.detail.httpMethod,
             headers: edata.detail.httpHeaders,
             body: edata.detail.postData
-        }, this.dataType)
+        }, { dataType: this.dataType, caller: this, action: 'request' })
         this.last.fetchCtrl = new AbortController()
         fetchOptions.signal = this.last.fetchCtrl.signal
         this.last.fetchOptions = fetchOptions
@@ -21607,7 +21631,7 @@ class w2form extends w2base {
             method: edata.detail.httpMethod,
             headers: edata.detail.httpHeaders,
             body: edata.detail.postData
-        }, this.dataType)
+        }, { dataType: this.dataType, caller: this, action: 'save' })
         this.last.fetchCtrl = new AbortController()
         fetchOptions.signal = this.last.fetchCtrl.signal
         this.last.fetchOptions = fetchOptions
@@ -23334,6 +23358,13 @@ class w2field extends w2base {
                         this.selected.splice(index, 1)
                         query(this.el).trigger('input').trigger('change')
                         query(event.target).remove()
+                        // remove file from input element
+                        let transfer = new DataTransfer()
+                        let input = query(event.target.previousElementSibling).find('input.file-input').get(0)
+                        Array.from(input.files)
+                            .filter(f => f.name != item.name)
+                            .forEach(f => transfer.items.add(f))
+                        input.files = transfer.files
                     } else {
                         // trigger event
                         edata = this.trigger('click', { target: this.el, originalEvent: event.originalEvent, item })
@@ -23514,9 +23545,12 @@ class w2field extends w2base {
                         val = String(val).replace(options.numberRE, '')
                     }
                 }
+                // escape group symbol for regex as it could be a ., which is wild card in regex
+                let esc_gsroupSymbol = options.groupSymbol.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+                let esc_decimalSymbol = options.decimalSymbol.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
                 val = val.replace(/\s+/g, '')
-                         .replace(new RegExp(options.groupSymbol, 'g'), '')
-                         .replace(options.decimalSymbol, '.')
+                        .replace(new RegExp(esc_gsroupSymbol, 'g'), '')
+                        .replace(new RegExp(esc_decimalSymbol, 'g'), '.')
             }
             if (val !== '' && w2utils.isFloat(val)) val = Number(val); else val = ''
         }
