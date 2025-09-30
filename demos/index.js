@@ -291,7 +291,8 @@ query(async function () {
                 { id: 'tabs-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
                         { id: 'tabs/10', text: 'Smooth Add/Remove', icon: 'fa fa-folder-o' },
-                        { id: 'tabs/11', text: 'Events', icon: 'fa fa-folder-o' }
+                        { id: 'tabs/11', text: 'Events', icon: 'fa fa-folder-o' },
+                        { id: 'tabs/12', text: 'Tab Icons', icon: 'fa fa-folder-o' }
                     ]
                 },
                 { id: 'forms', text: 'Forms Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,

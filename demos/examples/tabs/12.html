@@ -1,0 +1,30 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Tab Icons</h1>
+        Tab can also have icons.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="tabs" style="width: 100%;"></div>
+<br>
+
+<!--CODE-->
+<script type="module">
+import { w2tabs, query } from '__W2UI_PATH__'
+
+let tabs = new w2tabs({
+    box: '#tabs',
+    name: 'tabs',
+    active: 'tab1',
+    tabs: [
+        { id: 'tab1', text: 'Tab 1', icon: 'fa fa-home' },
+        { id: 'tab2', text: 'Tab 2', icon: 'fa fa-google' },
+        { id: 'tab3', text: 'Tab 3', icon: 'fa fa-cog', closable: true },
+        { id: 'tab4', text: 'Tab 4', icon: 'fa fa-info' }
+    ]
+})
+
+</script>

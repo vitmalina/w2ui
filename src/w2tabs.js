@@ -46,6 +46,7 @@ class w2tabs extends w2base {
         this.tab_template = {
             id: null,
             text: null,
+            icon: null,
             route: null,
             hidden: false,
             disabled: false,
@@ -333,6 +334,10 @@ class w2tabs extends w2base {
                 data-mousedown="stop" data-mouseup="clickClose|${tab.id}|event">
             </div>`
         }
+        let icon = ''
+        if (tab.icon) {
+            icon = `<span class="w2ui-tab-icon ${tab.icon}"></span>`
+        }
         return `
             <div id="tabs_${this.name}_tab_${tab.id}" style="${addStyle} ${tab.style}"
                 class="w2ui-tab w2ui-eaction ${this.active === tab.id ? 'active' : ''} ${tab.closable ? 'closable' : ''} ${tab.class ? tab.class : ''}"
@@ -340,9 +345,8 @@ class w2tabs extends w2base {
                 data-mouseleave="mouseAction|Leave|${tab.id}|event]"
                 data-mousedown="mouseAction|Down|${tab.id}|event"
                 data-mouseup="mouseAction|Up|${tab.id}|event"
-                data-click="click|${tab.id}|event"
-               >
-                    ${w2utils.lang(text) + closable}
+                data-click="click|${tab.id}|event">
+                    ${icon + w2utils.lang(text) + closable}
             </div>`
     }
 
