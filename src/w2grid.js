@@ -2983,7 +2983,7 @@ class w2grid extends w2base {
                 console.log('ERROR: Server communication failed.',
                     '\n   EXPECTED:', { total: 5, records: [{ recid: 1, field: 'value' }] },
                     '\n         OR:', { error: true, message: 'error message' })
-                self.requestComplete({ error: true, message: w2utils.lang(this.msgHTTPError), response }, action, callBack, resolve, reject)
+                self.requestComplete({ error: true, message: w2utils.lang(self.msgHTTPError), response }, action, callBack, resolve, reject)
             }
             // event after
             edata2.finish()

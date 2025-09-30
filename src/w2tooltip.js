@@ -2300,7 +2300,7 @@ class MenuTooltip extends Tooltip {
         }
         if (items == null) items = overlay.options.items
         items.forEach((item, ind) => {
-            if (!item.hidden && !item.disabled && !item?.text?.startsWith('--')) {
+            if (!item.hidden && !item.disabled && !item?.text?.startsWith?.('--')) {
                 res.push(parents.concat([ind]).join('-'))
                 if (Array.isArray(item.items) && item.items.length > 0 && item.expanded) {
                     parents.push(ind)
