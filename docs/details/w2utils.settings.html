@@ -4,7 +4,7 @@ Global settings for w2ui
     Object
 </div>
 
-There is a number of default settings used across w2ui library. The setting object is a map with the following structure:
+There is a number of default settings used across w2ui library (grid, form, tooltip, toolbar, etc). The setting object is a map with the following structure:
 
 
 <textarea class="javascript">
@@ -19,9 +19,10 @@ settings : {
     decimalSymbol     : ".",
     shortmonths       : ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
     fullmonths        : ["January", "February", "March", "April", "May", "June", "July", "August",
-                         "September", "October", "November", "December"],
+                            "September", "October", "November", "December"],
     shortdays         : ["M", "T", "W", "T", "F", "S","S"],
-    fulldays          : ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+    fulldays          : ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday",
+                            "Saturday", "Sunday"],
     weekStarts        : "M",        // can be "M" for Monday or "S" for Sunday
     dataType          : 'HTTPJSON', // can be HTTP, HTTPJSON, RESTFULL, RESTFULLJSON, JSON
     phrases           : {}          // empty object for phrases
@@ -32,7 +33,7 @@ settings : {
 </textarea>
 
 You can define and load settings based on your locale. See <a class="method" href="w2utils.locale">.locale()</a> method
-for more information. All locale specific files are located in the /src/locale folder on github.com
+for more information. All locale specific files are located in <a href="https://github.com/vitmalina/w2ui/tree/master/src/locale">/src/locale</a> folder.
 <div style="height: 20px"></div>
 
 <h4>Data Types</h4>
@@ -40,7 +41,7 @@ for more information. All locale specific files are located in the /src/locale f
 w2utils.settings<span class="property">.dataType</span> can be one of the following.
 <div style="height: 20px"></div>
 
-<b>HTTPJSON</b> (default) - will encode params as a JSON string and will submit GET request
+<b>HTTPJSON</b> (default) - will encode params as a JSON string and will submit GET request for most of the actions in grid, forms, remote drop down, except for the form save, which will be submitted as POST.
 <textarea class="javascript">
 request: {
     "limit":100,
@@ -58,7 +59,7 @@ request: {
 </textarea>
 <div style="height: 20px"></div>
 
-<b>HTTP</b> - will encode params as HTTP string and will submit GET request
+<b>HTTP</b> - will encode params as HTTP string and will submit GET request, except form save.
 <textarea class="javascript">
 limit: 100
 &offset: 0

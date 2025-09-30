@@ -213,7 +213,7 @@ class Utils {
 
     isFloat(val) {
         if (typeof val === 'string') {
-            val = val.replace(this.settings.groupSymbol, '')
+            val = val.replace(new RegExp(this.settings.groupSymbol, 'g'), '')
                 .replace(this.settings.decimalSymbol, '.')
         }
         return (typeof val === 'number' || (typeof val === 'string' && val !== '')) && !isNaN(Number(val))
@@ -2287,28 +2287,37 @@ class Utils {
     prepareParams(url, fetchOptions, defDataType) {
         let dataType = defDataType ?? w2utils.settings.dataType
         let postParams = fetchOptions.body
+        fetchOptions.method = String(fetchOptions.method).toUpperCase()
         switch (dataType) {
-            case 'HTTPJSON':
-                postParams = { request: postParams }
+            case 'HTTPJSON': {
                 if (['PUT', 'DELETE'].includes(fetchOptions.method)) {
                     fetchOptions.method = 'POST'
                 }
-                body2params()
-                break
-            case 'HTTP':
-                if (['PUT', 'DELETE'].includes(fetchOptions.method)) {
-                    fetchOptions.method = 'POST'
-                }
-                body2params()
-                break
-            case 'RESTFULL':
-                if (['PUT', 'DELETE'].includes(fetchOptions.method)) {
-                    fetchOptions.headers['Content-Type'] = 'application/json'
-                } else {
+                if (fetchOptions.method == 'GET') {
+                    postParams = { request: postParams }
                     body2params()
                 }
                 break
-            case 'JSON':
+            }
+            case 'HTTP': {
+                if (['PUT', 'DELETE'].includes(fetchOptions.method)) {
+                    fetchOptions.method = 'POST'
+                }
+                if (fetchOptions.method == 'GET') {
+                    body2params()
+                }
+                break
+            }
+            case 'RESTFULL': {
+                if (['PUT', 'DELETE'].includes(fetchOptions.method)) {
+                    fetchOptions.headers['Content-Type'] = 'application/json'
+                }
+                if (fetchOptions.method == 'GET') {
+                    body2params()
+                }
+                break
+            }
+            case 'JSON': {
                 if (fetchOptions.method == 'GET') {
                     postParams = { request: postParams }
                     body2params()
@@ -2317,6 +2326,7 @@ class Utils {
                     fetchOptions.method = 'POST'
                 }
                 break
+            }
         }
         fetchOptions.body = typeof fetchOptions.body == 'string' ? fetchOptions.body : JSON.stringify(fetchOptions.body)
         return fetchOptions
