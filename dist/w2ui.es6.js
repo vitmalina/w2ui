@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (9/30/2025, 7:39:40 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (10/7/2025, 7:02:07 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -17072,7 +17072,25 @@ class w2grid extends w2base {
                 .on('click', { delegate: 'tr' }, (event) => {
                     let index = query(event.delegate).attr('index') // don't read recid directly as it could be a number or a string
                     let recid = this.records[index]?.recid
-                    this.dblClick(recid, event)
+                    this.click(recid, event)
+                })
+                .on('touchstart', { delegate: 'tr' }, (event) => {
+                    let index = query(event.delegate).attr('index') // don't read recid directly as it could be a number or a string
+                    let recid = this.records[index]?.recid
+                    // emulate double click
+                    if (this.last.mobile_touch && Date.now() - this.last.mobile_touch < 350) {
+                        event.preventDefault()
+                        this.dblClick(recid, event)
+                    }
+                    this.last.mobile_touch = Date.now()
+                    setTimeout(() => this.last.mobile_touch = null, 350)
+                })
+                .on('contextmenu', { delegate: 'tr' }, (event) => {
+                    let index = parseInt(query(event.delegate).attr('index')) // don't read recid directly as it could be a number or a string
+                    let recid = this.records[index]?.recid
+                    let td = query(event.target).closest('td')
+                    let column = td.attr('col') ? parseInt(td.attr('col')) : null
+                    this.showContextMenu(event, { recid, column, index })
                 })
         } else {
             records.add(frecords)
