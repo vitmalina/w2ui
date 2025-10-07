@@ -12,18 +12,28 @@ For each input or select control in the HTML template of the form, you need to d
 
 <textarea class="javascript">
 field: {
-    field  : '',              // id of field, must match name of input or select
-    type   : null,            // type of field (same types as for w2field object)
+    field: '',     // id of field, must match name of input or select
+    type: null,    // type of field (same types as for w2field object)
     options: {
-        format: null,         // date/time format for data/time fields
-        minLength: null,      // min length for text field or min search for list/combo/enum fields
-        items: []             // list of items for checks/radio/select/enum/combo/list field types
-        selected: null        // item that is selected fro enum/combo/list types
+        format: null,     // date/time format for data/time fields
+        min: null,        // min value for number fields
+        max: null,        // max value for number fields
+        minLength: null,  // min length for text field or min search for list/combo/enum fields
+        items: []         // list of items for checks/radio/select/enum/combo/list field types
+        itemMap: {        // provide alternative mappping for id and text fields in the dropdown
+            id: 'id',
+            text: 'text'
+        },
+        parentList: null,     // parent list for dropdown, if any
+        parentField: null,    // parent field for dropdown, if any
+        // more options for list/combo/enum fields, whatever list is expecting
+        selected: null        // item that is selected from enum/combo/list types
+        ...
     },
-    required : false,         // required or not
-    hidden   : undefined,     // field hidden/visible
-    disabled : undefined,     // field disabled/enabled
-    html     : {              // info for auto generation (see generateHTML)
+    required: false,          // required or not
+    hidden: undefined,        // field hidden/visible
+    disabled: undefined,      // field disabled/enabled
+    html: {                   // info for auto generation (see generateHTML)
         label  : '',          // caption for the field
         attr   : '',          // attributes inside input/select control
         style  : '',          // style for the whole field
@@ -33,9 +43,9 @@ field: {
         column : undefined,   // column number, can be 'before' or 'after'
         anchor : '',          // field anchor, to attach fields at the end of other fields
         // group properties
-        group           : '',    // starts a new group with this title
-        groupTitleStyle : '',    // style for the group title
-        groupStyle      : '',    // style for the group's fields container
+        group: '',            // starts a new group with this title
+        groupTitleStyle: '',  // style for the group title
+        groupStyle: '',       // style for the group's fields container
         groupCollapsible: false, // flag to indicate if the group is collapsible
         // for map and array types
         key: {
