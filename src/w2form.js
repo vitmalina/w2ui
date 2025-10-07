@@ -31,6 +31,7 @@
  *  - saveCleanRecord
  *  - added options.itemMap = { id: 'id', text: 'text' } - to map id, text fields if needed
  *  - hideGroup/showGroup - new methods
+ *  - getAction/actionHide/actionShow/actionDisable/actionEnable - new methods
  */
 
 import { w2base } from './w2base.js'
@@ -1690,6 +1691,26 @@ class w2form extends w2base {
         if (typeof click === 'function') click.call(this, event)
         // event after
         edata.finish()
+    }
+
+    getAction(action) {
+        return query(this.box).find('.w2ui-buttons button[name="' + action + '"]')
+    }
+
+    actionHide(action) {
+        this.getAction(action).hide()
+    }
+
+    actionShow(action) {
+        this.getAction(action).show()
+    }
+
+    actionDisable(action) {
+        this.getAction(action).prop('disabled', true)
+    }
+
+    actionEnable(action) {
+        this.getAction(action).prop('disabled', false)
     }
 
     resize() {

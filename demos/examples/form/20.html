@@ -10,6 +10,10 @@
 <!--CODE-->
 <div id="form" style="width: 750px;"></div>
 <br>
+<button class="w2ui-btn" onclick="w2ui.form.actionDisable('custom')">Disable Custom</button>
+<button class="w2ui-btn" onclick="w2ui.form.actionEnable('custom')">Enable Custom</button>
+<button class="w2ui-btn" onclick="w2ui.form.actionHide('custom')">Hide Custom</button>
+<button class="w2ui-btn" onclick="w2ui.form.actionShow('custom')">Show Custom</button>
 
 <!--CODE-->
 <script type="module">
@@ -64,4 +68,5 @@ let form = new w2form({
         }
     }
 })
+window.w2ui = w2ui
 </script>
