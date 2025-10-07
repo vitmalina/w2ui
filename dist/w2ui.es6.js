@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (10/7/2025, 7:41:14 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (10/7/2025, 10:05:03 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -23388,17 +23388,17 @@ class w2field extends w2base {
                         // trigger event
                         edata = this.trigger('remove', { target: this.el, originalEvent: event, item })
                         if (edata.isCancelled === true) return
-                        // default behavior
-                        this.selected.splice(index, 1)
-                        query(this.el).trigger('input').trigger('change')
-                        query(event.target).remove()
                         // remove file from input element
                         let transfer = new DataTransfer()
-                        let input = query(event.target.previousElementSibling).find('input.file-input').get(0)
+                        let input = query(event.target).closest('.w2ui-list').find('input.file-input').get(0)
                         Array.from(input.files)
                             .filter(f => f.name != item.name)
                             .forEach(f => transfer.items.add(f))
                         input.files = transfer.files
+                        // remove placeholder in the field
+                        this.selected.splice(index, 1)
+                        query(this.el).trigger('input').trigger('change')
+                        query(event.target).remove()
                     } else {
                         // trigger event
                         edata = this.trigger('click', { target: this.el, originalEvent: event.originalEvent, item })
@@ -24526,11 +24526,14 @@ class w2field extends w2base {
         let edata = this.trigger('add', { target: this.el, file: newItem, total: cnt, totalSize: size, errors })
         if (edata.isCancelled === true) return
         // if errors
-        if (options.showErrors !== true && errors.length > 0) {
-            w2tooltip.show({
-                anchor: this.el,
-                html: 'Errors: ' + errors.join('<br>')
-            })
+        if (errors.length > 0) {
+            if (options.showErrors) {
+                w2tooltip.show({
+                    anchor: this.el,
+                    html: 'Errors: ' + errors.join('<br>'),
+                    hideOn: ['input', 'doc-click']
+                })
+            }
             console.log('ERRORS (while adding files): ', errors)
             return
         }
