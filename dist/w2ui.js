@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (10/7/2025, 7:02:07 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (10/7/2025, 7:41:14 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -20468,6 +20468,7 @@ class w2grid extends w2base {
  *  - saveCleanRecord
  *  - added options.itemMap = { id: 'id', text: 'text' } - to map id, text fields if needed
  *  - hideGroup/showGroup - new methods
+ *  - getAction/actionHide/actionShow/actionDisable/actionEnable - new methods
  */
 
 class w2form extends w2base {
@@ -22071,6 +22072,21 @@ class w2form extends w2base {
         if (typeof click === 'function') click.call(this, event)
         // event after
         edata.finish()
+    }
+    getAction(action) {
+        return query(this.box).find('.w2ui-buttons button[name="' + action + '"]')
+    }
+    actionHide(action) {
+        this.getAction(action).hide()
+    }
+    actionShow(action) {
+        this.getAction(action).show()
+    }
+    actionDisable(action) {
+        this.getAction(action).prop('disabled', true)
+    }
+    actionEnable(action) {
+        this.getAction(action).prop('disabled', false)
     }
     resize() {
         let self = this
