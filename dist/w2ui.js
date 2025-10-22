@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (10/7/2025, 10:05:03 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (10/22/2025, 6:14:35 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -22074,7 +22074,11 @@ class w2form extends w2base {
         edata.finish()
     }
     getAction(action) {
-        return query(this.box).find('.w2ui-buttons button[name="' + action + '"]')
+        let ret = query(this.box).find('.w2ui-buttons button[name="' + action + '"]')
+        if (ret.length === 0) {
+            console.log('ERROR: Action "' + action + '" not found. Valid actions are: ' + Object.keys(this.actions).join(', '))
+        }
+        return
     }
     actionHide(action) {
         this.getAction(action).hide()
@@ -23391,10 +23395,12 @@ class w2field extends w2base {
                         // remove file from input element
                         let transfer = new DataTransfer()
                         let input = query(event.target).closest('.w2ui-list').find('input.file-input').get(0)
-                        Array.from(input.files)
-                            .filter(f => f.name != item.name)
-                            .forEach(f => transfer.items.add(f))
-                        input.files = transfer.files
+                        if (input) {
+                            Array.from(input.files)
+                                .filter(f => f.name != item.name)
+                                .forEach(f => transfer.items.add(f))
+                            input.files = transfer.files
+                        }
                         // remove placeholder in the field
                         this.selected.splice(index, 1)
                         query(this.el).trigger('input').trigger('change')
