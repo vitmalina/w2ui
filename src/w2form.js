@@ -1694,7 +1694,11 @@ class w2form extends w2base {
     }
 
     getAction(action) {
-        return query(this.box).find('.w2ui-buttons button[name="' + action + '"]')
+        let ret = query(this.box).find('.w2ui-buttons button[name="' + action + '"]')
+        if (ret.length === 0) {
+            console.log('ERROR: Action "' + action + '" not found. Valid actions are: ' + Object.keys(this.actions).join(', '))
+        }
+        return
     }
 
     actionHide(action) {

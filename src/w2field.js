@@ -635,10 +635,12 @@ class w2field extends w2base {
                         // remove file from input element
                         let transfer = new DataTransfer()
                         let input = query(event.target).closest('.w2ui-list').find('input.file-input').get(0)
-                        Array.from(input.files)
-                            .filter(f => f.name != item.name)
-                            .forEach(f => transfer.items.add(f))
-                        input.files = transfer.files
+                        if (input) {
+                            Array.from(input.files)
+                                .filter(f => f.name != item.name)
+                                .forEach(f => transfer.items.add(f))
+                            input.files = transfer.files
+                        }
                         // remove placeholder in the field
                         this.selected.splice(index, 1)
                         query(this.el).trigger('input').trigger('change')
