@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (10/22/2025, 6:14:35 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (10/31/2025, 8:43:03 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -22078,7 +22078,7 @@ class w2form extends w2base {
         if (ret.length === 0) {
             console.log('ERROR: Action "' + action + '" not found. Valid actions are: ' + Object.keys(this.actions).join(', '))
         }
-        return
+        return ret
     }
     actionHide(action) {
         this.getAction(action).hide()
