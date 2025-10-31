@@ -1698,7 +1698,7 @@ class w2form extends w2base {
         if (ret.length === 0) {
             console.log('ERROR: Action "' + action + '" not found. Valid actions are: ' + Object.keys(this.actions).join(', '))
         }
-        return
+        return ret
     }
 
     actionHide(action) {
