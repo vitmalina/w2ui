@@ -393,6 +393,8 @@ const w2locale = {
         'record': '---',
         'records': '---',
         'Refreshing...': '---',
+        'RegEx': '---',
+        'regex': '---',
         'Reload data in the list': '---',
         'Remove': '---',
         'Remove This Field': '---',
@@ -2569,10 +2571,12 @@ class Utils {
         }
         return str.replace(/\${([^}]+)?}/g, function($1, $2) { return replace_obj[$2]||$2 })
     }
-    marker(el, items, options = { onlyFirst: false, wholeWord: false }) {
+    marker(el, items, options = { onlyFirst: false, wholeWord: false, isRegex: false}) {
         options.tag ??= 'span'
         options.class ??= 'w2ui-marker'
         options.raplace = (matched) => `<${options.tag} class="${options.class}">${matched}</${options.tag}>`
+        
+        const isRegexSearch = options.isRegex || false;
         if (!Array.isArray(items)) {
             if (items != null && items !== '') {
                 items = [items]
@@ -2583,14 +2587,125 @@ class Utils {
         if (typeof el == 'string') {
             _clearMerkers(el)
             items.forEach(item => {
-                el = _replace(el, item, options.raplace)
+                if (isRegexSearch) {
+                    // For regex searches with string elements
+                    try {
+                        let flags = 'i' + (!options.onlyFirst ? 'g' : '')
+                        let regex = new RegExp(item, flags)
+                        el = el.replace(regex, options.raplace)
+                    } catch (e) {
+                        console.error('Invalid regular expression:', e)
+                        // Fallback to standard replace
+                        el = _replace(el, item, options.raplace)
+                    }
+                } else {
+                    // Standard string replace
+                    el = _replace(el, item, options.raplace)
+                }
             })
         } else {
             query(el).each(el => {
                 _clearMerkers(el)
-                items.forEach(item => {
-                    el.innerHTML = _replace(el.innerHTML, item, options.raplace)
-                })
+                if (isRegexSearch) {
+                    // For regex searches, use DOM traversal approach
+                    items.forEach(pattern => {
+                        try {
+                            let flags = 'i' // Always case-insensitive
+                            if (!options.onlyFirst) {
+                                flags += 'g' // Add 'g' for global unless onlyFirst is true
+                            }
+                            if (options.wholeWord) {
+                                // If wholeWord is true, wrap the pattern with word boundary markers
+                                pattern = '\b' + pattern + '\b'
+                            }
+                            
+                            let regex = new RegExp(pattern, flags)
+                            
+                            // Get all text nodes
+                            let textNodes = []
+                            function getTextNodes(node) {
+                                if (node.nodeType === 3) { // Text node
+                                    textNodes.push(node)
+                                } else if (node.nodeType === 1) { // Element node
+                                    // Skip script and style tags
+                                    if (node.tagName !== 'SCRIPT' && node.tagName !== 'STYLE') {
+                                        for (let i = 0; i < node.childNodes.length; i++) {
+                                            getTextNodes(node.childNodes[i])
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            getTextNodes(el)
+                            
+                            // Process each text node
+                            textNodes.forEach(textNode => {
+                                let text = textNode.nodeValue
+                                let matches = []
+                                let match
+                                
+                                // Find all matches
+                                if (options.onlyFirst) {
+                                    match = regex.exec(text)
+                                    if (match) matches.push({
+                                        index: match.index,
+                                        text: match[0]
+                                    })
+                                } else {
+                                    while ((match = regex.exec(text)) !== null) {
+                                        matches.push({
+                                            index: match.index,
+                                            text: match[0]
+                                        })
+                                    }
+                                }
+                                
+                                // Apply highlighting
+                                if (matches.length > 0) {
+                                    let parent = textNode.parentNode
+                                    let fragment = document.createDocumentFragment()
+                                    let lastIndex = 0
+                                    
+                                    matches.forEach(match => {
+                                        // Add text before match
+                                        if (match.index > lastIndex) {
+                                            fragment.appendChild(document.createTextNode(
+                                                text.substring(lastIndex, match.index)
+                                            ))
+                                        }
+                                        
+                                        // Add highlighted match
+                                        let span = document.createElement(options.tag)
+                                        span.className = options.class
+                                        span.appendChild(document.createTextNode(match.text))
+                                        fragment.appendChild(span)
+                                        
+                                        lastIndex = match.index + match.text.length
+                                    })
+                                    
+                                    // Add remaining text
+                                    if (lastIndex < text.length) {
+                                        fragment.appendChild(document.createTextNode(
+                                            text.substring(lastIndex)
+                                        ))
+                                    }
+                                    
+                                    // Replace the text node with our fragment
+                                    parent.replaceChild(fragment, textNode)
+                                }
+                            })
+                        } catch (e) {
+                            console.error('Invalid regular expression:', e)
+                            // Fallback to standard innerHTML replace
+                            el.innerHTML = _replace(el.innerHTML, pattern, options.raplace)
+                        }
+                    })
+                } else {
+                    // Standard innerHTML replace for non-regex
+                    items.forEach(item => {
+                        el.innerHTML = _replace(el.innerHTML, item, options.raplace)
+                    })
+                }
             })
         }
         return el
@@ -5579,7 +5694,7 @@ class MenuTooltip extends Tooltip {
             menuStyle   : '',
             search      : false,        // search input inside tooltip
             filter      : false,        // will apply filter, if anchor is INPUT or TEXTAREA
-            match       : 'contains',   // is, begins, ends, contains
+            match       : 'contains',   // is, begins, ends, contains, regexp
             markSearch  : false,
             prefilter   : false,
             altRows     : false,
@@ -6252,18 +6367,29 @@ class MenuTooltip extends Tooltip {
             return prom
         }
         items.forEach(item => {
-            let prefix = ''
-            let suffix = ''
-            if (['is', 'begins', 'begins with'].indexOf(options.match) !== -1) prefix = '^'
-            if (['is', 'ends', 'ends with'].indexOf(options.match) !== -1) suffix = '$'
-            try {
-                let re = new RegExp(prefix + search + suffix, 'i')
-                if (re.test(item.text) || item.text === '...') {
-                    item.hidden = false
-                } else {
-                    item.hidden = true
-                }
-            } catch (e) {}
+            if (options.match == 'regex') {
+                try {
+                    let re = new RegExp(search, 'i')
+                    if (re.test(item.text) || item.text === '...') {
+                        item.hidden = false
+                    } else {
+                        item.hidden = true
+                    }
+                } catch (e) {}
+            } else {
+                let prefix = ''
+                let suffix = ''
+                if (['is', 'begins', 'begins with'].indexOf(options.match) !== -1) prefix = '^'
+                if (['is', 'ends', 'ends with'].indexOf(options.match) !== -1) suffix = '$'
+                try {
+                    let re = new RegExp(prefix + search + suffix, 'i')
+                    if (re.test(item.text) || item.text === '...') {
+                        item.hidden = false
+                    } else {
+                        item.hidden = true
+                    }
+                } catch (e) {}
+            }
             // do not show selected items
             if (options.hideSelected && selectedIds.includes(item.id)) {
                 item.hidden = true
@@ -12087,12 +12213,12 @@ class w2grid extends w2base {
             'save'     : { type: 'button', id: 'w2ui-save', text: 'Save', tooltip: w2utils.lang('Save changed records'), icon: 'w2ui-icon-check' }
         }
         this.operators = { // for search fields
-            'text'    : ['is', 'begins', 'contains', 'ends'], // could have "in" and "not in"
-            'number'  : ['=', 'between', '>', '<', '>=', '<='],
+            'text'    : ['is', 'begins', 'contains', 'ends', 'regex'], // could have "in" and "not in"
+            'number'  : ['=', 'between', '>', '<', '>=', '<=', 'regex'],
             'date'    : ['is', { oper: 'less', text: 'before'}, { oper: 'more', text: 'since' }, 'between'],
             'list'    : ['is'],
             'hex'     : ['is', 'between'],
-            'color'   : ['is', 'begins', 'contains', 'ends'],
+            'color'   : ['is', 'begins', 'contains', 'ends', 'regex'],
             'enum'    : ['in', 'not in']
             // -- all possible
             // "text"    : ['is', 'begins', 'contains', 'ends'],
@@ -13001,6 +13127,16 @@ class w2grid extends w2base {
                         let lastIndex = val1.lastIndexOf(val2)
                         if (lastIndex !== -1 && lastIndex == val1.length - val2.length) fl++ // do not hide record
                         break
+                    case 'regex':
+                        try {
+                            const re = new RegExp(val2, 'i') // Case-insensitive regex
+                            if (re.test(val1)) fl++ // do not hide record
+                        } catch (e) {                            
+                            console.error('Invalid regular expression:', e)
+                            // use fallback
+                            if (val1.indexOf(val2) >= 0) fl++
+                        }
+                        break;
                 }
             }
             if ((obj.last.logic == 'OR' && fl !== 0) || (obj.last.logic == 'AND' && fl == obj.searchData.length)) {
@@ -16921,12 +17057,17 @@ class w2grid extends w2base {
                     let fld   = this.getSearch(sdata.field)
                     if (!fld || fld.hidden) continue
                     let ind = this.getColumn(sdata.field, true)
-                    search.push({ field: sdata.field, search: sdata.value, col: ind })
+                    if (sdata.operator == 'regex') {
+                        const defaultOptions = { onlyFirst: false, wholeWord: false, isRegex: true }
+                        search.push({ field: sdata.field, search: sdata.value, col: ind, options: defaultOptions })
+                    } else {
+                        search.push({ field: sdata.field, search: sdata.value, col: ind })
+                    }
                 }
                 if (search.length > 0) {
                     search.forEach((item) => {
                         let el = query(this.box).find('td[col="'+ item.col +'"]:not(.w2ui-head)')
-                        w2utils.marker(el, item.search)
+                        w2utils.marker(el, item.search, item.options)
                     })
                 }
             }, 50)
@@ -19568,12 +19709,17 @@ class w2grid extends w2base {
                     let fld   = obj.getSearch(sdata.field)
                     if (!fld || fld.hidden) continue
                     let ind = obj.getColumn(sdata.field, true)
-                    search.push({ field: sdata.field, search: sdata.value, col: ind })
+                    if (sdata.operator == 'regex') {
+                        const defaultOptions = { onlyFirst: false, wholeWord: false, isRegex: true }
+                        search.push({ field: sdata.field, search: sdata.value, col: ind, options: defaultOptions })
+                    } else {
+                        search.push({ field: sdata.field, search: sdata.value, col: ind })
+                    }
                 }
                 if (search.length > 0) {
                     search.forEach((item) => {
                         let el = query(obj.box).find('td[col="'+ item.col +'"]:not(.w2ui-head)')
-                        w2utils.marker(el, item.search)
+                        w2utils.marker(el, item.search, item.options)
                     })
                 }
             }, 50)
@@ -22978,7 +23124,7 @@ class w2field extends w2base {
                     items           : [],       // array of items, can be a function
                     selected        : {},       // selected item
                     itemMap         : null,     // can be { id: 'id', text: 'text' } to specify field mapping for an item
-                    match           : 'begins', // ['contains', 'is', 'begins', 'ends']
+                    match           : 'begins', // ['contains', 'is', 'begins', 'ends', 'regex']
                     filter          : true,     // weather to filter at all
                     compare         : null,     // compare function for filtering
                     prefix          : '',       // prefix for input
@@ -23032,7 +23178,7 @@ class w2field extends w2base {
                 }
                 options = w2utils.extend({}, defaults, options)
                 // validate match
-                let valid = ['is', 'begins', 'contains', 'ends']
+                let valid = ['is', 'begins', 'contains', 'ends', 'regex']
                 if (!valid.includes(options.match)) {
                     console.log(`ERROR: invalid value "${options.match}" for option.match. It should be one of following: ${valid.join(', ')}.`)
                 }
@@ -23055,7 +23201,7 @@ class w2field extends w2base {
                     selected        : [],
                     itemMap         : null,     // can be { id: 'id', text: 'text' } to specify field mapping for an item
                     max             : 0,     // max number of selected items, 0 - unlimited
-                    match           : 'begins', // ['contains', 'is', 'begins', 'ends']
+                    match           : 'begins', // ['contains', 'is', 'begins', 'ends', 'regex']
                     filter          : true,  // if true, will apply filtering
                     compare         : null,  // compare function for filtering
                     // -- remote items --
@@ -23100,7 +23246,7 @@ class w2field extends w2base {
                     options._items_fun = options.items
                 }
                 // validate match
-                let valid = ['is', 'begins', 'contains', 'ends']
+                let valid = ['is', 'begins', 'contains', 'ends', 'regex']
                 if (!valid.includes(options.match)) {
                     console.log(`ERROR: invalid value "${options.match}" for option.match. It should be one of following: ${valid.join(', ')}.`)
                 }
