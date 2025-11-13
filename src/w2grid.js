@@ -8474,10 +8474,10 @@ class w2grid extends w2base {
         if (edit === false) return null
         if (edit == null || edit === true) {
             edit = (Object.keys(col.editable ?? {}).length > 0 ? col.editable : null)
-            if (typeof edit === 'function') {
+            if (typeof col.editable === 'function') {
                 let value = this.getCellValue(ind, col_ind, false)
                 // same arguments as col.render()
-                edit = edit.call(this, rec, { self: this, value, index: ind, colIndex: col_ind })
+                edit = col.editable.call(this, rec, { self: this, value, index: ind, colIndex: col_ind })
             }
         }
         return edit
