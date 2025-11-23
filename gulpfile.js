@@ -1,7 +1,8 @@
 /* eslint-env node */
 const gulp     = require('gulp')
 const header   = require('gulp-header')
-const iconfont = require('gulp-iconfont')
+// lazy load iconfont to avoid ESM compatibility issues
+let iconfont   = null
 const less     = require('gulp-less')
 const cleanCSS = require('gulp-clean-css')
 const uglify   = require('gulp-uglify')
@@ -175,6 +176,10 @@ let tasks = {
     },
 
     icons(cb) {
+        // Lazy load iconfont
+        if (!iconfont) {
+            iconfont = require('gulp-iconfont')
+        }
         let fs  = require('fs')
         let css = `@font-face {
     font-family: "w2ui-font";

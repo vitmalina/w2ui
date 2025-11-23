@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>w2ui - Regex Feature Demo</title>
+    <link rel="stylesheet" type="text/css" href="../dist/w2ui.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="../dist/w2ui.js"></script>
+    <style>
+        body {
+            font-family: Verdana, Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #555;
+            margin-top: 30px;
+        }
+        .demo-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-left: 4px solid #007bff;
+        }
+        code {
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        .code-sample {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+        .controls {
+            margin: 15px 0;
+        }
+        input[type="text"], select {
+            padding: 8px;
+            margin-right: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 8px 15px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .w2ui-marker {
+            background-color: #ffff00;
+            font-weight: bold;
+        }
+        .example-text {
+            line-height: 1.8;
+            padding: 15px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>w2ui Regex Feature Demo</h1>
+        <p>This demo showcases the new regex support in the w2ui library, featuring enhanced text marking and menu filtering with regular expressions.</p>
+
+        <h2>1. Marker Function with Regex Support</h2>
+        <div class="demo-section">
+            <p>The <code>marker()</code> function now supports regex patterns for advanced text highlighting.</p>
+            
+            <div class="controls">
+                <input type="text" id="regexPattern" placeholder="Enter regex pattern (e.g., \d+, ^[A-Z].*)" value="\d+">
+                <select id="matchMode">
+                    <option value="false">Standard Match</option>
+                    <option value="true" selected>Regex Match</option>
+                </select>
+                <button onclick="highlightText()">Highlight</button>
+                <button onclick="clearHighlight()">Clear</button>
+            </div>
+
+            <div class="code-sample">// Example usage:<br>
+w2utils.marker(element, ['pattern'], {<br>
+&nbsp;&nbsp;isRegex: true,<br>
+&nbsp;&nbsp;onlyFirst: false,<br>
+&nbsp;&nbsp;wholeWord: false<br>
+})
+            </div>
+
+            <div class="example-text" id="textContent">
+                The quick brown fox jumps over the lazy dog.<br>
+                Email: user123@example.com, admin456@test.org<br>
+                Phone: 555-1234, 555-5678<br>
+                Product codes: ABC-001, DEF-002, GHI-003<br>
+                Dates: 2025-01-15, 2025-02-20, 2025-03-10<br>
+                Numbers: 42, 123, 9999<br>
+                Special text: Test123, Demo456, Sample789
+            </div>
+            <div id="status" style="margin-top: 10px;"></div>
+        </div>
+
+        <h2>2. Menu Tooltip with Regex Search</h2>
+        <div class="demo-section">
+            <p>The MenuTooltip now supports regex patterns for flexible filtering of menu items.</p>
+            
+            <div class="controls">
+                <input type="text" id="menuSearchInput" placeholder="Enter regex pattern or text">
+                <select id="menuMatchMode">
+                    <option value="contains">Contains</option>
+                    <option value="begins">Begins</option>
+                    <option value="ends">Ends</option>
+                    <option value="is">Is</option>
+                    <option value="regex">Regex</option>
+                </select>
+                <button onclick="applyMenuFilter()">Apply Filter</button>
+                <button id="menuBtn" onclick="showMenu()">Show Menu ▼</button>
+            </div>
+
+            <div class="code-sample">// Example usage:<br>
+w2menu.search = true;<br>
+w2menu.match = 'regex'; // or 'contains', 'begins', 'ends', 'is'<br>
+w2menu.filter = true;
+            </div>
+
+            <div id="menuContainer" style="height: 200px; overflow-y: auto; border: 1px solid #ddd; background: white; border-radius: 4px; padding: 10px;">
+                <div style="color: #999; text-align: center; padding-top: 80px;">Click "Show Menu" button to see filtered results</div>
+            </div>
+            <div id="menuStatus" style="margin-top: 10px;"></div>
+        </div>
+
+        <h2>3. Practical Examples</h2>
+        <div class="demo-section">
+            <h3>Example 1: Highlight Email Addresses</h3>
+            <p>Click "Try It" to highlight all email addresses in the text below:</p>
+            <div class="code-sample">
+w2utils.marker(element, ['[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}'], {<br>
+&nbsp;&nbsp;isRegex: true,<br>
+&nbsp;&nbsp;class: 'w2ui-marker'<br>
+})
+            </div>
+            <button onclick="highlightEmails()">Try It</button>
+            <div class="example-text" id="emailExample">
+                Contact our support team at support@example.com or sales@company.org. You can also reach us at info@test.net for general inquiries.
+            </div>
+
+            <h3>Example 2: Highlight Phone Numbers</h3>
+            <p>Click "Try It" to highlight all phone numbers in the text below:</p>
+            <div class="code-sample">
+w2utils.marker(element, ['\\d{3}-\\d{4}'], {<br>
+&nbsp;&nbsp;isRegex: true,<br>
+&nbsp;&nbsp;class: 'w2ui-marker'<br>
+})
+            </div>
+            <button onclick="highlightPhones()">Try It</button>
+            <div class="example-text" id="phoneExample">
+                Call our main office at 555-1234 or customer service at 555-5678. Emergency line: 555-9999.
+            </div>
+
+            <h3>Example 3: Case-Insensitive Word Search</h3>
+            <p>Click "Try It" to highlight keywords (test, demo, sample) in the text below:</p>
+            <div class="code-sample">
+w2utils.marker(element, ['test|demo|sample'], {<br>
+&nbsp;&nbsp;isRegex: true,<br>
+&nbsp;&nbsp;onlyFirst: false<br>
+})
+            </div>
+            <button onclick="highlightWords()">Try It</button>
+            <div class="example-text" id="wordExample">
+                This is a test application. Check out the demo version or the sample code. We use testing frameworks for quality assurance. The demo shows all features.
+            </div>
+        </div>
+
+        <h2>4. Interactive Menu Testing</h2>
+        <div class="demo-section">
+            <p>Test different regex patterns against the menu items below. Try patterns like:</p>
+            <ul style="margin: 10px 0; padding-left: 20px;">
+                <li><code>^Java</code> - starts with "Java"</li>
+                <li><code>Test</code> - contains "Test"</li>
+                <li><code>Script|Python</code> - contains "Script" or "Python"</li>
+                <li><code>^[A-Z].*Basic</code> - starts with capital letter and ends with "Basic"</li>
+                <li><code>.*-.*</code> - contains a hyphen</li>
+            </ul>
+            <div class="controls">
+                <input type="text" id="testPattern" placeholder="Try a regex pattern">
+                <select id="testMatch">
+                    <option value="contains">Contains</option>
+                    <option value="regex" selected>Regex</option>
+                </select>
+                <button onclick="testMenuPattern()">Test Pattern</button>
+                <button onclick="resetMenuTesting()">Reset</button>
+            </div>
+            <div id="menuTestResult" style="margin-top: 15px;"></div>
+        </div>
+
+        <h2>5. Features</h2>
+        <div class="demo-section">
+            <ul>
+                <li><strong>Regex Pattern Matching:</strong> Support for complex pattern matching with full regex syntax</li>
+                <li><strong>Case-Insensitive Search:</strong> All regex searches are case-insensitive by default</li>
+                <li><strong>Global or First Match Only:</strong> Control whether to highlight all matches or just the first one</li>
+                <li><strong>Word Boundary Support:</strong> Optional word boundary matching (when enabled)</li>
+                <li><strong>Error Handling:</strong> Invalid regex patterns fall back to standard matching</li>
+                <li><strong>DOM-Aware:</strong> Properly handles highlighting within HTML elements and skips script/style tags</li>
+                <li><strong>Menu Filtering:</strong> Regex patterns work seamlessly in menu tooltip searches</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Using w2utils.marker from w2ui library with new regex support
+        
+        // Initialize menu items
+        const menuItems = [
+            { id: 1, text: 'JavaScript - Basics' },
+            { id: 2, text: 'JavaScript - Advanced' },
+            { id: 3, text: 'Python - Beginner' },
+            { id: 4, text: 'Python - Expert' },
+            { id: 5, text: 'TypeScript - Fundamentals' },
+            { id: 6, text: 'C# - Introduction' },
+            { id: 7, text: 'Java - OOP' },
+            { id: 8, text: 'Testing - Unit Tests' },
+            { id: 9, text: 'Testing - Integration' }
+        ];
+
+        function highlightText() {
+            const pattern = document.getElementById('regexPattern').value;
+            const isRegex = document.getElementById('matchMode').value === 'true';
+            const element = document.getElementById('textContent');
+            
+            // Clear previous highlights
+            clearHighlight();
+            
+            if (pattern) {
+                try {
+                    // Using w2utils.marker with new isRegex option
+                    w2utils.marker(element, [pattern], {
+                        isRegex: isRegex,
+                        onlyFirst: false,
+                        wholeWord: false
+                    });
+                    document.getElementById('status').innerHTML = '<span class="success">✓ Pattern matched and highlighted</span>';
+                } catch (e) {
+                    document.getElementById('status').innerHTML = '<span class="error">✗ Invalid regex pattern: ' + e.message + '</span>';
+                }
+            }
+        }
+
+        function clearHighlight() {
+            const element = document.getElementById('textContent');
+            element.innerHTML = `
+                The quick brown fox jumps over the lazy dog.<br>
+                Email: user123@example.com, admin456@test.org<br>
+                Phone: 555-1234, 555-5678<br>
+                Product codes: ABC-001, DEF-002, GHI-003<br>
+                Dates: 2025-01-15, 2025-02-20, 2025-03-10<br>
+                Numbers: 42, 123, 9999<br>
+                Special text: Test123, Demo456, Sample789
+            `;
+            document.getElementById('status').innerHTML = '';
+        }
+
+        function highlightEmails() {
+            const element = document.getElementById('emailExample');
+            // Reset the element
+            element.innerHTML = 'Contact our support team at support@example.com or sales@company.org. You can also reach us at info@test.net for general inquiries.';
+            w2utils.marker(element, ['[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}'], {
+                isRegex: true,
+                class: 'w2ui-marker'
+            });
+        }
+
+        function highlightPhones() {
+            const element = document.getElementById('phoneExample');
+            // Reset the element
+            element.innerHTML = 'Call our main office at 555-1234 or customer service at 555-5678. Emergency line: 555-9999.';
+            w2utils.marker(element, ['\\d{3}-\\d{4}'], {
+                isRegex: true,
+                class: 'w2ui-marker'
+            });
+        }
+
+        function highlightWords() {
+            const element = document.getElementById('wordExample');
+            // Reset the element
+            element.innerHTML = 'This is a test application. Check out the demo version or the sample code. We use testing frameworks for quality assurance. The demo shows all features.';
+            w2utils.marker(element, ['test|demo|sample'], {
+                isRegex: true,
+                onlyFirst: false,
+                class: 'w2ui-marker'
+            });
+        }
+
+        function showMenu() {
+            const searchValue = document.getElementById('menuSearchInput').value;
+            const matchMode = document.getElementById('menuMatchMode').value;
+            
+            let filteredItems = menuItems;
+            
+            if (searchValue) {
+                filteredItems = menuItems.filter(item => {
+                    if (matchMode === 'regex') {
+                        try {
+                            const regex = new RegExp(searchValue, 'i');
+                            return regex.test(item.text);
+                        } catch (e) {
+                            return false;
+                        }
+                    } else if (matchMode === 'contains') {
+                        return item.text.toLowerCase().includes(searchValue.toLowerCase());
+                    } else if (matchMode === 'begins') {
+                        return item.text.toLowerCase().startsWith(searchValue.toLowerCase());
+                    } else if (matchMode === 'ends') {
+                        return item.text.toLowerCase().endsWith(searchValue.toLowerCase());
+                    } else if (matchMode === 'is') {
+                        return item.text.toLowerCase() === searchValue.toLowerCase();
+                    }
+                    return true;
+                });
+            }
+            
+            let html = '<div style="padding: 10px;">';
+            if (filteredItems.length === 0) {
+                html += '<div style="color: #999; padding: 10px;">No items found</div>';
+            } else {
+                filteredItems.forEach(item => {
+                    html += `<div style="padding: 8px; border-bottom: 1px solid #eee; cursor: pointer;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='white'">${item.text}</div>`;
+                });
+            }
+            html += '</div>';
+            
+            document.getElementById('menuContainer').innerHTML = html;
+            document.getElementById('menuStatus').innerHTML = `<span class="success">✓ Found ${filteredItems.length} matching items</span>`;
+        }
+
+        function applyMenuFilter() {
+            showMenu();
+        }
+
+        // Test menu pattern functions
+        function testMenuPattern() {
+            const pattern = document.getElementById('testPattern').value;
+            const matchMode = document.getElementById('testMatch').value;
+            const result = document.getElementById('menuTestResult');
+            
+            if (!pattern) {
+                result.innerHTML = '<span class="error">Please enter a pattern</span>';
+                return;
+            }
+
+            let matchedItems = menuItems;
+            try {
+                if (matchMode === 'regex') {
+                    const regex = new RegExp(pattern, 'i');
+                    matchedItems = menuItems.filter(item => regex.test(item.text));
+                } else {
+                    matchedItems = menuItems.filter(item => 
+                        item.text.toLowerCase().includes(pattern.toLowerCase())
+                    );
+                }
+
+                if (matchedItems.length === 0) {
+                    result.innerHTML = '<span class="error">✗ No matches found</span>';
+                } else {
+                    let html = `<span class="success">✓ Found ${matchedItems.length} matching item(s):</span><div style="margin-top: 10px;">`;
+                    matchedItems.forEach(item => {
+                        html += `<div style="padding: 8px; background: #f0f0f0; border-left: 3px solid #28a745; margin: 5px 0;">${item.text}</div>`;
+                    });
+                    html += '</div>';
+                    result.innerHTML = html;
+                }
+            } catch (e) {
+                result.innerHTML = '<span class="error">✗ Invalid regex pattern: ' + e.message + '</span>';
+            }
+        }
+
+        function resetMenuTesting() {
+            document.getElementById('testPattern').value = '';
+            document.getElementById('menuTestResult').innerHTML = '';
+        }
+    </script>
+</body>
+</html>

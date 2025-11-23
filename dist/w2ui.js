@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (10/31/2025, 8:43:03 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (11/23/2025, 8:17:07 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -2575,7 +2575,6 @@ class Utils {
         options.tag ??= 'span'
         options.class ??= 'w2ui-marker'
         options.raplace = (matched) => `<${options.tag} class="${options.class}">${matched}</${options.tag}>`
-        
         const isRegexSearch = options.isRegex || false;
         if (!Array.isArray(items)) {
             if (items != null && items !== '') {
@@ -2618,9 +2617,7 @@ class Utils {
                                 // If wholeWord is true, wrap the pattern with word boundary markers
                                 pattern = '\b' + pattern + '\b'
                             }
-                            
                             let regex = new RegExp(pattern, flags)
-                            
                             // Get all text nodes
                             let textNodes = []
                             function getTextNodes(node) {
@@ -2635,15 +2632,12 @@ class Utils {
                                     }
                                 }
                             }
-                            
                             getTextNodes(el)
-                            
                             // Process each text node
                             textNodes.forEach(textNode => {
                                 let text = textNode.nodeValue
                                 let matches = []
                                 let match
-                                
                                 // Find all matches
                                 if (options.onlyFirst) {
                                     match = regex.exec(text)
@@ -2659,13 +2653,11 @@ class Utils {
                                         })
                                     }
                                 }
-                                
                                 // Apply highlighting
                                 if (matches.length > 0) {
                                     let parent = textNode.parentNode
                                     let fragment = document.createDocumentFragment()
                                     let lastIndex = 0
-                                    
                                     matches.forEach(match => {
                                         // Add text before match
                                         if (match.index > lastIndex) {
@@ -2673,23 +2665,19 @@ class Utils {
                                                 text.substring(lastIndex, match.index)
                                             ))
                                         }
-                                        
                                         // Add highlighted match
                                         let span = document.createElement(options.tag)
                                         span.className = options.class
                                         span.appendChild(document.createTextNode(match.text))
                                         fragment.appendChild(span)
-                                        
                                         lastIndex = match.index + match.text.length
                                     })
-                                    
                                     // Add remaining text
                                     if (lastIndex < text.length) {
                                         fragment.appendChild(document.createTextNode(
                                             text.substring(lastIndex)
                                         ))
                                     }
-                                    
                                     // Replace the text node with our fragment
                                     parent.replaceChild(fragment, textNode)
                                 }
@@ -12213,12 +12201,12 @@ class w2grid extends w2base {
             'save'     : { type: 'button', id: 'w2ui-save', text: 'Save', tooltip: w2utils.lang('Save changed records'), icon: 'w2ui-icon-check' }
         }
         this.operators = { // for search fields
-            'text'    : ['is', 'begins', 'contains', 'ends', 'regex'], // could have "in" and "not in"
-            'number'  : ['=', 'between', '>', '<', '>=', '<=', 'regex'],
+            'text'    : ['is', 'begins', 'contains', 'ends'], // could have "in" and "not in"
+            'number'  : ['=', 'between', '>', '<', '>=', '<='],
             'date'    : ['is', { oper: 'less', text: 'before'}, { oper: 'more', text: 'since' }, 'between'],
             'list'    : ['is'],
             'hex'     : ['is', 'between'],
-            'color'   : ['is', 'begins', 'contains', 'ends', 'regex'],
+            'color'   : ['is', 'begins', 'contains', 'ends'],
             'enum'    : ['in', 'not in']
             // -- all possible
             // "text"    : ['is', 'begins', 'contains', 'ends'],
@@ -13127,16 +13115,6 @@ class w2grid extends w2base {
                         let lastIndex = val1.lastIndexOf(val2)
                         if (lastIndex !== -1 && lastIndex == val1.length - val2.length) fl++ // do not hide record
                         break
-                    case 'regex':
-                        try {
-                            const re = new RegExp(val2, 'i') // Case-insensitive regex
-                            if (re.test(val1)) fl++ // do not hide record
-                        } catch (e) {                            
-                            console.error('Invalid regular expression:', e)
-                            // use fallback
-                            if (val1.indexOf(val2) >= 0) fl++
-                        }
-                        break;
                 }
             }
             if ((obj.last.logic == 'OR' && fl !== 0) || (obj.last.logic == 'AND' && fl == obj.searchData.length)) {
@@ -17057,17 +17035,12 @@ class w2grid extends w2base {
                     let fld   = this.getSearch(sdata.field)
                     if (!fld || fld.hidden) continue
                     let ind = this.getColumn(sdata.field, true)
-                    if (sdata.operator == 'regex') {
-                        const defaultOptions = { onlyFirst: false, wholeWord: false, isRegex: true }
-                        search.push({ field: sdata.field, search: sdata.value, col: ind, options: defaultOptions })
-                    } else {
-                        search.push({ field: sdata.field, search: sdata.value, col: ind })
-                    }
+                    search.push({ field: sdata.field, search: sdata.value, col: ind })
                 }
                 if (search.length > 0) {
                     search.forEach((item) => {
                         let el = query(this.box).find('td[col="'+ item.col +'"]:not(.w2ui-head)')
-                        w2utils.marker(el, item.search, item.options)
+                        w2utils.marker(el, item.search)
                     })
                 }
             }, 50)
@@ -19709,17 +19682,12 @@ class w2grid extends w2base {
                     let fld   = obj.getSearch(sdata.field)
                     if (!fld || fld.hidden) continue
                     let ind = obj.getColumn(sdata.field, true)
-                    if (sdata.operator == 'regex') {
-                        const defaultOptions = { onlyFirst: false, wholeWord: false, isRegex: true }
-                        search.push({ field: sdata.field, search: sdata.value, col: ind, options: defaultOptions })
-                    } else {
-                        search.push({ field: sdata.field, search: sdata.value, col: ind })
-                    }
+                    search.push({ field: sdata.field, search: sdata.value, col: ind })
                 }
                 if (search.length > 0) {
                     search.forEach((item) => {
                         let el = query(obj.box).find('td[col="'+ item.col +'"]:not(.w2ui-head)')
-                        w2utils.marker(el, item.search, item.options)
+                        w2utils.marker(el, item.search)
                     })
                 }
             }, 50)
@@ -23124,7 +23092,7 @@ class w2field extends w2base {
                     items           : [],       // array of items, can be a function
                     selected        : {},       // selected item
                     itemMap         : null,     // can be { id: 'id', text: 'text' } to specify field mapping for an item
-                    match           : 'begins', // ['contains', 'is', 'begins', 'ends', 'regex']
+                    match           : 'begins', // ['contains', 'is', 'begins', 'ends']
                     filter          : true,     // weather to filter at all
                     compare         : null,     // compare function for filtering
                     prefix          : '',       // prefix for input
@@ -23178,7 +23146,7 @@ class w2field extends w2base {
                 }
                 options = w2utils.extend({}, defaults, options)
                 // validate match
-                let valid = ['is', 'begins', 'contains', 'ends', 'regex']
+                let valid = ['is', 'begins', 'contains', 'ends']
                 if (!valid.includes(options.match)) {
                     console.log(`ERROR: invalid value "${options.match}" for option.match. It should be one of following: ${valid.join(', ')}.`)
                 }
@@ -23201,7 +23169,7 @@ class w2field extends w2base {
                     selected        : [],
                     itemMap         : null,     // can be { id: 'id', text: 'text' } to specify field mapping for an item
                     max             : 0,     // max number of selected items, 0 - unlimited
-                    match           : 'begins', // ['contains', 'is', 'begins', 'ends', 'regex']
+                    match           : 'begins', // ['contains', 'is', 'begins', 'ends']
                     filter          : true,  // if true, will apply filtering
                     compare         : null,  // compare function for filtering
                     // -- remote items --
@@ -23246,7 +23214,7 @@ class w2field extends w2base {
                     options._items_fun = options.items
                 }
                 // validate match
-                let valid = ['is', 'begins', 'contains', 'ends', 'regex']
+                let valid = ['is', 'begins', 'contains', 'ends']
                 if (!valid.includes(options.match)) {
                     console.log(`ERROR: invalid value "${options.match}" for option.match. It should be one of following: ${valid.join(', ')}.`)
                 }
