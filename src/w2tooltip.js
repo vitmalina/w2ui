@@ -573,7 +573,7 @@ class Tooltip {
             .removeClass('w2ui-arrow-right w2ui-arrow-left w2ui-arrow-top w2ui-arrow-bottom')
             .addClass(pos.arrow.class)
             .closest('.w2ui-overlay')
-            .find('style')
+            .find('style:first-child')
             .text(pos.arrow.style)
 
         if (overlay.tmp.lastPos != newPos && edata1) {
