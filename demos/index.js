@@ -4,7 +4,7 @@ window.w2ui = w2ui // expose w2ui object for testing purposers
 query(async function () {
     let w2utils_locale = sessionStorage.w2ui_demo_locale || w2utils.settings.locale.toLowerCase()
     // need await otherwise sometimes demos do not show
-    await w2utils.locale(['https://rawgit.com/vitmalina/w2ui/master/src/locale/'+w2utils_locale+'.json', w2utils_locale])
+    await w2utils.locale(['https://cdn.jsdelivr.net/gh/vitmalina/w2ui@master/src/locale/'+w2utils_locale+'.json', w2utils_locale])
         .then(() => {
             // w2utils.settings.warnNoPhrase = true
             Object.values(w2ui).forEach(obj => {
@@ -91,7 +91,7 @@ query(async function () {
                 if (event.detail.item.id === 'locale') {
                     w2utils_locale = event.detail.item.selected
                     // change locale
-                    w2utils.locale(['https://rawgit.com/vitmalina/w2ui/master/src/locale/'+w2utils_locale+'.json', w2utils_locale]).then( () => {
+                    w2utils.locale(['https://cdn.jsdelivr.net/gh/vitmalina/w2ui@master/src/locale/'+w2utils_locale+'.json', w2utils_locale]).then( () => {
                         sessionStorage.w2ui_demo_locale = w2utils_locale
                         location.reload() // reloading the page makes things so much easier than refreshing all the w2ui objects
                         // Object.values(w2ui).forEach(obj => {
@@ -459,8 +459,8 @@ query(async function () {
                         console.log('ERROR: cannot parse example.', data)
                         return
                     }
-                    let w2ui_js  = 'https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.es6.min.js'
-                    let w2ui_css = 'https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.css'
+                    let w2ui_js  = 'https://cdn.jsdelivr.net/gh/vitmalina/w2ui@master/dist/w2ui.es6.min.js'
+                    let w2ui_css = 'https://cdn.jsdelivr.net/gh/vitmalina/w2ui@master/dist/w2ui.min.css'
                     let host = document.location.hostname
                     if (host == 'localhost' || host.startsWith('192.168.') || host.startsWith('10.')) {
                         w2ui_js  = '../src/w2compat.js'

@@ -1,4 +1,4 @@
-import { query } from 'https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.es6.min.js'
+import { query } from 'https://cdn.jsdelivr.net/gh/vitmalina/w2ui@master/dist/w2ui.es6.min.js'
 
 query(function () {
     query('head').append(
