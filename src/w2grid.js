@@ -8212,7 +8212,7 @@ class w2grid extends w2base {
         if (col == null) return ''
         let record  = (summary !== true ? this.records[ind] : this.summary[ind])
         // value, attr, style, className, divAttr
-        let { value, style, className, attr, divAttr } = this.getCellValue(ind, col_ind, summary, true)
+        let { value, style, className, attr, divAttr, title } = this.getCellValue(ind, col_ind, summary, true)
         let edit = (ind !== -1 ? this.getCellEditable(ind, col_ind) : '')
         let divStyle = 'max-height: '+ parseInt(this.recordHeight) +'px;' + (col.clipboardCopy ? 'margin-right: 20px' : '')
         let isChanged = !summary && record?.w2ui?.changes && record.w2ui.changes[col.field] != null
@@ -8284,7 +8284,8 @@ class w2grid extends w2base {
                             data-changeInd="${changeInd}" data-colInd="${col_ind}" ${data ? 'checked="checked"' : ''}>`
             infoBubble    = ''
         }
-        data = `<div style="${divStyle}" ${getTitle(data)} ${divAttr}>${infoBubble}${String(data)}</div>`
+        // if renderer returned title it will have priority
+        data = `<div style="${divStyle}" ${getTitle(data, title)} ${divAttr}>${infoBubble}${String(data)}</div>`
         if (data == null) data = ''
         // --> cell TD
         if (typeof col.render == 'string') {
@@ -8326,9 +8327,8 @@ class w2grid extends w2base {
         }
         return data
 
-        function getTitle(cellData){
-            let title
-            if (obj.show.recordTitles) {
+        function getTitle(cellData, title){
+            if (title === undefined && obj.show.recordTitles) {
                 if (col.title != null) {
                     if (typeof col.title == 'function') {
                         title = col.title.call(obj, record, { self: this, index: ind, colIndex: col_ind, summary: !!summary })
@@ -8495,6 +8495,7 @@ class w2grid extends w2base {
         let record = (summary !== true ? this.records[ind] : this.summary[ind])
         let value = this.parseField(record, col.field)
         let className = '', style = '', attr = '', divAttr = ''
+        let title
         // if change by inline editing
         if (record?.w2ui?.changes?.[col.field] != null) {
             value = record.w2ui.changes[col.field]
@@ -8543,6 +8544,8 @@ class w2grid extends w2base {
                     style = html.style ?? ''
                     className = html.class ?? ''
                     divAttr = html.divAttr ?? ''
+                    // pass undefined up
+                    title = html.title
                 } else {
                     value = String(html || '').trim()
                 }
@@ -8556,7 +8559,7 @@ class w2grid extends w2base {
             }
         }
         if (value == null) value = ''
-        return !extra ? value : { value, attr, style, className, divAttr }
+        return !extra ? value : { value, attr, style, className, divAttr, title }
     }
 
     getFooterHTML() {
