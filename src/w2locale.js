@@ -95,6 +95,8 @@ const w2locale = {
         'record': '---',
         'records': '---',
         'Refreshing...': '---',
+        'RegEx': '---',
+        'regex': '---',
         'Reload data in the list': '---',
         'Remove': '---',
         'Remove This Field': '---',
