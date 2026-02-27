@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (2/17/2026, 2:14:55 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (2/27/2026, 8:03:22 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -393,6 +393,8 @@ const w2locale = {
         'record': '---',
         'records': '---',
         'Refreshing...': '---',
+        'RegEx': '---',
+        'regex': '---',
         'Reload data in the list': '---',
         'Remove': '---',
         'Remove This Field': '---',
@@ -2569,10 +2571,11 @@ class Utils {
         }
         return str.replace(/\${([^}]+)?}/g, function($1, $2) { return replace_obj[$2]||$2 })
     }
-    marker(el, items, options = { onlyFirst: false, wholeWord: false }) {
+    marker(el, items, options = { onlyFirst: false, wholeWord: false, isRegex: false}) {
         options.tag ??= 'span'
         options.class ??= 'w2ui-marker'
         options.raplace = (matched) => `<${options.tag} class="${options.class}">${matched}</${options.tag}>`
+        const isRegexSearch = options.isRegex || false;
         if (!Array.isArray(items)) {
             if (items != null && items !== '') {
                 items = [items]
@@ -2583,14 +2586,114 @@ class Utils {
         if (typeof el == 'string') {
             _clearMerkers(el)
             items.forEach(item => {
-                el = _replace(el, item, options.raplace)
+                if (isRegexSearch) {
+                    // For regex searches with string elements
+                    try {
+                        let flags = 'i' + (!options.onlyFirst ? 'g' : '')
+                        let regex = new RegExp(item, flags)
+                        el = el.replace(regex, options.raplace)
+                    } catch (e) {
+                        console.error('Invalid regular expression:', e)
+                        // Fallback to standard replace
+                        el = _replace(el, item, options.raplace)
+                    }
+                } else {
+                    // Standard string replace
+                    el = _replace(el, item, options.raplace)
+                }
             })
         } else {
             query(el).each(el => {
                 _clearMerkers(el)
-                items.forEach(item => {
-                    el.innerHTML = _replace(el.innerHTML, item, options.raplace)
-                })
+                if (isRegexSearch) {
+                    // For regex searches, use DOM traversal approach
+                    items.forEach(pattern => {
+                        try {
+                            let flags = 'i' // Always case-insensitive
+                            if (!options.onlyFirst) {
+                                flags += 'g' // Add 'g' for global unless onlyFirst is true
+                            }
+                            if (options.wholeWord) {
+                                // If wholeWord is true, wrap the pattern with word boundary markers
+                                pattern = '\b' + pattern + '\b'
+                            }
+                            let regex = new RegExp(pattern, flags)
+                            // Get all text nodes
+                            let textNodes = []
+                            function getTextNodes(node) {
+                                if (node.nodeType === 3) { // Text node
+                                    textNodes.push(node)
+                                } else if (node.nodeType === 1) { // Element node
+                                    // Skip script and style tags
+                                    if (node.tagName !== 'SCRIPT' && node.tagName !== 'STYLE') {
+                                        for (let i = 0; i < node.childNodes.length; i++) {
+                                            getTextNodes(node.childNodes[i])
+                                        }
+                                    }
+                                }
+                            }
+                            getTextNodes(el)
+                            // Process each text node
+                            textNodes.forEach(textNode => {
+                                let text = textNode.nodeValue
+                                let matches = []
+                                let match
+                                // Find all matches
+                                if (options.onlyFirst) {
+                                    match = regex.exec(text)
+                                    if (match) matches.push({
+                                        index: match.index,
+                                        text: match[0]
+                                    })
+                                } else {
+                                    while ((match = regex.exec(text)) !== null) {
+                                        matches.push({
+                                            index: match.index,
+                                            text: match[0]
+                                        })
+                                    }
+                                }
+                                // Apply highlighting
+                                if (matches.length > 0) {
+                                    let parent = textNode.parentNode
+                                    let fragment = document.createDocumentFragment()
+                                    let lastIndex = 0
+                                    matches.forEach(match => {
+                                        // Add text before match
+                                        if (match.index > lastIndex) {
+                                            fragment.appendChild(document.createTextNode(
+                                                text.substring(lastIndex, match.index)
+                                            ))
+                                        }
+                                        // Add highlighted match
+                                        let span = document.createElement(options.tag)
+                                        span.className = options.class
+                                        span.appendChild(document.createTextNode(match.text))
+                                        fragment.appendChild(span)
+                                        lastIndex = match.index + match.text.length
+                                    })
+                                    // Add remaining text
+                                    if (lastIndex < text.length) {
+                                        fragment.appendChild(document.createTextNode(
+                                            text.substring(lastIndex)
+                                        ))
+                                    }
+                                    // Replace the text node with our fragment
+                                    parent.replaceChild(fragment, textNode)
+                                }
+                            })
+                        } catch (e) {
+                            console.error('Invalid regular expression:', e)
+                            // Fallback to standard innerHTML replace
+                            el.innerHTML = _replace(el.innerHTML, pattern, options.raplace)
+                        }
+                    })
+                } else {
+                    // Standard innerHTML replace for non-regex
+                    items.forEach(item => {
+                        el.innerHTML = _replace(el.innerHTML, item, options.raplace)
+                    })
+                }
             })
         }
         return el
@@ -5579,7 +5682,7 @@ class MenuTooltip extends Tooltip {
             menuStyle   : '',
             search      : false,        // search input inside tooltip
             filter      : false,        // will apply filter, if anchor is INPUT or TEXTAREA
-            match       : 'contains',   // is, begins, ends, contains
+            match       : 'contains',   // is, begins, ends, contains, regexp
             markSearch  : false,
             prefilter   : false,
             altRows     : false,
@@ -6252,18 +6355,29 @@ class MenuTooltip extends Tooltip {
             return prom
         }
         items.forEach(item => {
-            let prefix = ''
-            let suffix = ''
-            if (['is', 'begins', 'begins with'].indexOf(options.match) !== -1) prefix = '^'
-            if (['is', 'ends', 'ends with'].indexOf(options.match) !== -1) suffix = '$'
-            try {
-                let re = new RegExp(prefix + search + suffix, 'i')
-                if (re.test(item.text) || item.text === '...') {
-                    item.hidden = false
-                } else {
-                    item.hidden = true
-                }
-            } catch (e) {}
+            if (options.match == 'regex') {
+                try {
+                    let re = new RegExp(search, 'i')
+                    if (re.test(item.text) || item.text === '...') {
+                        item.hidden = false
+                    } else {
+                        item.hidden = true
+                    }
+                } catch (e) {}
+            } else {
+                let prefix = ''
+                let suffix = ''
+                if (['is', 'begins', 'begins with'].indexOf(options.match) !== -1) prefix = '^'
+                if (['is', 'ends', 'ends with'].indexOf(options.match) !== -1) suffix = '$'
+                try {
+                    let re = new RegExp(prefix + search + suffix, 'i')
+                    if (re.test(item.text) || item.text === '...') {
+                        item.hidden = false
+                    } else {
+                        item.hidden = true
+                    }
+                } catch (e) {}
+            }
             // do not show selected items
             if (options.hideSelected && selectedIds.includes(item.id)) {
                 item.hidden = true
@@ -9728,11 +9842,14 @@ class w2sidebar extends w2base {
             left: div?.scrollLeft
         }
         // refresh sub nodes
-        query(this.box).find(nodeSubId).html('')
+        let cnt = node == this
+            ? query(this.box).find(':scope > div > .w2ui-sidebar-body')
+            : query(body).find(nodeSubId)
+        cnt.html('')
         for (let i = 0; i < node.nodes.length; i++) {
             let subNode = node.nodes[i]
             nodeHTML = getNodeHTML(subNode)
-            query(this.box).find(nodeSubId).append(nodeHTML)
+            cnt.append(nodeHTML)
             if (subNode.nodes.length !== 0) {
                 // TODO: here
                 this.refresh(subNode.id, { recursive: true, })
@@ -12153,6 +12270,7 @@ class w2grid extends w2base {
         this.onSort              = null
         this.onSearch            = null
         this.onSearchOpen        = null
+        this.onSearchClose       = null
         this.onChange            = null // called when editable record is changed
         this.onRestore           = null // called when editable record is restored
         this.onExpand            = null
@@ -14076,7 +14194,7 @@ class w2grid extends w2base {
         edata.finish()
     }
     // open advanced search popover
-    searchOpen() {
+    searchOpen(options = {}) {
         if (!this.box) return
         if (this.searches.length === 0) return
         // event before
@@ -14095,7 +14213,8 @@ class w2grid extends w2base {
             align: 'left',
             arrowSize: 12,
             class: 'w2ui-grid-search-advanced',
-            hideOn: ['doc-click']
+            hideOn: ['doc-click'],
+            ...(options?.overlay ?? {})
         })
         .then(event => {
             this.initSearches()
@@ -14121,8 +14240,13 @@ class w2grid extends w2base {
             edata.finish()
         })
         .hide(event => {
+            let edata = this.trigger('searchClose', { target: this.name })
+            if (edata.isCancelled === true) {
+                return
+            }
             $btn.removeClass('checked')
             this.last.search_opened = false
+            edata.finish()
         })
     }
     searchClose() {
