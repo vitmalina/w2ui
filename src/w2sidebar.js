@@ -1439,11 +1439,14 @@ class w2sidebar extends w2base {
             left: div?.scrollLeft
         }
         // refresh sub nodes
-        query(this.box).find(nodeSubId).html('')
+        let cnt = node == this
+            ? query(this.box).find(':scope > div > .w2ui-sidebar-body')
+            : query(body).find(nodeSubId)
+        cnt.html('')
         for (let i = 0; i < node.nodes.length; i++) {
             let subNode = node.nodes[i]
             nodeHTML = getNodeHTML(subNode)
-            query(this.box).find(nodeSubId).append(nodeHTML)
+            cnt.append(nodeHTML)
             if (subNode.nodes.length !== 0) {
                 // TODO: here
                 this.refresh(subNode.id, { recursive: true, })
