@@ -274,7 +274,7 @@ class Tooltip {
                 .off('.autoHide-' + ret.overlay.name)
 
             /**
-             * Need a timer, so that events in the 'return ret` would be preperty set as it is using chaning mechanism
+             * Need a timer, so that events in the 'return ret` would be properly set as it is using chaining mechanism
              * to set listeners: w2tooltip.show({}).then(...).show(...). Since it could be hidden before timer kick in
              * to show it, need the check in the timeout.
              */
