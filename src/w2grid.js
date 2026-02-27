@@ -357,6 +357,7 @@ class w2grid extends w2base {
         this.onSort              = null
         this.onSearch            = null
         this.onSearchOpen        = null
+        this.onSearchClose       = null
         this.onChange            = null // called when editable record is changed
         this.onRestore           = null // called when editable record is restored
         this.onExpand            = null
@@ -2349,7 +2350,7 @@ class w2grid extends w2base {
     }
 
     // open advanced search popover
-    searchOpen() {
+    searchOpen(options = {}) {
         if (!this.box) return
         if (this.searches.length === 0) return
         // event before
@@ -2368,7 +2369,8 @@ class w2grid extends w2base {
             align: 'left',
             arrowSize: 12,
             class: 'w2ui-grid-search-advanced',
-            hideOn: ['doc-click']
+            hideOn: ['doc-click'],
+            ...(options?.overlay ?? {})
         })
         .then(event => {
             this.initSearches()
@@ -2394,8 +2396,13 @@ class w2grid extends w2base {
             edata.finish()
         })
         .hide(event => {
+            let edata = this.trigger('searchClose', { target: this.name })
+            if (edata.isCancelled === true) {
+                return
+            }
             $btn.removeClass('checked')
             this.last.search_opened = false
+            edata.finish()
         })
     }
 
