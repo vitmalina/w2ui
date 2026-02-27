@@ -249,7 +249,7 @@
     <a href="w2grid.postData">postData</a> <span>- Object, default = {}</span>
 </div>
 <div class="obj-property-desc">
-    Map of additional parameter to submit to remove data source.
+    Map of additional parameters to submit to remote data source.
 </div>
 
 <div class="obj-property">

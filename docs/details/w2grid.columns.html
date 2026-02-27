@@ -90,12 +90,12 @@ the second is extra information, which is following object.
 }
 </textarea>
 
-The render function can be bound to any object, is it not bound to grid by default. This allows to execute it in the
-diferent context, that is often useful. You will still have reference to the grid in extra.grid property.
+The render function can be bound to any object, it is not bound to grid by default. This allows to execute it in the
+diferent context, that is often useful. You will still have reference to the grid in <span class="property">extra.self</span> property.
 <div style="height: 10px"></div>
 
 The render function can return a primitive value or an object. If it is an object, it will be used for different portions
-of the generated markap. This object has following structure
+of the generated markup. This object has following structure:
 <textarea class="javascript">
 {
     html,
@@ -209,7 +209,7 @@ use any field type supported by <span class="property">w2field</span> object. Th
     <li>select</li>
 </ul>
 
-You can make some of the reocrds not editable, for example:
+You can make some of the records not editable, for example:
 <textarea class="javascript">
 { recid: 1, ... w2ui: { editable: false } }
 </textarea>
