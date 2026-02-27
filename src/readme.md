@@ -4,7 +4,7 @@ Final JS file - w2ui.js, w2ui.min.js - is compiled from a number of files in /sr
 
 ## LESS files
 
-Final CSS files are compiled from LESS counterparts. Do not change files in /dist directory. In less/src folder you will find all source files for all widgets, as well as mixing and variables. If you want to create a new theme, you can clone
+Final CSS files are compiled from LESS counterparts. Do not change files in /dist directory. In less/src folder you will find all source files for all widgets, as well as mixins and variables. If you want to create a new theme, you can clone
 
 - css/less/w2ui.less
 
