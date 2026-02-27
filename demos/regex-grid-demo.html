@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>w2ui - Grid with Regex Support Demo</title>
+    <link rel="stylesheet" type="text/css" href="../dist/w2ui.css">
+    <style>
+        body {
+            font-family: Verdana, Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #555;
+            margin-top: 30px;
+        }
+        .demo-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-left: 4px solid #007bff;
+        }
+        code {
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        .code-sample {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+        .controls {
+            margin: 15px 0;
+        }
+        input[type="text"], select {
+            padding: 8px;
+            margin-right: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 8px 15px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        #grid {
+            margin-top: 15px;
+            width: 100%;
+            height: 400px;
+        }
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+        .info {
+            color: #0066cc;
+            font-weight: bold;
+        }
+        .grid-info {
+            margin-top: 10px;
+            padding: 10px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>w2ui Grid with Regex Support Demo</h1>
+        <p>This demo showcases how to use regex patterns to search and highlight content in w2ui grids.</p>
+
+        <h2>1. Interactive Grid Search with Regex & Marker</h2>
+        <div class="demo-section">
+            <p>Use regex patterns to search and apply text highlighting within grid cells.</p>
+            <p><strong>Live Search:</strong> The grid updates automatically as you type in the search field - similar to Google's interactive search. Type any regex pattern to instantly filter results.</p>
+            
+            <div style="margin-bottom: 15px;">
+                <strong>Search & Filter:</strong>
+                <div class="controls">
+                    <input type="text" id="searchPattern" placeholder="Enter regex pattern (e.g., ^John, @example\.com, [0-9]{4})" value="" oninput="performSearch()" onkeypress="if(event.key==='Enter') performSearch()">
+                    <select id="searchColumn">
+                        <option value="" selected>All Columns</option>
+                        <option value="fname">First Name</option>
+                        <option value="lname">Last Name</option>
+                        <option value="email">Email</option>
+                        <option value="dept">Department</option>
+                    </select>
+                    <button onclick="resetSearch()">Reset</button>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <strong>Apply Marker Highlighting:</strong>
+                <div class="controls">
+                    <input type="text" id="markerPattern" placeholder="Enter regex pattern to highlight" value="" oninput="applyMarker()" onkeypress="if(event.key==='Enter') applyMarker()">
+                    <select id="markerColumn">
+                        <option value="" selected>All Columns</option>
+                        <option value="fname">First Name</option>
+                        <option value="lname">Last Name</option>
+                        <option value="email">Email</option>
+                        <option value="dept">Department</option>
+                    </select>
+                    <button onclick="clearMarker()">Clear Marker</button>
+                </div>
+            </div>
+
+            <div class="code-sample">
+// Example regex patterns for grid search:<br>
+^John          // first names starting with "John"<br>
+@example\.com  // emails from example.com domain<br>
+Sales|Market   // Sales or Marketing departments<br>
+[A-Z][a-z]{2,} // capitalized words (3+ chars)<br>
+<br>
+// Marker function highlights matching text with background color:<br>
+w2utils.marker(text, pattern, { isRegex: true })
+            </div>
+
+            <div id="grid"></div>
+            <div id="searchStatus" class="grid-info"></div>
+            <div id="markerStatus" class="grid-info"></div>
+        </div>
+
+        <h2>2. Features</h2>
+        <div class="demo-section">
+            <ul>
+                <li><strong>Regex Search:</strong> Filter grid records using powerful regex patterns</li>
+                <li><strong>Text Marker:</strong> Highlight matching text within cells with background color</li>
+                <li><strong>Column-Specific:</strong> Apply operations to specific columns or all columns</li>
+                <li><strong>Case-Insensitive:</strong> All searches are case-insensitive by default</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="../dist/w2ui.js"></script>
+    <script>
+        // Sample data for the grid
+        const gridData = [
+            { recid: 1, fname: 'John', lname: 'Smith', email: 'john.smith@example.com', dept: 'Sales' },
+            { recid: 2, fname: 'Jane', lname: 'Doe', email: 'jane.doe@example.org', dept: 'Marketing' },
+            { recid: 3, fname: 'John', lname: 'Johnson', email: 'john.j@example.com', dept: 'IT' },
+            { recid: 4, fname: 'Sarah', lname: 'Williams', email: 'sarah@test.net', dept: 'Sales' },
+            { recid: 5, fname: 'Michael', lname: 'Brown', email: 'michael@example.org', dept: 'HR' },
+            { recid: 6, fname: 'Emily', lname: 'Davis', email: 'emily.davis@example.com', dept: 'IT' },
+            { recid: 7, fname: 'David', lname: 'Miller', email: 'david.m@test.net', dept: 'Sales' },
+            { recid: 8, fname: 'Jessica', lname: 'Anderson', email: 'jessica@example.org', dept: 'Marketing' },
+            { recid: 9, fname: 'John', lname: 'Taylor', email: 'john.t@example.com', dept: 'HR' },
+            { recid: 10, fname: 'Robert', lname: 'Thomas', email: 'robert@test.net', dept: 'IT' }
+        ];
+
+        let originalData = JSON.parse(JSON.stringify(gridData));
+        let grid;
+
+        // Initialize the grid
+        $(document).ready(function() {
+            grid = $('#grid').w2grid({
+                name: 'grid',
+                columns: [
+                    { field: 'fname', caption: 'First Name', size: '20%' },
+                    { field: 'lname', caption: 'Last Name', size: '20%' },
+                    { field: 'email', caption: 'Email', size: '35%' },
+                    { field: 'dept', caption: 'Department', size: '25%' }
+                ],
+                records: gridData
+            });
+        });
+
+        function performSearch() {
+            const pattern = document.getElementById('searchPattern').value;
+            const column = document.getElementById('searchColumn').value;
+            const statusDiv = document.getElementById('searchStatus');
+
+            if (!pattern) {
+                statusDiv.innerHTML = '<span class="error">Please enter a search pattern</span>';
+                return;
+            }
+
+            try {
+                let matchCount = 0;
+                let matchedRecords = [];
+
+                const regex = new RegExp(pattern, 'i');
+                originalData.forEach(record => {
+                    let matched = false;
+                    if (column) {
+                        matched = regex.test(String(record[column] || ''));
+                    } else {
+                        matched = Object.values(record).some(val => regex.test(String(val || '')));
+                    }
+                    if (matched) {
+                        matchCount++;
+                        matchedRecords.push(JSON.parse(JSON.stringify(record)));
+                    }
+                });
+
+                if (matchCount === 0) {
+                    statusDiv.innerHTML = '<span class="error">✗ No matches found</span>';
+                    grid.records = gridData;
+                } else {
+                    statusDiv.innerHTML = `<span class="success">✓ Found ${matchCount} matching record(s)</span>`;
+                    grid.records = matchedRecords;
+                }
+                grid.refresh();
+            } catch (e) {
+                statusDiv.innerHTML = '<span class="error">✗ Invalid regex pattern: ' + e.message + '</span>';
+            }
+        }
+
+        function resetSearch() {
+            document.getElementById('searchPattern').value = '';
+            document.getElementById('searchStatus').innerHTML = '';
+            grid.records = JSON.parse(JSON.stringify(originalData));
+            grid.refresh();
+        }
+
+        function applyMarker() {
+            const pattern = document.getElementById('markerPattern').value;
+            const column = document.getElementById('markerColumn').value;
+            const statusDiv = document.getElementById('markerStatus');
+
+            if (!pattern) {
+                statusDiv.innerHTML = '';
+                // Clear markers and restore original data
+                grid.records = JSON.parse(JSON.stringify(originalData));
+                grid.refresh();
+                return;
+            }
+
+            try {
+                let markedCount = 0;
+                // Always start from original data
+                const recordsToProcess = JSON.parse(JSON.stringify(originalData));
+                
+                recordsToProcess.forEach(record => {
+                    let fieldsToMark = column ? [column] : ['fname', 'lname', 'email', 'dept'];
+                    
+                    fieldsToMark.forEach(field => {
+                        if (record[field]) {
+                            const originalValue = String(record[field]);
+                            const markedValue = w2utils.marker(originalValue, pattern, { isRegex: true });
+                            if (markedValue !== originalValue) {
+                                record[field] = markedValue;
+                                markedCount++;
+                            }
+                        }
+                    });
+                });
+
+                if (markedCount === 0) {
+                    statusDiv.innerHTML = '<span class="error">✗ No matches found to mark</span>';
+                } else {
+                    statusDiv.innerHTML = `<span class="success">✓ Marked ${markedCount} field(s) with pattern matches</span>`;
+                }
+                grid.records = recordsToProcess;
+                grid.refresh();
+            } catch (e) {
+                statusDiv.innerHTML = '<span class="error">✗ Invalid regex pattern: ' + e.message + '</span>';
+            }
+        }
+
+        function clearMarker() {
+            document.getElementById('markerPattern').value = '';
+            document.getElementById('markerStatus').innerHTML = '';
+            
+            // Reload original data to remove markers
+            grid.records = JSON.parse(JSON.stringify(originalData));
+            grid.refresh();
+        }
+
+        function applyExample(pattern) {
+            document.getElementById('searchPattern').value = pattern;
+            performSearch();
+        }
+    </script>
+</body>
+</html>

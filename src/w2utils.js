@@ -1656,10 +1656,12 @@ class Utils {
         return str.replace(/\${([^}]+)?}/g, function($1, $2) { return replace_obj[$2]||$2 })
     }
 
-    marker(el, items, options = { onlyFirst: false, wholeWord: false }) {
+    marker(el, items, options = { onlyFirst: false, wholeWord: false, isRegex: false}) {
         options.tag ??= 'span'
         options.class ??= 'w2ui-marker'
         options.raplace = (matched) => `<${options.tag} class="${options.class}">${matched}</${options.tag}>`
+
+        const isRegexSearch = options.isRegex || false;
         if (!Array.isArray(items)) {
             if (items != null && items !== '') {
                 items = [items]
@@ -1670,14 +1672,125 @@ class Utils {
         if (typeof el == 'string') {
             _clearMerkers(el)
             items.forEach(item => {
-                el = _replace(el, item, options.raplace)
+                if (isRegexSearch) {
+                    // For regex searches with string elements
+                    try {
+                        let flags = 'i' + (!options.onlyFirst ? 'g' : '')
+                        let regex = new RegExp(item, flags)
+                        el = el.replace(regex, options.raplace)
+                    } catch (e) {
+                        console.error('Invalid regular expression:', e)
+                        // Fallback to standard replace
+                        el = _replace(el, item, options.raplace)
+                    }
+                } else {
+                    // Standard string replace
+                    el = _replace(el, item, options.raplace)
+                }
             })
         } else {
             query(el).each(el => {
                 _clearMerkers(el)
-                items.forEach(item => {
-                    el.innerHTML = _replace(el.innerHTML, item, options.raplace)
-                })
+                if (isRegexSearch) {
+                    // For regex searches, use DOM traversal approach
+                    items.forEach(pattern => {
+                        try {
+                            let flags = 'i' // Always case-insensitive
+                            if (!options.onlyFirst) {
+                                flags += 'g' // Add 'g' for global unless onlyFirst is true
+                            }
+                            if (options.wholeWord) {
+                                // If wholeWord is true, wrap the pattern with word boundary markers
+                                pattern = '\b' + pattern + '\b'
+                            }
+
+                            let regex = new RegExp(pattern, flags)
+
+                            // Get all text nodes
+                            let textNodes = []
+                            function getTextNodes(node) {
+                                if (node.nodeType === 3) { // Text node
+                                    textNodes.push(node)
+                                } else if (node.nodeType === 1) { // Element node
+                                    // Skip script and style tags
+                                    if (node.tagName !== 'SCRIPT' && node.tagName !== 'STYLE') {
+                                        for (let i = 0; i < node.childNodes.length; i++) {
+                                            getTextNodes(node.childNodes[i])
+                                        }
+                                    }
+                                }
+                            }
+
+                            getTextNodes(el)
+
+                            // Process each text node
+                            textNodes.forEach(textNode => {
+                                let text = textNode.nodeValue
+                                let matches = []
+                                let match
+
+                                // Find all matches
+                                if (options.onlyFirst) {
+                                    match = regex.exec(text)
+                                    if (match) matches.push({
+                                        index: match.index,
+                                        text: match[0]
+                                    })
+                                } else {
+                                    while ((match = regex.exec(text)) !== null) {
+                                        matches.push({
+                                            index: match.index,
+                                            text: match[0]
+                                        })
+                                    }
+                                }
+
+                                // Apply highlighting
+                                if (matches.length > 0) {
+                                    let parent = textNode.parentNode
+                                    let fragment = document.createDocumentFragment()
+                                    let lastIndex = 0
+
+                                    matches.forEach(match => {
+                                        // Add text before match
+                                        if (match.index > lastIndex) {
+                                            fragment.appendChild(document.createTextNode(
+                                                text.substring(lastIndex, match.index)
+                                            ))
+                                        }
+
+                                        // Add highlighted match
+                                        let span = document.createElement(options.tag)
+                                        span.className = options.class
+                                        span.appendChild(document.createTextNode(match.text))
+                                        fragment.appendChild(span)
+
+                                        lastIndex = match.index + match.text.length
+                                    })
+
+                                    // Add remaining text
+                                    if (lastIndex < text.length) {
+                                        fragment.appendChild(document.createTextNode(
+                                            text.substring(lastIndex)
+                                        ))
+                                    }
+
+                                    // Replace the text node with our fragment
+                                    parent.replaceChild(fragment, textNode)
+                                }
+                            })
+                        } catch (e) {
+                            console.error('Invalid regular expression:', e)
+                            // Fallback to standard innerHTML replace
+                            el.innerHTML = _replace(el.innerHTML, pattern, options.raplace)
+                        }
+                    })
+                } else {
+                    // Standard innerHTML replace for non-regex
+                    items.forEach(item => {
+                        el.innerHTML = _replace(el.innerHTML, item, options.raplace)
+                    })
+                }
             })
         }
         return el

@@ -1441,7 +1441,7 @@ class MenuTooltip extends Tooltip {
             menuStyle   : '',
             search      : false,        // search input inside tooltip
             filter      : false,        // will apply filter, if anchor is INPUT or TEXTAREA
-            match       : 'contains',   // is, begins, ends, contains
+            match       : 'contains',   // is, begins, ends, contains, regexp
             markSearch  : false,
             prefilter   : false,
             altRows     : false,
@@ -2126,18 +2126,29 @@ class MenuTooltip extends Tooltip {
             return prom
         }
         items.forEach(item => {
-            let prefix = ''
-            let suffix = ''
-            if (['is', 'begins', 'begins with'].indexOf(options.match) !== -1) prefix = '^'
-            if (['is', 'ends', 'ends with'].indexOf(options.match) !== -1) suffix = '$'
-            try {
-                let re = new RegExp(prefix + search + suffix, 'i')
-                if (re.test(item.text) || item.text === '...') {
-                    item.hidden = false
-                } else {
-                    item.hidden = true
-                }
-            } catch (e) {}
+            if (options.match == 'regex') {
+                try {
+                    let re = new RegExp(search, 'i')
+                    if (re.test(item.text) || item.text === '...') {
+                        item.hidden = false
+                    } else {
+                        item.hidden = true
+                    }
+                } catch (e) {}
+            } else {
+                let prefix = ''
+                let suffix = ''
+                if (['is', 'begins', 'begins with'].indexOf(options.match) !== -1) prefix = '^'
+                if (['is', 'ends', 'ends with'].indexOf(options.match) !== -1) suffix = '$'
+                try {
+                    let re = new RegExp(prefix + search + suffix, 'i')
+                    if (re.test(item.text) || item.text === '...') {
+                        item.hidden = false
+                    } else {
+                        item.hidden = true
+                    }
+                } catch (e) {}
+            }
             // do not show selected items
             if (options.hideSelected && selectedIds.includes(item.id)) {
                 item.hidden = true
