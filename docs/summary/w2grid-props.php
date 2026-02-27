@@ -421,10 +421,10 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2grid.vs_extra">vs_extra</a> <span>- Number, default = 5</span>
+    <a href="w2grid.vs_extra">vs_extra</a> <span>- Number, default = 15</span>
 </div>
 <div class="obj-property-desc">
-    Defines the number of extra records to render when virtualizing.
+    Defines the number of extra records to display when virtualizing
 </div>
 
 <div class="obj-property">

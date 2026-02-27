@@ -533,6 +533,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2grid.replace">replace</a> <span>- replace(recid, record, noRefresh)</span>
+</div>
+<div class="obj-property-desc">
+    Replaces an existing record in the grid
+</div>
+
+<div class="obj-property">
     <a href="w2grid.request">request</a> <span>- request(cmd, [params, [url, [callBack]]])</span>
 </div>
 <div class="obj-property-desc">

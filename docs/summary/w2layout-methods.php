@@ -1,5 +1,12 @@
-<link rel="stylesheet" type="text/css" href="../summary.css"/>
+<link rel="stylesheet" type="text/css" href="../summary.css"/> 
 <div class="container">
+<div class="obj-property">
+    <a href="w2layout.assignTabs">assignTabs</a> <span>- assignTabs(panel, tabs)</span>
+</div>
+<div class="obj-property-desc">
+    Assigns new w2tabs object to a panel
+</div>
+
 <div class="obj-property">
     <a href="w2layout.assignToolbar">assignToolbar</a> <span>- assignToolbar(panel, toolbar)</span>
 </div>

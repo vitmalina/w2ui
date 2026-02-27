@@ -142,8 +142,12 @@ $(function () {
         // utils
         let props   = []
         let methods = []
-        for (let o in w2utils) {
-            if (typeof w2utils[o] == 'function') methods.push(o); else props.push(o)
+        for (let key of Object.getOwnPropertyNames(w2utils)) {
+            if (typeof w2utils[key] == 'function') methods.push(key); else props.push(key)
+        }
+
+        for (let key of Object.getOwnPropertyNames(w2utils.__proto__)) {
+            if (typeof w2utils.__proto__[key] == 'function') methods.push(key); else props.push(key)
         }
         props.sort()
         methods.sort()
@@ -182,7 +186,7 @@ function doClick(cmd, data) {
         if (cmd.indexOf('-') == -1) {
             path = 'overview/'+ cmd.substr(2) +'.html'
         } else {
-            if (cmds.length == 2) {
+            if (cmds.length == 1) {
                 path = 'overview/'+ cmd +'.html'
             } else {
                 path = 'summary/'+ cmd +'.php'
