@@ -50,6 +50,7 @@
  *  - grid.compareSelection
  *  - this.showContextMenu(event, { recid, column, index }) - arguments changed
  *  - this.parseField
+ *  - added rec.w2ui.selectable
  */
 
 import { w2base } from './w2base.js'
@@ -1633,6 +1634,20 @@ class w2grid extends w2base {
         // if too many arguments > 150k, then it errors off
         let args = Array.from(arguments)
         if (Array.isArray(args[0])) args = args[0]
+        // filter unselectable records
+        args = args.filter(aa => {
+            let recid = aa?.recid ?? aa
+            let index = aa?.index ?? this.get(recid, true)
+            let rec = this.records[index]
+            if (rec?.w2ui?.selectable === false) {
+                return false
+            }
+            if (typeof aa === 'object') {
+                aa.index ??= index
+            }
+            return true
+        })
+
         // event before
         let tmp = { target: this.name }
         if (args.length == 1) {
@@ -3752,6 +3767,16 @@ class w2grid extends w2base {
             let trg = event.target
             if (trg.tagName != 'TD') trg = query(trg).closest('td')[0]
             if (query(trg).attr('col') != null) column = parseInt(query(trg).attr('col'))
+        }
+        // check if record is selectable
+        let index = this.get(recid, true)
+        let rec = this.records[index]
+        if (rec?.w2ui?.selectable === false && rec?.w2ui?.children?.length > 0) {
+            // if not a show-children button, then toggle
+            if (!query(event.target).hasClass('w2ui-show-children')) {
+                this.toggle(recid)
+                return
+            }
         }
         // event before
         let edata = this.trigger('click', { target: this.name, recid, column, originalEvent: event })
