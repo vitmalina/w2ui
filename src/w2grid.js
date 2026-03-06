@@ -4833,7 +4833,7 @@ class w2grid extends w2base {
         for (let ind = this.records.length - 1; ind >= 0; ind--) {
             let rec = this.records[ind]
             let children = rec.w2ui?.children
-            if (rec.w2ui.expanded === true && children?.length > 0 && !rec.w2ui._copied) {
+            if (rec.w2ui?.expanded === true && children?.length > 0 && !rec.w2ui._copied) {
                 rec.w2ui._copied = true
                 children.forEach((child) => {
                     child.w2ui ??= {}
