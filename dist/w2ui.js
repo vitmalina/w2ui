@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (3/6/2026, 7:34:24 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (3/6/2026, 7:48:39 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -16607,7 +16607,7 @@ class w2grid extends w2base {
         for (let ind = this.records.length - 1; ind >= 0; ind--) {
             let rec = this.records[ind]
             let children = rec.w2ui?.children
-            if (rec.w2ui.expanded === true && children?.length > 0 && !rec.w2ui._copied) {
+            if (rec.w2ui?.expanded === true && children?.length > 0 && !rec.w2ui._copied) {
                 rec.w2ui._copied = true
                 children.forEach((child) => {
                     child.w2ui ??= {}
