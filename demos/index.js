@@ -210,6 +210,7 @@ query(async function () {
                         { id: 'grid/35', text: 'Default Searches', icon: 'fa fa-table' },
                         { id: 'grid/36', text: 'Copy to Clipboard', icon: 'fa fa-table' },
                         { id: 'grid/38', text: 'Linked Searches', icon: 'fa fa-table' },
+                        { id: 'grid/39', text: 'Group Records', icon: 'fa fa-table' },
                     ]
                 },
                 { id: 'toolbar', text: 'Toolbar Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,

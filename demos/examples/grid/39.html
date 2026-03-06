@@ -1,0 +1,72 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Group Records</h1>
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="grid" style="width: 700px; height: 400px;"></div>
+
+<!--CODE-->
+<script type="module">
+import { w2grid } from '__W2UI_PATH__'
+
+let grid = new w2grid({
+    name: 'grid',
+    box: '#grid',
+    columns: [
+        { field: 'group', text: '', size: '30px' },
+        { field: 'appName', text: 'App Name', size: '30%' },
+        { field: 'version', text: 'Version', size: '90px', style: 'text-align: center;' },
+        { field: 'desc', text: 'Description', size: '70%' }
+    ],
+    records: [
+        { recid: 1, group: 'Common Applications',
+            w2ui: {
+                style: 'border-bottom: 1px solid #ccc; background-color: #f6f6ef',
+                styles: { group: 'cursor: pointer !important' },
+                colspan: { group: 5 },
+                selectable: false,
+                expanded: true,
+                children: [
+                    { recid: 11, group: '', appName: 'Application Navigator', version: '2.0', desc: 'Some description' },
+                    { recid: 12, group: '', appName: 'Application Manager', version: '1.0', desc: 'Some description' },
+                    { recid: 13, group: '', appName: 'Smart App', version: '2.1', desc: 'Some description' },
+                    { recid: 14, group: '', appName: 'App Wheel', version: '1.0', desc: 'Some description' }
+                ]
+            }
+        },
+        { recid: 2, group: 'Advanced Lazer Applications',
+            w2ui: {
+                style: 'border-bottom: 1px solid #ccc; background-color: #f6f6ef',
+                styles: { group: 'cursor: pointer !important' },
+                colspan: { group: 5 },
+                selectable: false,
+                expanded: true,
+                children: [
+                    { recid: 21, group: '', appName: 'Laser Quest', version: '2.0', desc: 'Some description' },
+                    { recid: 22, group: '', appName: 'Laser Tag', version: '1.0', desc: 'Some description' },
+                    { recid: 23, group: '', appName: 'Smart Laser', version: '2.1', desc: 'Some description' }
+                ]
+            }
+        },
+        { recid: 3, group: 'Miscellaneous Applications',
+            w2ui: {
+                style: 'border-bottom: 1px solid #ccc; background-color: #f6f6ef',
+                styles: { group: 'cursor: pointer !important' },
+                colspan: { group: 5 },
+                selectable: false,
+                expanded: true,
+                children: [
+                    { recid: 31, group: '', appName: 'Clash Royal', version: '2.0', desc: 'Some description' },
+                    { recid: 32, group: '', appName: 'Clash of Clans', version: '1.0', desc: 'Some description' },
+                    { recid: 33, group: '', appName: 'Chess 101', version: '2.1', desc: 'Some description' },
+                    { recid: 34, group: '', appName: 'Poker', version: '1.0', desc: 'Some description' }
+                ]
+            }
+        }
+    ]
+})
+</script>

@@ -51,6 +51,7 @@
  *  - this.showContextMenu(event, { recid, column, index }) - arguments changed
  *  - this.parseField
  *  - added rec.w2ui.selectable
+ *  - added rec.w2ui.styles
  */
 
 import { w2base } from './w2base.js'
@@ -4659,9 +4660,19 @@ class w2grid extends w2base {
         let rec  = this.get(recid)
         if (rec == null) return
         rec.w2ui = rec.w2ui ?? {}
-        if (rec.w2ui.expanded === true) return this.collapse(recid); else return this.expand(recid)
+        if (rec.w2ui.expanded === true) {
+            return this.collapse(recid)
+        } else {
+            return this.expand(recid)
+        }
     }
 
+    /**
+     * When record is expaned, then w2ui.children of the record is copied into this.records and this.total is updated. It will
+     * also set w2ui._copeid = true, so it would not copy it again.
+     *
+     * There is also updateExpaned() that is called in this.refresh()
+     */
     expand(recid, noRefresh) {
         let ind  = this.get(recid, true)
         let rec  = this.records[ind]
@@ -4674,6 +4685,7 @@ class w2grid extends w2base {
             edata = this.trigger('expand', { target: this.name, recid: recid })
             if (edata.isCancelled === true) return false
             rec.w2ui.expanded = true
+            rec.w2ui._copied = true
             children.forEach((child) => {
                 child.w2ui = child.w2ui ?? {}
                 child.w2ui.parent_recid = rec.recid
@@ -4739,6 +4751,7 @@ class w2grid extends w2base {
             edata.finish()
             this.resizeRecords()
         }
+        this.selectNone() // or selection is messed up
         return true
     }
 
@@ -4800,14 +4813,46 @@ class w2grid extends w2base {
                 this.resizeRecords()
             }, 300)
         }
+        this.selectNone() // or selection is messed up
         return true
 
         function clearExpanded(rec) {
             rec.w2ui.expanded = false
+            rec.w2ui._copied = false
             for (let i = 0; i < rec.w2ui.children.length; i++) {
                 let subRec = rec.w2ui.children[i]
-                if (subRec.w2ui.expanded) {
+                if (subRec.w2ui?.expanded) {
                     clearExpanded(subRec)
+                }
+            }
+        }
+    }
+
+    updateExpanded() {
+        let updated = false
+        for (let ind = this.records.length - 1; ind >= 0; ind--) {
+            let rec = this.records[ind]
+            let children = rec.w2ui?.children
+            if (rec.w2ui.expanded === true && children?.length > 0 && !rec.w2ui._copied) {
+                rec.w2ui._copied = true
+                children.forEach((child) => {
+                    child.w2ui ??= {}
+                    child.w2ui.parent_recid = rec.recid
+                    child.w2ui.children ??= []
+                })
+                this.records.splice.apply(this.records, [ind + 1, 0].concat(children))
+                if (this.total !== -1) {
+                    this.total += children.length
+                }
+                updated = true
+            }
+        }
+        if (updated) {
+            let url = this.url?.get ?? this.url
+            if (!url) {
+                this.localSort(true, true)
+                if (this.searchData.length > 0) {
+                    this.localSearch(true)
                 }
             }
         }
@@ -5158,16 +5203,19 @@ class w2grid extends w2base {
                 }
             }
             // record styles if any
-            if (rec.w2ui.style != null) {
+            if (rec.w2ui.style != null || rec.w2ui.styles != null) {
                 if (row1 && row2 && typeof rec.w2ui.style == 'string' && row1.style.cssText !== rec.w2ui.style) {
                     row1.style.cssText = 'height: '+ self.recordHeight + 'px;' + rec.w2ui.style
                     row1.setAttribute('custom_style', rec.w2ui.style)
                     row2.style.cssText = 'height: '+ self.recordHeight + 'px;' + rec.w2ui.style
                     row2.setAttribute('custom_style', rec.w2ui.style)
                 }
-                if (w2utils.isPlainObject(rec.w2ui.style) && typeof rec.w2ui.style[pcol.field] == 'string'
-                        && cell.style.cssText !== rec.w2ui.style[pcol.field]) {
-                    cell.style.cssText = rec.w2ui.style[pcol.field]
+                if (rec.w2ui.styles == null) {
+                    rec.w2ui.styles = rec.w2ui.style
+                }
+                if (w2utils.isPlainObject(rec.w2ui.styles) && typeof rec.w2ui.styles[pcol.field] == 'string'
+                        && cell.style.cssText !== rec.w2ui.styles[pcol.field]) {
+                    cell.style.cssText = rec.w2ui.styles[pcol.field]
                 }
             }
         }
@@ -5437,6 +5485,7 @@ class w2grid extends w2base {
     }
 
     refreshBody() {
+        this.updateExpanded()
         this.scroll() // need to calculate virtual scrolling for columns
         let recHTML  = this.getRecordsHTML()
         let colHTML  = this.getColumnsHTML()
@@ -8330,11 +8379,12 @@ class w2grid extends w2base {
                     infoBubble += '<span class="w2ui-show-children w2ui-icon-empty"></span>'
                 }
             }
-            let className = record.w2ui.children.length > 0
+            let className = record.w2ui?.children?.length > 0
                 ? (record.w2ui.expanded ? 'w2ui-icon-collapse' : 'w2ui-icon-expand')
                 : 'w2ui-icon-empty'
-            if(record.w2ui.children.length > 0)
+            if (record.w2ui?.children?.length > 0) {
                 infoBubble += `<span class="w2ui-show-children ${className}"></span>`
+            }
         }
         // info bubble
         if (col.info === true) col.info = {}
@@ -8377,9 +8427,12 @@ class w2grid extends w2base {
             }
         }
         if (record?.w2ui) {
-            if (typeof record.w2ui.style == 'object') {
-                if (typeof record.w2ui.style[col_ind] == 'string') style += record.w2ui.style[col_ind] + ';'
-                if (typeof record.w2ui.style[col.field] == 'string') style += record.w2ui.style[col.field] + ';'
+            if (record.w2ui.styles == null) {
+                record.w2ui.styles = record.w2ui.style
+            }
+            if (typeof record.w2ui.styles == 'object') {
+                if (typeof record.w2ui.styles[col_ind] == 'string') style += record.w2ui.styles[col_ind] + ';'
+                if (typeof record.w2ui.styles[col.field] == 'string') style += record.w2ui.styles[col.field] + ';'
             }
             if (typeof record.w2ui.class == 'object') {
                 if (typeof record.w2ui.class[col_ind] == 'string') className += record.w2ui.class[col_ind] + ' '
