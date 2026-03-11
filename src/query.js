@@ -28,7 +28,7 @@ class Query {
         }
         this.nodes = nodes
         this.length = nodes.length
-        // map nodes to object propoerties
+        // map nodes to object properties
         this.each((node, ind) => {
             this[ind] = node
         })

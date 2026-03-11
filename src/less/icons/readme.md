@@ -1,6 +1,6 @@
 == Icons ==
 
-All icons that are used in w2ui are svg files located in `src/less/icons/svg/*` directory. If you add/modify icons, you will need to regenerate thef font and corresponding CSS files. Run the following command:
+All icons that are used in w2ui are svg files located in `src/less/icons/svg/*` directory. If you add/modify icons, you will need to regenerate the font and corresponding CSS files. Run the following command:
 
 ```
 gulp icons
