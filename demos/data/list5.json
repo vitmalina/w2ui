@@ -1,0 +1,24 @@
+{
+    "total": 11,
+    "groupBy": {
+        "field": "group",
+        "style": "border-bottom: 1px solid #ccc; background-color: #f6f6ef",
+        "styles": { "group": "cursor: pointer !important" },
+        "colspan": { "group": 5 },
+        "selectable": false,
+        "expanded": true
+    },
+    "records": [
+        { "recid": 11, "group": "Common Applications", "appName": "Application Navigator", "version": "2.0", "desc": "Some description" },
+        { "recid": 12, "group": "Common Applications", "appName": "Application Manager", "version": "1.0", "desc": "Some description" },
+        { "recid": 13, "group": "Common Applications", "appName": "Smart App", "version": "2.1", "desc": "Some description" },
+        { "recid": 14, "group": "Common Applications", "appName": "App Wheel", "version": "1.0", "desc": "Some description" },
+        { "recid": 21, "group": "Advanced Lazer Applications", "appName": "Laser Quest", "version": "2.0", "desc": "Some description" },
+        { "recid": 22, "group": "Advanced Lazer Applications", "appName": "Laser Tag", "version": "1.0", "desc": "Some description" },
+        { "recid": 23, "group": "Advanced Lazer Applications", "appName": "Smart Laser", "version": "2.1", "desc": "Some description" },
+        { "recid": 31, "group": "Miscellaneous Applications", "appName": "Clash Royal", "version": "2.0", "desc": "Some description" },
+        { "recid": 32, "group": "Miscellaneous Applications", "appName": "Clash of Clans", "version": "1.0", "desc": "Some description" },
+        { "recid": 33, "group": "Miscellaneous Applications", "appName": "Chess 101", "version": "2.1", "desc": "Some description" },
+        { "recid": 34, "group": "Miscellaneous Applications", "appName": "Poker", "version": "1.0", "desc": "Some description" }
+    ]
+}
