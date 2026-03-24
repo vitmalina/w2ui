@@ -49,7 +49,7 @@ class Tooltip {
             maxHeight       : null,     // max height
             watchScroll     : null,     // attach to onScroll event // TODO:
             watchResize     : null,     // attach to onResize event // TODO:
-            hideOn          : null,     // events when to hide tooltip, ['click', 'change', 'key', 'focus', 'blur'],
+            hideOn          : null,     // events when to hide tooltip, ['doc-click', 'tooltip-click', 'focus-change', 'select', 'item-remove', ... or any standard event on the anchor],
             onThen          : null,     // called when displayed
             onShow          : null,     // callBack when shown
             onHide          : null,     // callBack when hidden
@@ -433,6 +433,11 @@ class Tooltip {
                         .on(`click.${scope}-doc`, (event) => { event.stopPropagation() })
                 }
                 query('html').on(`click.${scope}`, hide)
+            }
+            if (options.hideOn.includes('tooltip-click')) {
+                query(overlay.box)
+                    .off(`click.${scope}`)
+                    .on(`click.${scope}`, hide)
             }
             if (options.hideOn.includes('focus-change') || options.hideOn.includes('blur')) {
                 query('html')

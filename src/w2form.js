@@ -977,7 +977,7 @@ class w2form extends w2base {
                 anchorClass: 'w2ui-error',
                 class: 'w2ui-light',
                 position: 'right|left',
-                hideOn: ['input']
+                hideOn: ['input', 'tooltip-click']
             }, error.options)
             if (error.field == null) return
             let anchor = error.field.el
