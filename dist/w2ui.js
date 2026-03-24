@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (3/6/2026, 7:48:39 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (3/24/2026, 11:29:09 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -456,7 +456,7 @@ class Query {
         }
         this.nodes = nodes
         this.length = nodes.length
-        // map nodes to object propoerties
+        // map nodes to object properties
         this.each((node, ind) => {
             this[ind] = node
         })
@@ -4563,7 +4563,7 @@ class Tooltip {
                 .off('.autoShow-' + ret.overlay.name)
                 .off('.autoHide-' + ret.overlay.name)
             /**
-             * Need a timer, so that events in the 'return ret` would be preperty set as it is using chaning mechanism
+             * Need a timer, so that events in the 'return ret` would be properly set as it is using chaining mechanism
              * to set listeners: w2tooltip.show({}).then(...).show(...). Since it could be hidden before timer kick in
              * to show it, need the check in the timeout.
              */
@@ -11980,6 +11980,7 @@ class w2layout extends w2base {
  *  - this.parseField
  *  - added rec.w2ui.selectable
  *  - added rec.w2ui.styles
+ *  - added grid.groupBy = {} and grid.last.groupBy_links = {}
  */
 
 class w2grid extends w2base {
@@ -12001,6 +12002,7 @@ class w2grid extends w2base {
         this.sortData     = []
         this.savedSearches   = []
         this.defaultSearches = []
+        this.groupBy      = null // defines how to group records
         this.total        = 0 // server total
         this.recid        = null // field from records to be used as recid
         this.hierarchyColumn = 0 // index of the hierarchy column
@@ -12059,6 +12061,7 @@ class w2grid extends w2base {
             columnDrag    : false,    // false or an object with a remove() method
             state         : null,     // last grid state
             toolbar_height: 0,        // height of grid's toolbar
+            groupBy_links : {},       // map of group links used in conjuntction with groupBy
         }
         this.header            = ''
         this.url               = ''
@@ -12325,6 +12328,7 @@ class w2grid extends w2base {
             for (let t = remove.length-1; t >= 0; t--) {
                 this.records.splice(remove[t], 1)
             }
+            this.processGroupBy()
         }
         // add searches
         if (Array.isArray(this.columns)) {
@@ -12392,6 +12396,7 @@ class w2grid extends w2base {
             }
             added++
         }
+        this.processGroupBy()
         let url = this.url?.get ?? this.url
         if (!url) {
             this.total = this.records.length
@@ -12463,6 +12468,7 @@ class w2grid extends w2base {
             }
             if (noRefresh !== true) this.refreshRow(recid, ind) // refresh only that record
         }
+        this.processGroupBy()
         return true
     }
     // replaces existing record
@@ -12476,6 +12482,7 @@ class w2grid extends w2base {
             this.records[ind] = record
         }
         if (noRefresh !== true) this.refreshRow(recid, ind) // refresh only that record
+        this.processGroupBy()
         return true
     }
     get(recid, returnIndex) {
@@ -12555,6 +12562,29 @@ class w2grid extends w2base {
         }
         this.refresh()
         return removed
+    }
+    /**
+     * If there is a this.groupBy, then process all records with that in mind. It will remember groups in this.last.groupBy_links, that
+     * needs to be cleared when record is cleared
+     */
+    processGroupBy() {
+        if (this.groupBy == null) return
+        let new_records = []
+        this.records.forEach(rec => {
+            let group = rec[this.groupBy.field]
+            if (group != null) {
+                let new_rec = this.last.groupBy_links[group]
+                if (new_rec == null) {
+                    new_rec = { recid: 'group-'+ group, group, w2ui: { ...this.groupBy, children: [] } }
+                    this.last.groupBy_links[group] = new_rec
+                    delete new_rec.w2ui.field // no need for this field
+                    new_records.push(new_rec)
+                }
+                rec[this.groupBy.field] = ''
+                new_rec.w2ui.children.push(rec)
+            }
+        })
+        this.records = new_records
     }
     addColumn(before, columns) {
         let added = 0
@@ -14652,6 +14682,7 @@ class w2grid extends w2base {
         this.last.fetch.offset = 0 // need this for reload button to work on remote data set
         this.last.idCache   = {} // optimization to free memory
         this.last.selection = { indexes: [], columns: {} }
+        this.last.groupBy_links = {}
         this.reset(true)
         // refresh
         if (!noRefresh) this.refresh()
@@ -14901,6 +14932,7 @@ class w2grid extends w2base {
                 if (data.total == null) data.total = -1
                 if (data.records == null) {
                     data.records = []
+                    this.last.groupBy_links = {}
                 }
                 if (data.records.length == this.limit) {
                     let loaded = this.records.length + data.records.length
@@ -14916,6 +14948,7 @@ class w2grid extends w2base {
                 if (this.last.fetch.offset === 0) {
                     this.records = []
                     this.summary = []
+                    this.last.groupBy_links = {}
                 } else {
                     if (data.total != -1 && parseInt(data.total) != parseInt(this.total)) {
                         let grid = this
@@ -14944,6 +14977,10 @@ class w2grid extends w2base {
                         }
                     })
                 }
+                if (data.groupBy != null) {
+                    this.groupBy = data.groupBy
+                }
+                this.processGroupBy()
                 // summary records (if any)
                 if (data.summary) {
                     this.summary = [] // reset summary with each call
@@ -20615,7 +20652,7 @@ class w2grid extends w2base {
             let tmp  = this.records[ind].w2ui
             let col  = this.columns[col_ind]
             let span = (tmp && tmp.colspan && col != null && !isNaN(tmp.colspan[col.field]) ? parseInt(tmp.colspan[col.field]) : 1)
-            if (span === 0) {
+            if (span === 0 || tmp.selectable === false) {
                 ret = this.nextRow(ind, col_ind, numRows)
             } else {
                 ret = ind
@@ -20641,8 +20678,9 @@ class w2grid extends w2base {
             let tmp  = this.records[ind].w2ui
             let col  = this.columns[col_ind]
             let span = (tmp && tmp.colspan && col != null && !isNaN(tmp.colspan[col.field]) ? parseInt(tmp.colspan[col.field]) : 1)
-            if (span === 0) {
+            if (span === 0 || tmp.selectable === false) {
                 ret = this.prevRow(ind, col_ind, numRows)
+                if (ret == null) ret = arguments[0]
             } else {
                 ret = ind
             }
