@@ -220,9 +220,9 @@ class w2form extends w2base {
                     let ignore = ['html']
                     if (fld.html == null) fld.html = {}
                     Object.keys(fld).forEach((key => {
-                        if (ignore.indexOf(key) != -1) return
+                        if (ignore.includes(key)) return
                         if (['label', 'attr', 'style', 'text', 'span', 'page', 'column', 'anchor',
-                            'group', 'groupStyle', 'groupTitleStyle', 'groupCollapsible'].indexOf(key) != -1) {
+                            'group', 'groupStyle', 'groupTitleStyle', 'groupCollapsible'].includes(key)) {
                             fld.html[key] = fld[key]
                             delete fld[key]
                         }
@@ -233,8 +233,8 @@ class w2form extends w2base {
                 function _process2(fld, fld2) {
                     let ignore = ['style', 'html']
                     Object.keys(fld).forEach((key => {
-                        if (ignore.indexOf(key) != -1) return
-                        if (['span', 'column', 'attr', 'text', 'label'].indexOf(key) != -1) {
+                        if (ignore.includes(key)) return
+                        if (['span', 'column', 'attr', 'text', 'label'].includes(key)) {
                             if (fld[key] && !fld2.html[key]) {
                                 fld2.html[key] = fld[key]
                             }
@@ -396,7 +396,7 @@ class w2form extends w2base {
             current = el.checked
         }
         // check list
-        if (['check', 'checks'].indexOf(field.type) !== -1) {
+        if (['check', 'checks'].includes(field.type)) {
             current = []
             let selected = query(el).closest('.w2ui-field-group').find('input:checked')
             if (selected.length > 0) {
@@ -868,7 +868,7 @@ class w2form extends w2base {
                 continue
             }
             if (this.getValue(field.field) == null) this.setValue(field.field, '')
-            if (['int', 'float', 'currency', 'money'].indexOf(field.type) != -1) {
+            if (['int', 'float', 'currency', 'money'].includes(field.type)) {
                 let val = this.getValue(field.field)
                 let min = field.options.min
                 let max = field.options.max
@@ -1044,7 +1044,7 @@ class w2form extends w2base {
             if (fld.type == 'columns' || fld.field == null) {
                 return
             }
-            if (['list', 'combo', 'enum'].indexOf(fld.type) != -1) {
+            if (['list', 'combo', 'enum'].includes(fld.type)) {
                 let tmp = { nestedFields: true, record: data }
                 let val = this.getValue.call(tmp, fld.field)
                 if (w2utils.isPlainObject(val) && val.id != null) { // should be true if val.id === ''
@@ -1640,7 +1640,7 @@ class w2form extends w2base {
                     if (act.class) info.class = act.class
                 } else {
                     info.text = a
-                    if (['save', 'update', 'create'].indexOf(a.toLowerCase()) !== -1) info.class = 'w2ui-btn-blue'; else info.class = ''
+                    if (['save', 'update', 'create'].includes(a.toLowerCase())) info.class = 'w2ui-btn-blue'; else info.class = ''
                 }
                 buttons += '\n    <button name="'+ a +'" class="w2ui-btn '+ info.class +'" style="'+ info.style +'" tabindex="'+ tabindex +'">'+
                                         w2utils.lang(info.text) +'</button>'

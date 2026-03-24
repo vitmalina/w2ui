@@ -193,7 +193,7 @@
     &.w2ui-required > div {
         position: relative;
     }
-    &.w2ui-required:not(.w2ui-field-inline) > div::before {
+    &.w2ui-required:not(.w2ui-field-inline, .w2ui-span-none) > div::before {
         content: '*';
         position: absolute;
         margin-top: 7px;
@@ -201,6 +201,10 @@
         color: @form-required-color;
     }
     &.w2ui-required.w2ui-field-inline > div .w2ui-inline-label::after {
+        content: '*';
+        color: @form-required-color;
+    }
+    &.w2ui-required.w2ui-span-none > label::after {
         content: '*';
         color: @form-required-color;
     }
