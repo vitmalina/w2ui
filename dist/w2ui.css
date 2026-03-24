@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (7/4/2025, 6:27:39 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (3/24/2026, 11:42:37 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -1824,7 +1824,7 @@ button.w2ui-btn:disabled {
 .w2ui-field.w2ui-required > div {
   position: relative;
 }
-.w2ui-field.w2ui-required:not(.w2ui-field-inline) > div::before {
+.w2ui-field.w2ui-required:not(.w2ui-field-inline, .w2ui-span-none) > div::before {
   content: '*';
   position: absolute;
   margin-top: 7px;
@@ -1832,6 +1832,10 @@ button.w2ui-btn:disabled {
   color: red;
 }
 .w2ui-field.w2ui-required.w2ui-field-inline > div .w2ui-inline-label::after {
+  content: '*';
+  color: red;
+}
+.w2ui-field.w2ui-required.w2ui-span-none > label::after {
   content: '*';
   color: red;
 }
@@ -3950,6 +3954,9 @@ textarea.w2ui-error {
   border-bottom: 2px solid #0175ff;
   margin-bottom: 0px;
 }
+.w2ui-tabs .w2ui-scroll-wrapper .w2ui-tab.active .w2ui-tab-icon {
+  color: #0175ff;
+}
 .w2ui-tabs .w2ui-scroll-wrapper .w2ui-tab:hover {
   background-color: #dfe1e630;
 }
@@ -3962,6 +3969,13 @@ textarea.w2ui-error {
 }
 .w2ui-tabs .w2ui-scroll-wrapper .w2ui-tab.closable {
   padding: 6px 28px 6px 20px;
+}
+.w2ui-tabs .w2ui-scroll-wrapper .w2ui-tab .w2ui-tab-icon {
+  color: #888889;
+  margin-right: 8px;
+  display: inline-block;
+  font-size: 13px;
+  margin-top: -1px;
 }
 .w2ui-tabs .w2ui-scroll-wrapper .w2ui-tab .w2ui-tab-close {
   position: absolute;
