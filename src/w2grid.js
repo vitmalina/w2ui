@@ -682,6 +682,9 @@ class w2grid extends w2base {
             }
         })
         this.records = new_records
+        if (this.total !== -1) {
+            this.total = this.records.length
+        }
     }
 
     addColumn(before, columns) {
