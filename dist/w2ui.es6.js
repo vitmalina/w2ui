@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (3/24/2026, 12:08:13 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (3/31/2026, 4:06:38 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -5863,7 +5863,8 @@ class MenuTooltip extends Tooltip {
             })
             .on(`${mdown}.w2menu`, { delegate: '.w2ui-menu-item' }, event => {
                 let dt = event.delegate.dataset
-                this.menuDown(overlay, event, dt.index, dt.parents)
+                let parents = query(event.delegate).closest('.w2ui-menu').data('parents')
+                this.menuDown(overlay, event, dt.index, parents)
                 if (w2utils.isMobile) {
                     // need it for mobile so that it would not generate onclick (items under menu receive focus)
                     event.preventDefault()
@@ -5871,7 +5872,8 @@ class MenuTooltip extends Tooltip {
             })
             .on(`${mclick}.w2menu`, { delegate: '.w2ui-menu-item' }, event => {
                 let dt = event.delegate.dataset
-                this.menuClick(overlay, event, parseInt(dt.index), dt.parents)
+                let parents = query(event.delegate).closest('.w2ui-menu').data('parents')
+                this.menuClick(overlay, event, parseInt(dt.index), parents)
             })
             .find('.w2ui-menu-item')
             .off('.w2menu')
@@ -6562,12 +6564,6 @@ class MenuTooltip extends Tooltip {
         let items   = options.items
         let icon    = query(event.delegate).find('.w2ui-icon')
         let menu    = query(event.target).closest('.w2ui-menu:not(.w2ui-sub-menu)')
-        if (typeof parents == 'string' && parents !== '') {
-            let ids = parents.split('-')
-            ids.forEach(id => {
-                items = items[id].items
-            })
-        }
         if (typeof items == 'function') {
             items = items({ overlay, index, parents, event })
         }
@@ -6626,17 +6622,6 @@ class MenuTooltip extends Tooltip {
         if (event.shiftKey || event.metaKey || event.ctrlKey) {
             keepOpen = true
         }
-        if (typeof parents == 'string' && parents !== '') {
-            parents = parents.split('-')
-        } else if (!Array.isArray(parents)) {
-            parents = null
-        }
-        // parse through parents to get to right items
-        if (parents) {
-            parents.forEach(id => {
-                items = items[id].items
-            })
-        }
         if (typeof items == 'function') {
             items = items({ overlay, index, parents, event })
         }
@@ -6656,7 +6641,7 @@ class MenuTooltip extends Tooltip {
         if (query(event.target).hasClass('menu-remove')) {
             edata = topOverlay.trigger('remove', {
                 originalEvent: event, target: overlay.name, overlay, topOverlay, parentOverlay,
-                item, index, el: $item[0]
+                item, index, el: $item[0], parents
             })
             if (edata.isCancelled === true) {
                 return
@@ -6681,7 +6666,7 @@ class MenuTooltip extends Tooltip {
         } else if ($item.hasClass('has-sub-menu')) {
             edata = topOverlay.trigger('subMenu', {
                 originalEvent: event, target: overlay.name, overlay, topOverlay, parentOverlay,
-                item, index, el: $item[0]
+                item, index, el: $item[0], parents
             })
             if (edata.isCancelled === true) {
                 return
@@ -6694,7 +6679,7 @@ class MenuTooltip extends Tooltip {
             overlay.selected = isNaN(a_index) ? a_index: parseInt(a_index)
             edata = topOverlay.trigger('select', {
                 originalEvent: event, target: overlay.name, overlay, topOverlay, parentOverlay,
-                item, index, selected, keepOpen, el: $item[0]
+                item, index, selected, keepOpen, el: $item[0], parents
             })
             if (edata.isCancelled === true) {
                 return
@@ -12590,6 +12575,9 @@ class w2grid extends w2base {
             }
         })
         this.records = new_records
+        if (this.total !== -1) {
+            this.total = this.records.length
+        }
     }
     addColumn(before, columns) {
         let added = 0
