@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (3/31/2026, 4:06:38 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (4/2/2026, 10:20:52 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -22815,6 +22815,7 @@ class w2form extends w2base {
                             curr.find('.value').prop('readOnly', field.disabled ? true : false)
                         }
                         // attach events
+                        let lastKey = null
                         let container = query(field.el).get(0)?.nextSibling // should be div
                         query(container)
                             .off('.mapChange')
@@ -22831,7 +22832,9 @@ class w2form extends w2base {
                                 let $div = query(event.target).closest('.w2ui-map-field')
                                 let next = $div.get(0).nextElementSibling
                                 let prev = $div.get(0).previousElementSibling
+                                lastKey = null
                                 if (event.keyCode == 13) {
+                                    lastKey = 'enter'
                                     let el = keepFocus ?? next
                                     if (el instanceof HTMLElement) {
                                         let inp = query(el).find('input')
@@ -22843,28 +22846,21 @@ class w2form extends w2base {
                                 }
                                 let className = query(event.target).hasClass('key') ? 'key' : 'value'
                                 if (event.keyCode == 38 && prev) { // up key
-                                    query(prev).find(`input.${className}, input[name="${event.target.name}"]`).get(0).select()
+                                    lastKey = 'up'
+                                    query(prev).find(`input.${className}, input[name="${event.target.name}"]`).get(0)?.select()
                                     event.preventDefault()
                                 }
                                 if (event.keyCode == 40 && next) { // down key
+                                    lastKey = 'down'
                                     event.target.blur() // blur is neeeded because because it will trigger change which will re-render fields
                                     let next = $div.get(0).nextElementSibling // need to query it again because it was re-rendered
-                                    query(next).find(`input.${className}, input[name="${event.target.name}"]`).get(0).select()
+                                    query(next).find(`input.${className}, input[name="${event.target.name}"]`).get(0)?.select()
                                     event.preventDefault()
                                 }
                             })
                             .on('keydown.mapChange', 'input', function(event) {
                                 if (event.keyCode == 9) { // tab
-                                    /**
-                                     * In some cases, when elements are added dynamically after element was focused, hitting tab would not
-                                     * consider newly created elements are focusable, therefore we check here if focus goes to body on tab key
-                                     * then move it next input
-                                     */
-                                    setTimeout(() => {
-                                        if (document.activeElement?.tagName == 'BODY') {
-                                            query(event.target.parentNode).next().find('input').get(0)?.focus()
-                                        }
-                                    }, 10)
+                                    lastKey = 'tab'
                                 }
                                 if (event.keyCode == 38 || event.keyCode == 40) {
                                     event.preventDefault()
@@ -22916,9 +22912,28 @@ class w2form extends w2base {
                                 }
                                 if (query(event.target).parent().find('input').val() == '') {
                                     keepFocus = event.target
+                                    console.log('keepFocus', keepFocus)
                                 }
-                                self.setValue(field.field, current)
-                                field.el.mapRefresh(current, div)
+                                /**
+                                 * Finds what input had focus so that it can focus next element, as entire map of fields will be
+                                 * re-created and focus will be lost. It will also take care of up/down keys.
+                                 */
+                                let index
+                                let className = query(event.target).hasClass('key') ? 'key' : 'value'
+                                let cnt = query(event.target).closest('.w2ui-map-container')
+                                cnt.find('input.'+ className).each((input, ind) => { if (input == event.target) index = ind })
+                                // set value to the field
+                                self.setValue(field.field, current) // will call field.el.mapRefresh
+                                // set focus to the next input
+                                if (lastKey == 'tab' && cnt.find('input.value').length > 0) {
+                                    if (className == 'key') {
+                                        cnt.find('input.value').get(index).focus()
+                                    } else {
+                                        cnt.find('input.key').get(index + 1).focus()
+                                    }
+                                } else {
+                                    cnt.find('input.'+ className).eq(index + (lastKey == 'up' ? -1 : 1)).get(0).focus()
+                                }
                                 // event after
                                 edata.finish()
                             })
