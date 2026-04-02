@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (4/2/2026, 10:20:52 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (4/2/2026, 10:51:52 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -22706,7 +22706,6 @@ class w2form extends w2base {
             if (['map', 'array'].includes(field.type)) {
                 // need closure
                 (function (obj, field) {
-                    let keepFocus
                     field.el.mapAdd = function(field, div, cnt, empty) {
                         let attr = (field.disabled ? ' readOnly ' : '') + (field.html.tabindex_str || '')
                         let html = `<input type="text" ${(field.html.value.attr ?? '') + attr} class="w2ui-input ${field.html.class ?? ''} w2ui-map value">`
@@ -22832,26 +22831,12 @@ class w2form extends w2base {
                                 let $div = query(event.target).closest('.w2ui-map-field')
                                 let next = $div.get(0).nextElementSibling
                                 let prev = $div.get(0).previousElementSibling
-                                lastKey = null
-                                if (event.keyCode == 13) {
-                                    lastKey = 'enter'
-                                    let el = keepFocus ?? next
-                                    if (el instanceof HTMLElement) {
-                                        let inp = query(el).find('input')
-                                        if (inp.length > 0) {
-                                            inp.get(0).focus()
-                                        }
-                                    }
-                                    keepFocus = undefined
-                                }
                                 let className = query(event.target).hasClass('key') ? 'key' : 'value'
                                 if (event.keyCode == 38 && prev) { // up key
-                                    lastKey = 'up'
                                     query(prev).find(`input.${className}, input[name="${event.target.name}"]`).get(0)?.select()
                                     event.preventDefault()
                                 }
                                 if (event.keyCode == 40 && next) { // down key
-                                    lastKey = 'down'
                                     event.target.blur() // blur is neeeded because because it will trigger change which will re-render fields
                                     let next = $div.get(0).nextElementSibling // need to query it again because it was re-rendered
                                     query(next).find(`input.${className}, input[name="${event.target.name}"]`).get(0)?.select()
@@ -22859,10 +22844,15 @@ class w2form extends w2base {
                                 }
                             })
                             .on('keydown.mapChange', 'input', function(event) {
+                                lastKey = null
                                 if (event.keyCode == 9) { // tab
                                     lastKey = 'tab'
                                 }
+                                if (event.keyCode == 13) { // enter
+                                    lastKey = 'enter'
+                                }
                                 if (event.keyCode == 38 || event.keyCode == 40) {
+                                    lastKey = event.keyCode == 38 ? 'up' : 'down'
                                     event.preventDefault()
                                 }
                             })
@@ -22910,10 +22900,6 @@ class w2form extends w2base {
                                 if (edata.isCancelled === true) {
                                     return
                                 }
-                                if (query(event.target).parent().find('input').val() == '') {
-                                    keepFocus = event.target
-                                    console.log('keepFocus', keepFocus)
-                                }
                                 /**
                                  * Finds what input had focus so that it can focus next element, as entire map of fields will be
                                  * re-created and focus will be lost. It will also take care of up/down keys.
@@ -22926,13 +22912,21 @@ class w2form extends w2base {
                                 self.setValue(field.field, current) // will call field.el.mapRefresh
                                 // set focus to the next input
                                 if (lastKey == 'tab' && cnt.find('input.value').length > 0) {
+                                    let el
                                     if (className == 'key') {
-                                        cnt.find('input.value').get(index).focus()
+                                        el = cnt.find('input.value').get(index)
                                     } else {
-                                        cnt.find('input.key').get(index + 1).focus()
+                                        el = cnt.find('input.key').get(index + 1)
                                     }
+                                    if (el == null) {
+                                        el = cnt.find('input').get(index + (event.shiftKey ? -1 : 1))
+                                    }
+                                    el.focus()
+                                    el.select()
                                 } else {
-                                    cnt.find('input.'+ className).eq(index + (lastKey == 'up' ? -1 : 1)).get(0).focus()
+                                    let el = cnt.find('input.'+ className).eq(index + (lastKey == 'up' ? -1 : 1)).get(0)
+                                    el.focus()
+                                    el.select()
                                 }
                                 // event after
                                 edata.finish()
