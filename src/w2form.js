@@ -435,7 +435,7 @@ class w2form extends w2base {
                 let value = query(div).find('.w2ui-map.value').val()
                 if (typeof field.html?.render == 'function') {
                     current[ind] ??= {}
-                    query(div).find('input').each(inp => {
+                    query(div).find('input, textarea').each(inp => {
                         let name = inp.dataset.name ?? inp.name
                         if (name != null && name != '') {
                             current[ind][name] = ['checkbox', 'radio'].includes(inp.type) ? inp.checked : inp.value
@@ -2054,7 +2054,7 @@ class w2form extends w2base {
                             html = field.html.render.call(self, { empty: empty === true, ind: cnt, field, div })
                             // make sure all inputs have names as it is important for array objects
                             if (!field.el._errorDisplayed) {
-                                query.html(html).filter('input').each(inp => {
+                                query.html(html).filter('input, textarea').each(inp => {
                                     let name = inp.dataset.name ?? inp.name
                                     if (name == null || name == '') {
                                         console.log(`ERROR: All inputs of the field %c"${field.name}"%c must have name attribute defined. No name for %c${inp.outerHTML}`,
@@ -2072,7 +2072,7 @@ class w2form extends w2base {
                         div.append(`<div class="w2ui-map-field" style="margin-bottom: 5px" data-index="${cnt}">${html}</div>`)
                         if (typeof field.html.render == 'function') {
                             let box = div.find(`[data-index="${cnt}"]`)
-                            box.find('input').each(el => {
+                            box.find('input, textarea').each(el => {
                                 // set only if it is not defined in the HTML
                                 if (query(el).attr('tabindex') == null) {
                                     query(el).attr('tabindex', field.html.tabindex)
@@ -2108,7 +2108,7 @@ class w2form extends w2base {
                             fld.attr('data-key', key)
                             if (typeof field.html?.render == 'function') {
                                 let val = map[key]
-                                fld.find('input').each(inp => {
+                                fld.find('input, textarea').each(inp => {
                                     let name = inp.dataset.name ?? inp.name // <input data-name="higher priority" name="then">
                                     if (inp.type == 'checkbox') {
                                         inp.checked = val[name] ?? false
@@ -2158,7 +2158,7 @@ class w2form extends w2base {
                         let container = query(field.el).get(0)?.nextSibling // should be div
                         query(container)
                             .off('.mapChange')
-                            .on('mouseup.mapChange', 'input', function (event) {
+                            .on('mouseup.mapChange', 'input, textarea', function (event) {
                                 /***
                                  * This hack is needed for the cases when this field is refreshed and focus in bettween of mousedown and mouse up.
                                  * In such a case, the field will not get focused, but should be as there was mouse click.
@@ -2167,23 +2167,23 @@ class w2form extends w2base {
                                     event.target.focus()
                                 }
                             })
-                            .on('keyup.mapChange', 'input', function(event) {
+                            .on('keyup.mapChange', 'input, textarea', function(event) {
                                 let $div = query(event.target).closest('.w2ui-map-field')
                                 let next = $div.get(0).nextElementSibling
                                 let prev = $div.get(0).previousElementSibling
                                 let className = query(event.target).hasClass('key') ? 'key' : 'value'
                                 if (event.keyCode == 38 && prev) { // up key
-                                    query(prev).find(`input.${className}, input[name="${event.target.name}"]`).get(0)?.select()
+                                    query(prev).find(`input.${className}, textarea.${className}, input[name="${event.target.name}"] textarea[name="${event.target.name}"]`).get(0)?.select()
                                     event.preventDefault()
                                 }
                                 if (event.keyCode == 40 && next) { // down key
                                     event.target.blur() // blur is neeeded because because it will trigger change which will re-render fields
                                     let next = $div.get(0).nextElementSibling // need to query it again because it was re-rendered
-                                    query(next).find(`input.${className}, input[name="${event.target.name}"]`).get(0)?.select()
+                                    query(next).find(`input.${className}, textarea.${className}, input[name="${event.target.name}"] textarea[name="${event.target.name}"]`).get(0)?.select()
                                     event.preventDefault()
                                 }
                             })
-                            .on('keydown.mapChange', 'input', function(event) {
+                            .on('keydown.mapChange', 'input, textarea', function(event) {
                                 lastKey = null
                                 if (event.keyCode == 9) { // tab
                                     lastKey = 'tab'
@@ -2196,17 +2196,17 @@ class w2form extends w2base {
                                     event.preventDefault()
                                 }
                             })
-                            .on('input.mapChange', 'input', function(event) {
-                                let fld = query(event.target).closest('div')
+                            .on('input.mapChange', 'input, textarea', function(event) {
+                                let fld = query(event.target).closest('div.w2ui-map-field')
                                 let cnt = fld.data('index')
                                 let next = fld.get(0).nextElementSibling
                                 // if last one, add new empty
                                 let isEmpty = true
-                                query(fld).find('input').each(el => {
+                                query(fld).find('input, textarea').each(el => {
                                     if (!['checkbox', 'button'].includes(el.type) && el.value != '') isEmpty = false
                                 })
                                 let isNextEmpty = true
-                                query(next).find('input').each(el => {
+                                query(next).find('input, textarea').each(el => {
                                     if (!['checkbox', 'button'].includes(el.type) && el.value != '') isNextEmpty = false
                                 })
                                 if (!isEmpty && !next) {
@@ -2215,7 +2215,7 @@ class w2form extends w2base {
                                     query(next).remove()
                                 }
                             })
-                            .on('change.mapChange', 'input', function(event) {
+                            .on('change.mapChange', 'input, textarea', function(event) {
                                 self.rememberOriginal()
                                 // event before
                                 let { current, previous, original } = self.getFieldValue(field.field)
@@ -2246,27 +2246,35 @@ class w2form extends w2base {
                                  * re-created and focus will be lost. It will also take care of up/down keys.
                                  */
                                 let index
-                                let className = query(event.target).hasClass('key') ? 'key' : 'value'
+                                let className = ''
                                 let cnt = query(event.target).closest('.w2ui-map-container')
-                                cnt.find('input.'+ className).each((input, ind) => { if (input == event.target) index = ind })
+                                if (field.type == 'array' || lastKey == 'tab') {
+                                    cnt.find('input, textarea').each((input, ind) => { if (input == event.target) index = ind })
+                                } else {
+                                    className = query(event.target).hasClass('key') ? '.key' : '.value'
+                                    cnt.find('input'+ className + ', textarea'+ className).each((input, ind) => { if (input == event.target) index = ind })
+                                }
 
                                 // set value to the field
                                 self.setValue(field.field, current) // will call field.el.mapRefresh
+
                                 // set focus to the next input
-                                if (lastKey == 'tab' && cnt.find('input.value').length > 0) {
-                                    let el
-                                    if (className == 'key') {
-                                        el = cnt.find('input.value').get(index)
+                                let el
+                                if (lastKey == 'tab') {
+                                    el = cnt.find('input, textarea').get(index + 1)
+                                } else if (lastKey == 'enter' && cnt.find('input.value, textarea.value').length > 0) {
+                                    if (className == '.key') {
+                                        el = cnt.find('input.key, textarea.key').get(index + 1)
                                     } else {
-                                        el = cnt.find('input.key').get(index + 1)
+                                        el = cnt.find('input.value, textarea.value').get(index + 1)
                                     }
                                     if (el == null) {
-                                        el = cnt.find('input').get(index + (event.shiftKey ? -1 : 1))
+                                        el = cnt.find('input, textarea').get(index + (event.shiftKey ? -1 : 1))
                                     }
-                                    el.focus()
-                                    el.select()
                                 } else {
-                                    let el = cnt.find('input.'+ className).eq(index + (lastKey == 'up' ? -1 : 1)).get(0)
+                                    el = cnt.find('input'+ className + ', textarea'+ className).eq(index + (lastKey == 'up' ? -1 : 1)).get(0)
+                                }
+                                if (el) {
                                     el.focus()
                                     el.select()
                                 }

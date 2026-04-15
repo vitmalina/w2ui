@@ -78,9 +78,13 @@ let form = new w2form({
                 render(options) {
                     let { ind } = options
                     return `
-                        <input type="text" name="item" placeholder="Item..." class="w2ui-input">
-                        <input type="text" name="name" placeholder="Name..." class="w2ui-input">
-                        <button class="w2ui-btn w2ui-btn-small delete">X</button>
+                        <div style="display: flex; gap: 5px;">
+                            <textarea type="text" data-name="item" placeholder="Item..." class="w2ui-input"
+                                style="width: 48%; height: 40px; font-family: Arial"></textarea>
+                            <textarea type="text" data-name="color" placeholder="Name..." class="w2ui-input"
+                                style="width: 48%; height: 40px; font-family: Arial"></textarea>
+                            <button class="w2ui-btn w2ui-btn-small delete" style="width: 28px; height: 28px">X</button
+                        </div>
                     `
                 },
                 onRefresh(event) {
