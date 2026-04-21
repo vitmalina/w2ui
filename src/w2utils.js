@@ -20,6 +20,7 @@
  *  - w2utils.debounce
  *  - w2utils.prepareParams
  *  - w2utils.getStrHeight
+ *  - w2utils.getStrDimentions
  *  - w2utils.alrert() - same as w2utils.message()
  *  - w2utils.prompt() - similar to w2prompt
  *  - w2utils.normMenu(..., options) got options parameter that can have itemMap
@@ -1629,7 +1630,7 @@ class Utils {
         return ret
     }
 
-    getStrWidth(str, styles, raw) {
+    getStrDimentions(str, styles, raw) {
         let div = query('body > #_tmp_width')
         if (div.length === 0) {
             query('body').append('<div id="_tmp_width" style="position: absolute; top: -9000px;"></div>')
@@ -1639,17 +1640,18 @@ class Utils {
             raw = true
         }
         div.html(raw ? str : this.encodeTags(str ?? '')).attr('style', `position: absolute; top: -9000px; ${styles || ''}`)
-        return div[0].clientWidth
+        let width = div[0].clientWidth
+        let height = div[0].clientHeight
+        div.html('')
+        return { width, height }
+    }
+
+    getStrWidth(str, styles, raw) {
+        return this.getStrDimentions(str, styles, raw).width
     }
 
     getStrHeight(str, styles, raw) {
-        let div = query('body > #_tmp_width')
-        if (div.length === 0) {
-            query('body').append('<div id="_tmp_width" style="position: absolute; top: -9000px;"></div>')
-            div = query('body > #_tmp_width')
-        }
-        div.html(raw ? str : this.encodeTags(str ?? '')).attr('style', `position: absolute; top: -9000px; ${styles || ''}`)
-        return div[0].clientHeight
+        return this.getStrDimentions(str, styles, raw).height
     }
 
     execTemplate(str, replace_obj) {
