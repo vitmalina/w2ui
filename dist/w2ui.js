@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (4/15/2026, 3:53:24 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (4/21/2026, 7:44:53 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -2553,6 +2553,9 @@ class Utils {
             query('body').append('<div id="_tmp_width" style="position: absolute; top: -9000px;"></div>')
             div = query('body > #_tmp_width')
         }
+        if (raw === undefined && str.trim().startsWith('<') && str.trim().endsWith('>')) {
+            raw = true
+        }
         div.html(raw ? str : this.encodeTags(str ?? '')).attr('style', `position: absolute; top: -9000px; ${styles || ''}`)
         return div[0].clientWidth
     }
@@ -4345,8 +4348,6 @@ class Tooltip {
             offsetY         : 0,        // delta for top coordinate
             maxWidth        : null,     // max width
             maxHeight       : null,     // max height
-            watchScroll     : null,     // attach to onScroll event // TODO:
-            watchResize     : null,     // attach to onResize event // TODO:
             hideOn          : null,     // events when to hide tooltip, ['doc-click', 'tooltip-click', 'focus-change', 'select', 'item-remove', ... or any standard event on the anchor],
             onThen          : null,     // called when displayed
             onShow          : null,     // callBack when shown
@@ -4590,7 +4591,14 @@ class Tooltip {
         let isVertical = ['top', 'bottom'].includes(position[0])
         // enforce nowrap only when align=both and vertical
         let overlayStyles = (options.align == 'both' && isVertical ? '' : 'white-space: nowrap;')
-        if (options.maxWidth && w2utils.getStrWidth(options.html, '') > options.maxWidth) {
+        /**
+         * If max-width is set in the html, then use it to calculate the width of the tooltip. This is needed to avoid
+         * slow expansion of the tooltip bug.
+         */
+        if (options.maxWidth == null && /^<div[^>]*style=["'][^"']*max-width[^"']*["'][^>]*>/i.test(options.html?.trim?.() ?? '')) {
+            options.maxWidth = w2utils.getStrWidth(options.html, '', true)
+        }
+        if (options.maxWidth && w2utils.getStrWidth(options.html, '', true) >= options.maxWidth) {
             overlayStyles = 'width: '+ options.maxWidth + 'px; white-space: inherit; overflow: auto;'
         }
         overlayStyles += ' max-height: '+ (options.maxHeight ? options.maxHeight : window.innerHeight - 4) + 'px;'
@@ -4769,10 +4777,6 @@ class Tooltip {
         overlay.tmp.observeTooltipResize?.disconnect()
         overlay.tmp.observeAnchorResize?.disconnect()
         overlay.tmp.observeAnchorMove?.disconnect()
-        if (overlay.options.watchScroll) {
-            query(overlay.options.watchScroll)
-                .off('.w2scroll-' + overlay.name)
-        }
         // if no active tooltip then disable observeRemove
         let cnt = 0
         Object.keys(Tooltip.active).forEach(key => {
