@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (4/21/2026, 11:38:06 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (4/21/2026, 4:07:35 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -12217,9 +12217,9 @@ class w2grid extends w2base {
             'enum'    : ['in', 'not in']
             // -- all possible
             // "text"    : ['is', 'begins', 'contains', 'ends'],
-            // "number"  : ['is', 'between', 'less:less than', 'more:more than', 'null:is null', 'not null:is not null'],
-            // "list"    : ['is', 'null:is null', 'not null:is not null'],
-            // "enum"    : ['in', 'not in', 'null:is null', 'not null:is not null']
+            // "number"  : ['is', 'between', 'less', 'more', 'null', 'not null'],
+            // "list"    : ['is', 'null', 'not null'],
+            // "enum"    : ['in', 'not in', 'null', 'not null']
         }
         this.defaultOperator = {
             'text'    : 'begins',
@@ -14269,14 +14269,18 @@ class w2grid extends w2base {
             overlay
                 .data('gridName', this.name)
                 .off('.grid-search')
-                .on('click.grid-search', () => {
-                // hide any tooltip opened by searches
+                .on('click.grid-search', (event) => {
+                    // hide any tooltip opened by searches
                     overlay.find('input, select').each(el => {
                         let names = query(el).data('tooltipName')
                         if (names) names.forEach(name => {
                             w2tooltip.hide(name)
                         })
                     })
+                    console.log(event.target)
+                    if (!query(event.target).hasClass('w2ui-saved-searches')) {
+                        w2tooltip.hide(this.name + '-search-suggest')
+                    }
                 })
             w2utils.bindEvents(overlay.find('select, input, button'), this)
             // init first field
@@ -14350,12 +14354,12 @@ class w2grid extends w2base {
         })
     }
     // drop down with save searches
-    searchSuggest(imediate, forceHide, input) {
+    searchSuggest(imediate, forceHide, anchor) {
         clearTimeout(this.last.kbd_timer)
         clearTimeout(this.last.overlay_timer)
         this.searchShowFields(true)
-        this.searchClose()
-        if (forceHide === true) {
+        if (anchor == null) this.searchClose()
+        if (forceHide === true || (anchor != null && query(`#w2overlay-${this.name}-search-suggest`).length > 0)) {
             w2tooltip.hide(this.name + '-search-suggest')
             return
         }
@@ -14367,7 +14371,7 @@ class w2grid extends w2base {
             this.last.overlay_timer = setTimeout(() => { this.searchSuggest(true) }, 100)
             return
         }
-        let el = query(this.box).find(`#grid_${this.name}_search_all`).get(0)
+        let el = anchor ?? query(this.box).find(`#grid_${this.name}_search_all`).get(0)
         let searches = [
             ...this.defaultSearches ?? [],
             ...this.defaultSearches?.length > 0 && this.savedSearches?.length > 0 ? ['--'] : [],
@@ -14377,7 +14381,7 @@ class w2grid extends w2base {
             w2menu.show({
                 name: this.name + '-search-suggest',
                 anchor: el,
-                align: 'both',
+                align: anchor != null ? 'left' : 'both',
                 items: searches,
                 selected: false,
                 filter: true,
@@ -14415,6 +14419,7 @@ class w2grid extends w2base {
                     return
                 }
                 queueMicrotask(() => event.detail.overlay.hide())
+                w2tooltip.hide(this.name + '-search-overlay')
                 this.confirm(w2utils.lang('Do you want to delete search "${item}"?', { item: item.text }))
                     .yes(evt => {
                         // remove from searches
@@ -17240,6 +17245,8 @@ class w2grid extends w2base {
                         if (oper.substr(0, 5) == 'more:') {
                             oper = 'since'
                         }
+                        if (oper == 'null') dsp = ''
+                        if (oper == 'not null') dsp = ''
                         display = `: ${oper} ${dsp}`
                     }
                 }
@@ -18977,6 +18984,10 @@ class w2grid extends w2base {
         let html = `
             <div class="search-title">
                 ${w2utils.lang('Advanced Search')}
+                ${this.savedSearches?.length > 0
+                    ? `<button class="w2ui-btn w2ui-saved-searches" data-click="searchSuggest|true|false|this">Saved Searches (${this.savedSearches?.length ?? 0})</button>`
+                    : ''
+                }
                 <span class="search-logic" style="${this.show.searchLogic ? '' : 'display: none'}">
                     <select id="grid_${this.name}_logic" class="w2ui-input">
                         <option value="AND" ${this.last.logic == 'AND' ? 'selected' : ''}>${w2utils.lang('All')}</option>
@@ -19248,7 +19259,7 @@ class w2grid extends w2base {
             // operators
             let operator  = search.operator
             let operators = [...this.operators[this.operatorsMap[search.type]]] || [] // need a copy
-            if (search.operators) operators = search.operators
+            if (search.operators) operators = [...search.operators] // need a copy as this variable will be changed
             // normalize
             if (w2utils.isPlainObject(operator)) operator = operator.oper
             operators.forEach((oper, ind) => {

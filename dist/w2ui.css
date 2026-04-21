@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (3/24/2026, 11:42:37 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (4/21/2026, 3:50:39 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -3184,6 +3184,29 @@ textarea.w2ui-error {
 .w2ui-info-bubble table tr td:last-child {
   white-space: pre;
   padding: 2px;
+}
+.w2ui-overlay .w2ui-saved-searches {
+  border-radius: 3px;
+  background-color: #f8f8f8;
+  background-image: none;
+  border-color: #e0e0e0;
+  padding: 7px 26px 7px 16px;
+}
+.w2ui-overlay .w2ui-saved-searches:hover {
+  background-color: #fcfcfc;
+  background-image: none;
+}
+.w2ui-overlay .w2ui-saved-searches:after {
+  content: '▼';
+  position: absolute;
+  display: inline-block;
+  color: #666;
+  font-size: 8px;
+  margin-left: 10px;
+  margin-top: 1px;
+}
+.w2ui-overlay .w2ui-saved-searches:focus:before {
+  display: none;
 }
 .w2ui-overlay .w2ui-grid-search-suggest {
   border-top-left-radius: 5px;
