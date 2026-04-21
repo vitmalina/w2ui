@@ -2429,14 +2429,18 @@ class w2grid extends w2base {
             overlay
                 .data('gridName', this.name)
                 .off('.grid-search')
-                .on('click.grid-search', () => {
-                // hide any tooltip opened by searches
+                .on('click.grid-search', (event) => {
+                    // hide any tooltip opened by searches
                     overlay.find('input, select').each(el => {
                         let names = query(el).data('tooltipName')
                         if (names) names.forEach(name => {
                             w2tooltip.hide(name)
                         })
                     })
+                    console.log(event.target)
+                    if (!query(event.target).hasClass('w2ui-saved-searches')) {
+                        w2tooltip.hide(this.name + '-search-suggest')
+                    }
                 })
             w2utils.bindEvents(overlay.find('select, input, button'), this)
             // init first field
@@ -2514,12 +2518,12 @@ class w2grid extends w2base {
     }
 
     // drop down with save searches
-    searchSuggest(imediate, forceHide, input) {
+    searchSuggest(imediate, forceHide, anchor) {
         clearTimeout(this.last.kbd_timer)
         clearTimeout(this.last.overlay_timer)
         this.searchShowFields(true)
-        this.searchClose()
-        if (forceHide === true) {
+        if (anchor == null) this.searchClose()
+        if (forceHide === true || (anchor != null && query(`#w2overlay-${this.name}-search-suggest`).length > 0)) {
             w2tooltip.hide(this.name + '-search-suggest')
             return
         }
@@ -2532,7 +2536,7 @@ class w2grid extends w2base {
             return
         }
 
-        let el = query(this.box).find(`#grid_${this.name}_search_all`).get(0)
+        let el = anchor ?? query(this.box).find(`#grid_${this.name}_search_all`).get(0)
         let searches = [
             ...this.defaultSearches ?? [],
             ...this.defaultSearches?.length > 0 && this.savedSearches?.length > 0 ? ['--'] : [],
@@ -2542,7 +2546,7 @@ class w2grid extends w2base {
             w2menu.show({
                 name: this.name + '-search-suggest',
                 anchor: el,
-                align: 'both',
+                align: anchor != null ? 'left' : 'both',
                 items: searches,
                 selected: false,
                 filter: true,
@@ -2580,6 +2584,8 @@ class w2grid extends w2base {
                     return
                 }
                 queueMicrotask(() => event.detail.overlay.hide())
+                w2tooltip.hide(this.name + '-search-overlay')
+
                 this.confirm(w2utils.lang('Do you want to delete search "${item}"?', { item: item.text }))
                     .yes(evt => {
                         // remove from searches
@@ -7291,6 +7297,10 @@ class w2grid extends w2base {
         let html = `
             <div class="search-title">
                 ${w2utils.lang('Advanced Search')}
+                ${this.savedSearches?.length > 0
+                    ? `<button class="w2ui-btn w2ui-saved-searches" data-click="searchSuggest|true|false|this">Saved Searches (${this.savedSearches?.length ?? 0})</button>`
+                    : ''
+                }
                 <span class="search-logic" style="${this.show.searchLogic ? '' : 'display: none'}">
                     <select id="grid_${this.name}_logic" class="w2ui-input">
                         <option value="AND" ${this.last.logic == 'AND' ? 'selected' : ''}>${w2utils.lang('All')}</option>

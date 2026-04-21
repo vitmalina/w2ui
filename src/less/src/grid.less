@@ -928,6 +928,33 @@
 // global Search slide down
 .w2ui-overlay {
 
+    .w2ui-saved-searches {
+        border-radius: 3px;
+        background-color: #f8f8f8;
+        background-image: none;
+        border-color: #e0e0e0;
+        padding: 7px 26px 7px 16px;
+
+        &:hover {
+            background-color: #fcfcfc;
+            background-image: none;
+        }
+
+        &:after {
+            content: '▼';
+            position: absolute;
+            display: inline-block;
+            color: #666;
+            font-size: 8px;
+            margin-left: 10px;
+            margin-top: 1px;
+        }
+        &:focus:before {
+            display: none;
+        }
+
+    }
+
     .w2ui-grid-search-suggest {
         border-top-left-radius: 5px;
         border-top-right-radius: 5px;
