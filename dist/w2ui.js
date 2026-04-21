@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (4/21/2026, 7:44:53 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (4/21/2026, 10:24:18 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -4897,6 +4897,9 @@ class Tooltip {
         let isVertical = ['top', 'bottom'].includes(position[0])
         let content = overlay.box.getBoundingClientRect()
         let anchor = overlay.anchor?.getBoundingClientRect?.()
+        // minimal width should be a least content width (avoid slow expansion of the tooltip bug)
+        let min_width = w2utils.getStrWidth(options.html, '', true)
+        if (content.width < min_width) content.width = min_width
         if (overlay.anchor == document.body) {
             // context menu
             let evt = options.originalEvent

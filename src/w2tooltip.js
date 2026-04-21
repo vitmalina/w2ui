@@ -616,6 +616,10 @@ class Tooltip {
         let content = overlay.box.getBoundingClientRect()
         let anchor = overlay.anchor?.getBoundingClientRect?.()
 
+        // minimal width should be a least content width (avoid slow expansion of the tooltip bug)
+        let min_width = w2utils.getStrWidth(options.html, '', true)
+        if (content.width < min_width) content.width = min_width
+
         if (overlay.anchor == document.body) {
             // context menu
             let evt = options.originalEvent
