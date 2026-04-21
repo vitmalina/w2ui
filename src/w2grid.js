@@ -304,9 +304,9 @@ class w2grid extends w2base {
             'enum'    : ['in', 'not in']
             // -- all possible
             // "text"    : ['is', 'begins', 'contains', 'ends'],
-            // "number"  : ['is', 'between', 'less:less than', 'more:more than', 'null:is null', 'not null:is not null'],
-            // "list"    : ['is', 'null:is null', 'not null:is not null'],
-            // "enum"    : ['in', 'not in', 'null:is null', 'not null:is not null']
+            // "number"  : ['is', 'between', 'less', 'more', 'null', 'not null'],
+            // "list"    : ['is', 'null', 'not null'],
+            // "enum"    : ['in', 'not in', 'null', 'not null']
         }
         this.defaultOperator = {
             'text'    : 'begins',
@@ -5487,6 +5487,8 @@ class w2grid extends w2base {
                         if (oper.substr(0, 5) == 'more:') {
                             oper = 'since'
                         }
+                        if (oper == 'null') dsp = ''
+                        if (oper == 'not null') dsp = ''
                         display = `: ${oper} ${dsp}`
                     }
                 }
@@ -7574,7 +7576,7 @@ class w2grid extends w2base {
             // operators
             let operator  = search.operator
             let operators = [...this.operators[this.operatorsMap[search.type]]] || [] // need a copy
-            if (search.operators) operators = search.operators
+            if (search.operators) operators = [...search.operators] // need a copy as this variable will be changed
             // normalize
             if (w2utils.isPlainObject(operator)) operator = operator.oper
             operators.forEach((oper, ind) => {
