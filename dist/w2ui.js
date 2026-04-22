@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (4/21/2026, 4:07:35 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (4/21/2026, 5:38:55 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -9645,7 +9645,7 @@ class w2sidebar extends w2base {
             .html(`<div>
                 <div class="w2ui-sidebar-top"></div>
                 <input id="sidebar_${this.name}_focus" ${(this.tabIndex ? 'tabindex="' + this.tabIndex + '"' : '')}
-                    style="position: absolute; top: 0; right: 0; width: 1px; z-index: -1; opacity: 0"
+                    style="position: absolute; top: 0; right: 1px; width: 1px; z-index: -1; opacity: 0"
                     ${(w2utils.isMobile ? 'readonly' : '')}/>
                 <div class="w2ui-sidebar-body"></div>
                 <div class="w2ui-sidebar-bottom"></div>
@@ -12106,7 +12106,7 @@ class w2grid extends w2base {
         this.hasFocus          = false
         this.autoLoad          = true // for infinite scroll
         this.fixedBody         = true // if false; then grid grows with data
-        this.recordHeight      = 32
+        this.recordHeight      = w2utils.settings?.recordHeight ?? 32
         this.lineNumberWidth   = 34
         this.keyboard          = true
         this.selectType        = 'row' // can be row|cell
