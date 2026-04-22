@@ -188,7 +188,7 @@ class w2grid extends w2base {
         this.hasFocus          = false
         this.autoLoad          = true // for infinite scroll
         this.fixedBody         = true // if false; then grid grows with data
-        this.recordHeight      = 32
+        this.recordHeight      = w2utils.settings?.recordHeight ?? 32
         this.lineNumberWidth   = 34
         this.keyboard          = true
         this.selectType        = 'row' // can be row|cell

@@ -1240,7 +1240,7 @@ class w2sidebar extends w2base {
             .html(`<div>
                 <div class="w2ui-sidebar-top"></div>
                 <input id="sidebar_${this.name}_focus" ${(this.tabIndex ? 'tabindex="' + this.tabIndex + '"' : '')}
-                    style="position: absolute; top: 0; right: 0; width: 1px; z-index: -1; opacity: 0"
+                    style="position: absolute; top: 0; right: 1px; width: 1px; z-index: -1; opacity: 0"
                     ${(w2utils.isMobile ? 'readonly' : '')}/>
                 <div class="w2ui-sidebar-body"></div>
                 <div class="w2ui-sidebar-bottom"></div>
