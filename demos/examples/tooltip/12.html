@@ -63,7 +63,7 @@
     <button class="w2ui-btn" onclick="closeAll()">Close all</button>
 </div>
 <p class="w2ui-label" style="color: #888; max-width: 700px; margin: 0">
-    The color and date panels use the built-in w2color / w2date overlays. Text panels use a drag
+    The color, date, and time panels use the built-in w2color / w2date overlays. Text panels use a drag
     handle in the title bar, same idea as the &quot;Draggable Tooltips&quot; demo, plus a per-panel close control.
 </p>
 
@@ -74,37 +74,45 @@ import { w2utils, w2tooltip, w2color, w2date, query } from '__W2UI_PATH__'
 const names = {
     color: 'multi-overlays-color',
     date: 'multi-overlays-date',
+    time: 'multi-overlays-time',
     note: 'multi-overlays-note',
     tip: 'multi-overlays-tip'
 }
 let lastColor = ''
 
 /** Anchor point (x, y) for body + position:bottom + align:left — matches w2tooltip getPosition. */
-const GRID_COL = 300
-const GRID_ROW = 320
+const H_GAP = 300
+const ROW_GAP = 150
 
 /**
- * 2x2 grid below the Source button: y so overlay tops sit just under the button; x &gt;= button left.
+ * Two rows below the Source button: first row note, tip, color; second row date, time (ROW_GAP below first).
+ * y so overlay tops sit just under the button; x &gt;= button left.
  */
 function gridFromSource() {
     const el = document.getElementById('showSourceCode')
+    const baseY = 120
+    const baseX = 32
     if (!el) {
+        const y0 = baseY
+        const y1 = baseY + ROW_GAP
         return {
-            color: { x: 32, y: 120 },
-            date:  { x: 332, y: 120 },
-            note:  { x: 32, y: 440 },
-            tip:   { x: 332, y: 440 }
+            note:  { x: baseX + 0 * H_GAP, y: y0 },
+            tip:   { x: baseX + 1 * H_GAP, y: y0 },
+            color: { x: baseX + 2 * H_GAP, y: y0 },
+            date:  { x: baseX + 0 * H_GAP, y: y1 },
+            time:  { x: baseX + 1 * H_GAP, y: y1 }
         }
     }
     const r = el.getBoundingClientRect()
     const baseLeft = r.left
-    // bottom placement: top = y + 10 + arrow/1.25 + 1 with arrow 0, height 10  =>  y = bottom - 11 for top ~= r.bottom
-    const yRow0 = Math.round(r.bottom)
+    const y0 = Math.round(r.bottom)
+    const y1 = y0 + ROW_GAP
     return {
-        color: { x: baseLeft, y: yRow0 },
-        date:  { x: baseLeft + GRID_COL, y: yRow0 },
-        note:  { x: baseLeft, y: yRow0 + GRID_ROW },
-        tip:   { x: baseLeft + GRID_COL, y: yRow0 + GRID_ROW }
+        note:  { x: baseLeft + 0 * H_GAP, y: y0 },
+        tip:   { x: baseLeft + 1 * H_GAP, y: y0 },
+        color: { x: baseLeft + 2 * H_GAP, y: y0 },
+        date:  { x: baseLeft + 0 * H_GAP, y: y1 },
+        time:  { x: baseLeft + 1 * H_GAP, y: y1 }
     }
 }
 
@@ -130,6 +138,29 @@ function textHtml(title, body, name) {
 function showAllOverlays() {
     w2tooltip.hide()
     const gridPos = gridFromSource()
+
+    w2tooltip.show(Object.assign({
+        name: names.note,
+        anchor: document.body,
+        x: gridPos.note.x,
+        y: gridPos.note.y,
+        class: 'w2ui-white multi-text-tooltip',
+        hideOn: [],
+        arrowSize: 0,
+        html: textHtml('Note', 'Drag this panel by the title bar, or use the \u2715 control to close. It stays open while you use the other overlays.', names.note)
+    }, floatOpts))
+
+    w2tooltip.show(Object.assign({
+        name: names.tip,
+        anchor: document.body,
+        x: gridPos.tip.x,
+        y: gridPos.tip.y,
+        class: 'w2ui-white multi-text-tooltip',
+        hideOn: [],
+        arrowSize: 0,
+        html: textHtml('Tip', 'w2ui keeps each overlay in <code>Tooltip.active</code> by name, so you can show several at once with unique <code>name</code> values.', names.tip)
+    }, floatOpts))
+
     w2color.show(Object.assign({
         name: names.color,
         anchor: document.body,
@@ -157,33 +188,27 @@ function showAllOverlays() {
         blockDates: [],
         blockWeekdays: [],
         colored: {},
-        dragHandle: true
+        draggable: true
     }, floatOpts))
     .select(event => {
         w2utils.notify('Date: ' + event.detail.date)
     })
 
-    w2tooltip.show(Object.assign({
-        name: names.note,
+    w2date.show(Object.assign({
+        name: names.time,
         anchor: document.body,
-        x: gridPos.note.x,
-        y: gridPos.note.y,
-        class: 'w2ui-white multi-text-tooltip',
+        x: gridPos.time.x,
+        y: gridPos.time.y,
+        type: 'time',
         hideOn: [],
         arrowSize: 0,
-        html: textHtml('Note', 'Drag this panel by the title bar, or use the \u2715 control to close. It stays open while you use the other overlays.', names.note)
+        btnNow: true,
+        value: '',
+        draggable: true
     }, floatOpts))
-
-    w2tooltip.show(Object.assign({
-        name: names.tip,
-        anchor: document.body,
-        x: gridPos.tip.x,
-        y: gridPos.tip.y,
-        class: 'w2ui-white multi-text-tooltip',
-        hideOn: [],
-        arrowSize: 0,
-        html: textHtml('Tip', 'w2ui keeps each overlay in <code>Tooltip.active</code> by name, so you can show several at once with unique <code>name</code> values.', names.tip)
-    }, floatOpts))
+    .select(event => {
+        w2utils.notify('Time: ' + event.detail.date)
+    })
 }
 
 function closeAll() {

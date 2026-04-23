@@ -2671,7 +2671,6 @@ class DateTooltip extends Tooltip {
             colored       : {}, // ex: { '3/13/2022': 'bg-color|text-color' }
             arrowSize     : 12,
             autoResize    : false,
-            dragHandle      : false, // if true, calendar month row / time "Select Hour|Minute" title is draggable
             anchorClass   : 'w2ui-focus',
             autoShowOn    : 'focus',
             hideOn        : ['doc-click', 'focus-change'],
@@ -2796,7 +2795,7 @@ class DateTooltip extends Tooltip {
             .off('.calendar')
             // click on title
             .on('click.calendar', event => {
-                if (options.dragHandle && overlay.tmp?.moved) {
+                if (options.draggable && overlay.tmp?.moved) {
                     event.stopPropagation()
                     return
                 }
@@ -2946,8 +2945,8 @@ class DateTooltip extends Tooltip {
             weekDaysHeaderHTML += `<div class="w2ui-day w2ui-weekday ${isSat ? 'w2ui-sunday' : ''} ${isSun ? 'w2ui-saturday' : ''}">${sdays[i]}</div>`
         }
 
-        let calTitleClass = 'w2ui-cal-title' + (options.dragHandle ? ' w2ui-eaction w2ui-draggable' : '')
-        let calTitleData  = options.dragHandle ? ' data-mousedown="startDrag|event"' : ''
+        let calTitleClass = 'w2ui-cal-title' + (options.draggable ? ' w2ui-eaction w2ui-draggable' : '')
+        let calTitleData  = options.draggable ? ' data-mousedown="startDrag|event"' : ''
 
         let html = `
             <div class="${calTitleClass}"${calTitleData}>
@@ -3063,8 +3062,8 @@ class DateTooltip extends Tooltip {
             tmp[Math.floor(a/8)] += `<span hour="${a}"
                 class="hour ${valid ? 'w2ui-time ' : 'w2ui-blocked'}">${time}</span>`
         }
-        let timeTitleClass = 'w2ui-time-title' + (options.dragHandle ? ' w2ui-eaction w2ui-draggable' : '')
-        let timeTitleData  = options.dragHandle ? ' data-mousedown="startDrag|event"' : ''
+        let timeTitleClass = 'w2ui-time-title' + (options.draggable ? ' w2ui-eaction w2ui-draggable' : '')
+        let timeTitleData  = options.draggable ? ' data-mousedown="startDrag|event"' : ''
         let html = `<div class="w2ui-calendar">
             <div class="${timeTitleClass}"${timeTitleData}>${w2utils.lang('Select Hour')}</div>
             <div class="w2ui-cal-time">
@@ -3097,8 +3096,8 @@ class DateTooltip extends Tooltip {
             }
             tmp[ind] += `<span min="${a}" class="min ${(this.inRange(tm, options) ? 'w2ui-time ' : 'w2ui-blocked')}">${time}</span>`
         }
-        let timeTitleClass = 'w2ui-time-title' + (options.dragHandle ? ' w2ui-eaction w2ui-draggable' : '')
-        let timeTitleData  = options.dragHandle ? ' data-mousedown="startDrag|event"' : ''
+        let timeTitleClass = 'w2ui-time-title' + (options.draggable ? ' w2ui-eaction w2ui-draggable' : '')
+        let timeTitleData  = options.draggable ? ' data-mousedown="startDrag|event"' : ''
         let html = `<div class="w2ui-calendar">
             <div class="${timeTitleClass}"${timeTitleData}>${w2utils.lang('Select Minute')}</div>
             <div class="w2ui-cal-time">
