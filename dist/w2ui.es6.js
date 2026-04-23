@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (4/21/2026, 5:38:55 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (4/22/2026, 3:12:21 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -8929,6 +8929,9 @@ class w2sidebar extends w2base {
         // if already selected
         if (!this.multi && this.selected == id && new_node.selected) {
             return false
+        } else {
+            // unselect all previously selected nodes
+            this.find({ selected: true }).forEach(nd => nd.selected = false)
         }
         let $el = query(this.box).find('#node_'+ w2utils.escapeId(id))
         $el.addClass('w2ui-selected')
@@ -20664,7 +20667,7 @@ class w2grid extends w2base {
             let tmp  = this.records[ind].w2ui
             let col  = this.columns[col_ind]
             let span = (tmp && tmp.colspan && col != null && !isNaN(tmp.colspan[col.field]) ? parseInt(tmp.colspan[col.field]) : 1)
-            if (span === 0 || tmp.selectable === false) {
+            if (span === 0 || tmp?.selectable === false) {
                 ret = this.nextRow(ind, col_ind, numRows)
             } else {
                 ret = ind
@@ -20690,7 +20693,7 @@ class w2grid extends w2base {
             let tmp  = this.records[ind].w2ui
             let col  = this.columns[col_ind]
             let span = (tmp && tmp.colspan && col != null && !isNaN(tmp.colspan[col.field]) ? parseInt(tmp.colspan[col.field]) : 1)
-            if (span === 0 || tmp.selectable === false) {
+            if (span === 0 || tmp?.selectable === false) {
                 ret = this.prevRow(ind, col_ind, numRows)
                 if (ret == null) ret = arguments[0]
             } else {
