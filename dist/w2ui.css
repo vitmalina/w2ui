@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (4/23/2026, 7:48:57 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (4/23/2026, 11:08:46 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -759,6 +759,12 @@ button.w2ui-btn:disabled {
   color: #bdbcbc;
   text-shadow: none;
 }
+/* set on body while a tooltip overlay is being dragged (see w2tooltip startDrag) */
+body.w2ui-overlay-dragging,
+body.w2ui-overlay-dragging * {
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
 /* general overlay */
 .w2ui-overlay {
   --tip-size: 10px;
@@ -1403,7 +1409,8 @@ button.w2ui-btn:disabled {
   background-color: #fff;
   box-shadow: 0 0 10px #00000008;
 }
-.w2ui-calendar .w2ui-cal-title.w2ui-draggable {
+.w2ui-calendar .w2ui-cal-title.w2ui-draggable,
+.w2ui-calendar .w2ui-time-title.w2ui-draggable {
   cursor: move;
 }
 .w2ui-calendar .w2ui-cal-title,
