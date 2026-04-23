@@ -400,7 +400,7 @@ query(async function () {
                         { id: 'tooltip/8', text: 'Show Anywhere', icon: 'fa fa-comment-o' },
                         { id: 'tooltip/9', text: 'Draggable Tooltips', icon: 'fa fa-comment-o' },
                         { id: 'tooltip/11', text: 'Custom Menu Icons', icon: 'fa fa-comment-o' },
-                        { id: 'tooltip/12', text: 'Multiple Overlays', icon: 'fa fa-comment-o' },
+                        { id: 'tooltip/12', text: 'Mutli-Window Mode', icon: 'fa fa-comment-o' },
                     ]
                 },
                 { id: 'utils', text: 'Utils Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
