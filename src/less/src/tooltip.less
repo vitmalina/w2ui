@@ -1,3 +1,10 @@
+/* set on body while a tooltip overlay is being dragged (see w2tooltip startDrag) */
+body.w2ui-overlay-dragging,
+body.w2ui-overlay-dragging * {
+    user-select: none !important;
+    -webkit-user-select: none !important;
+}
+
 /* general overlay */
 .w2ui-overlay {
     --tip-size: 10px;
@@ -43,8 +50,8 @@
             color: #3c3c3c;
             text-shadow: none;
             background-color: #fafafa;
-            border: 1px solid #a0a0a0;
-            box-shadow: 0 2px 15px #00000008;
+            border: 1px solid #b9c0c8;
+            box-shadow: 0 2px 15px #0000000f;
             outline: 1px solid white;
         }
         &.w2ui-arrow-right:before {
@@ -698,6 +705,10 @@
         text-shadow: none;
         background-color: #fff;
         box-shadow: 0 0 10px #00000008;
+    }
+
+    .w2ui-cal-title.w2ui-draggable {
+        cursor: move;
     }
 
     .w2ui-cal-title, .w2ui-time-title {
