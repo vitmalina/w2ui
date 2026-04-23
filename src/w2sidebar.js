@@ -489,6 +489,9 @@ class w2sidebar extends w2base {
         // if already selected
         if (!this.multi && this.selected == id && new_node.selected) {
             return false
+        } else {
+            // unselect all previously selected nodes
+            this.find({ selected: true }).forEach(nd => nd.selected = false)
         }
         let $el = query(this.box).find('#node_'+ w2utils.escapeId(id))
         $el.addClass('w2ui-selected')
