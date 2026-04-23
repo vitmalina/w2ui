@@ -1,0 +1,204 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Multiple Overlays</h1>
+        Create and use multiple draggable windows at the same time.
+
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<style>
+    /*
+     w2tooltip forces white-space: nowrap on .w2ui-overlay-body; override for text panels so
+     max-width and wrapping work (class is set on the two text w2tooltip.show() calls).
+    */
+    .w2ui-overlay-body.multi-text-tooltip {
+        white-space: normal !important;
+        overflow: visible !important;
+        width: min(250px, calc(100vw - 24px)) !important;
+        max-width: min(250px, calc(100vw - 24px)) !important;
+        box-sizing: border-box;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+    .multi-overlay-text-root {
+        box-sizing: border-box;
+        width: 100%;
+        max-width: 100%;
+    }
+    .multi-overlay-text-body {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+    .multi-overlay-text-body code {
+        word-break: break-all;
+    }
+    .multi-overlay-close {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        line-height: 1;
+        font-size: 16px;
+        font-weight: 400;
+        color: #555;
+        cursor: pointer;
+        user-select: none;
+        border-radius: 3px;
+    }
+    .multi-overlay-close:hover {
+        background-color: rgba(0, 0, 0, 0.08);
+    }
+    .multi-overlay-close:active {
+        background-color: rgba(0, 0, 0, 0.12);
+    }
+</style>
+
+<div style="margin-top: 15px; margin-bottom: 8px">
+    <button class="w2ui-btn" onclick="showAllOverlays()">Show again</button>
+    <button class="w2ui-btn" onclick="closeAll()">Close all</button>
+</div>
+<p class="w2ui-label" style="color: #888; max-width: 700px; margin: 0">
+    The color and date panels use the built-in w2color / w2date overlays. Text panels use a drag
+    handle in the title bar, same idea as the &quot;Draggable Tooltips&quot; demo, plus a per-panel close control.
+</p>
+
+<!--CODE-->
+<script type="module">
+import { w2utils, w2tooltip, w2color, w2date, query } from '__W2UI_PATH__'
+
+const names = {
+    color: 'multi-overlays-color',
+    date: 'multi-overlays-date',
+    note: 'multi-overlays-note',
+    tip: 'multi-overlays-tip'
+}
+let lastColor = ''
+
+/** Anchor point (x, y) for body + position:bottom + align:left — matches w2tooltip getPosition. */
+const GRID_COL = 300
+const GRID_ROW = 320
+
+/**
+ * 2x2 grid below the Source button: y so overlay tops sit just under the button; x &gt;= button left.
+ */
+function gridFromSource() {
+    const el = document.getElementById('showSourceCode')
+    if (!el) {
+        return {
+            color: { x: 32, y: 120 },
+            date:  { x: 332, y: 120 },
+            note:  { x: 32, y: 440 },
+            tip:   { x: 332, y: 440 }
+        }
+    }
+    const r = el.getBoundingClientRect()
+    const baseLeft = r.left
+    // bottom placement: top = y + 10 + arrow/1.25 + 1 with arrow 0, height 10  =>  y = bottom - 11 for top ~= r.bottom
+    const yRow0 = Math.round(r.bottom)
+    return {
+        color: { x: baseLeft, y: yRow0 },
+        date:  { x: baseLeft + GRID_COL, y: yRow0 },
+        note:  { x: baseLeft, y: yRow0 + GRID_ROW },
+        tip:   { x: baseLeft + GRID_COL, y: yRow0 + GRID_ROW }
+    }
+}
+
+const floatOpts = {
+    position: 'bottom',
+    align: 'left',
+    maxHeight: 'none',
+    style: 'overflow: visible;'
+}
+
+function textHtml(title, body, name) {
+    return `
+        <div class="multi-overlay-text-root">
+            <div style="background-color: #dee8f6; padding: 6px 6px 6px 8px; margin: -4px -8px; font-weight: 600; display: flex; align-items: center; justify-content: space-between; gap: 8px; box-sizing: border-box; min-width: 0;" class="w2ui-eaction w2ui-draggable" data-mousedown="startDrag|event">
+                <span style="flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis;">${title}</span>
+                <div class="multi-overlay-close" title="Close" role="button" tabindex="0" onmousedown="event.stopPropagation()" onclick="event.stopPropagation(); w2uiMultiClose('${name}')" onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); w2uiMultiClose('${name}') }">&#x2715;</div>
+            </div>
+            <div class="multi-overlay-text-body" style="padding: 10px 8px; width: 100%; max-width: 100%; box-sizing: border-box;">${body}</div>
+        </div>
+    `
+}
+
+function showAllOverlays() {
+    w2tooltip.hide()
+    const gridPos = gridFromSource()
+    w2color.show(Object.assign({
+        name: names.color,
+        anchor: document.body,
+        x: gridPos.color.x,
+        y: gridPos.color.y,
+        color: lastColor,
+        hideOn: [],
+        arrowSize: 0
+    }, floatOpts))
+    .select(event => {
+        lastColor = event.detail.color
+        w2utils.notify('Selected color #' + event.detail.color)
+    })
+
+    w2date.show(Object.assign({
+        name: names.date,
+        anchor: document.body,
+        x: gridPos.date.x,
+        y: gridPos.date.y,
+        type: 'date',
+        hideOn: [],
+        arrowSize: 0,
+        btnNow: true,
+        value: '',
+        blockDates: [],
+        blockWeekdays: [],
+        colored: {},
+        dragHandle: true
+    }, floatOpts))
+    .select(event => {
+        w2utils.notify('Date: ' + event.detail.date)
+    })
+
+    w2tooltip.show(Object.assign({
+        name: names.note,
+        anchor: document.body,
+        x: gridPos.note.x,
+        y: gridPos.note.y,
+        class: 'w2ui-white multi-text-tooltip',
+        hideOn: [],
+        arrowSize: 0,
+        html: textHtml('Note', 'Drag this panel by the title bar, or use the \u2715 control to close. It stays open while you use the other overlays.', names.note)
+    }, floatOpts))
+
+    w2tooltip.show(Object.assign({
+        name: names.tip,
+        anchor: document.body,
+        x: gridPos.tip.x,
+        y: gridPos.tip.y,
+        class: 'w2ui-white multi-text-tooltip',
+        hideOn: [],
+        arrowSize: 0,
+        html: textHtml('Tip', 'w2ui keeps each overlay in <code>Tooltip.active</code> by name, so you can show several at once with unique <code>name</code> values.', names.tip)
+    }, floatOpts))
+}
+
+function closeAll() {
+    w2tooltip.hide()
+}
+
+function w2uiMultiClose(name) {
+    w2tooltip.hide(name)
+}
+
+query(() => {
+    setTimeout(() => showAllOverlays(), 0)
+})
+
+window.showAllOverlays = showAllOverlays
+window.closeAll = closeAll
+window.w2uiMultiClose = w2uiMultiClose
+</script>
