@@ -1,4 +1,4 @@
-import { query, w2utils, w2ui, w2toolbar, w2sidebar, w2layout } from '../src/w2compat.js'
+import { query, w2utils, w2ui, w2toolbar, w2sidebar, w2layout, w2tooltip } from '../src/w2compat.js'
 
 window.w2ui = w2ui // expose w2ui object for testing purposers
 query(async function () {
@@ -436,6 +436,7 @@ query(async function () {
             onClick(event) {
                 let cmd = event.target
                 if (parseInt(cmd.substr(cmd.length-1)) != cmd.substr(cmd.length-1)) return
+                w2tooltip.hide()
                 let tmp = w2ui.demo_sidebar.get(cmd)
                 document.title = tmp.parent.text + ': ' + tmp.text + ' | w2ui'
                 // delete previously created items
@@ -553,6 +554,7 @@ query(async function () {
         w2ui.demo_toolbar.get(sec).checked = true
         w2ui.demo_toolbar.refresh(sec)
         if (last_hash != hash) {
+            w2tooltip.hide()
             last_hash = hash
             sb.nodes.forEach(node => {
                 if (node.id.substr(0, sec.length) == sec) {
