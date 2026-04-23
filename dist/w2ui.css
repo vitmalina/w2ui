@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (4/21/2026, 3:50:39 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (4/23/2026, 7:48:57 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -803,8 +803,8 @@ button.w2ui-btn:disabled {
   color: #3c3c3c;
   text-shadow: none;
   background-color: #fafafa;
-  border: 1px solid #a0a0a0;
-  box-shadow: 0 2px 15px #00000008;
+  border: 1px solid #b9c0c8;
+  box-shadow: 0 2px 15px #0000000f;
   outline: 1px solid white;
 }
 .w2ui-overlay .w2ui-overlay-body.w2ui-arrow-right:before {
@@ -1402,6 +1402,9 @@ button.w2ui-btn:disabled {
   text-shadow: none;
   background-color: #fff;
   box-shadow: 0 0 10px #00000008;
+}
+.w2ui-calendar .w2ui-cal-title.w2ui-draggable {
+  cursor: move;
 }
 .w2ui-calendar .w2ui-cal-title,
 .w2ui-calendar .w2ui-time-title {
@@ -4186,6 +4189,7 @@ textarea.w2ui-error {
 }
 .w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-break {
   background-image: linear-gradient(to bottom, rgba(153, 153, 153, 0.1) 0%, #999 40%, #999 60%, rgba(153, 153, 153, 0.1) 100%);
+  z-index: 4;
   width: 1px;
   height: 24px;
   padding: 0;

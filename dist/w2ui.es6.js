@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (4/22/2026, 3:12:21 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (4/23/2026, 9:40:05 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -4694,6 +4694,12 @@ class Tooltip {
         delete overlay.needsUpdate
         // expose overlay to DOM element
         overlay.box.overlay = overlay
+        // click / drag: raise stacking order among sibling overlays (DOM order, not z-index)
+        query(overlay.box)
+            .off('mousedown.w2ui-bringfront')
+            .on('mousedown.w2ui-bringfront', () => {
+                self.bringOverlayToFront(overlay)
+            })
         // event after
         if (edata) edata.finish()
         return { overlay }
@@ -5112,26 +5118,69 @@ class Tooltip {
             }
         }
     }
+    /**
+     * Move overlay node to the end of its parent (typically body) so it stacks above other .w2ui-overlay siblings
+     * without relying on z-index. No-op if it is already the last element child.
+     */
+    bringOverlayToFront(overlay) {
+        if (!overlay || !overlay.box || !overlay.box.parentNode || !overlay.box.nextElementSibling) {
+            return
+        }
+        overlay.box.parentNode.appendChild(overlay.box)
+    }
     startDrag(event) {
+        if (event.preventDefault) {
+            event.preventDefault()
+        }
         let initial
         let el = query(event.target).closest('.w2ui-overlay')
+        let overlay = el[0]?.overlay
+        if (overlay) {
+            this.bringOverlayToFront(overlay)
+        }
         initial = {
             el,
             x: parseFloat(el.css('left')),
             y: parseFloat(el.css('top')),
             pageX: event.pageX,
             pageY: event.pageY,
+            moved: false
         }
+        query(document)
+            .off('.w2ui-drag')
+            .on('selectstart.w2ui-drag, dragstart.w2ui-drag', e => e.preventDefault())
+            .find('body')
+            .addClass('w2ui-overlay-dragging')
         query('html')
             .off('.w2color')
             .on('mousemove.w2color', mouseMove)
             .on('mouseup.w2color', mouseUp)
         function mouseUp(event) {
             query('html').off('.w2color')
+            query(document).off('selectstart.w2ui-drag')
+            query(document).off('dragstart.w2ui-drag')
+            query(document.body).removeClass('w2ui-overlay-dragging')
+            if (initial.moved) {
+                let ov = initial.el[0] && initial.el[0].overlay
+                if (ov) {
+                    if (!ov.tmp) ov.tmp = {}
+                    ov.tmp.moved = true
+                    clearTimeout(ov.tmp._movedClearTimer)
+                    ov.tmp._movedClearTimer = setTimeout(() => {
+                        if (ov.tmp) {
+                            delete ov.tmp.moved
+                            delete ov.tmp._movedClearTimer
+                        }
+                    }, 400)
+                }
+            }
         }
         function mouseMove(event) {
             let divX = event.pageX - initial.pageX
             let divY = event.pageY - initial.pageY
+            if (Math.abs(divX) > 3 || Math.abs(divY) > 3) {
+                initial.moved = true
+            }
             initial.el.css({
                 left: initial.x + divX + 'px',
                 top: initial.y + divY + 'px'
@@ -6841,6 +6890,7 @@ class DateTooltip extends Tooltip {
             colored       : {}, // ex: { '3/13/2022': 'bg-color|text-color' }
             arrowSize     : 12,
             autoResize    : false,
+            dragHandle      : false, // if true, month title row is draggable (distinct from options.draggable on the full body)
             anchorClass   : 'w2ui-focus',
             autoShowOn    : 'focus',
             hideOn        : ['doc-click', 'focus-change'],
@@ -6962,6 +7012,10 @@ class DateTooltip extends Tooltip {
             .off('.calendar')
             // click on title
             .on('click.calendar', event => {
+                if (options.dragHandle && overlay.tmp?.moved) {
+                    event.stopPropagation()
+                    return
+                }
                 Object.assign(overlay.tmp, { jumpYear: null, jumpMonth: null })
                 if (overlay.tmp.jump) {
                     let { month, year } = overlay.tmp
@@ -7070,6 +7124,8 @@ class DateTooltip extends Tooltip {
                 overlay.newValue = this.min2str(time, options.format)
                 this.hide(overlay.name)
             })
+        // After any innerHTML refresh, re-attach w2ui-eaction handlers (startDrag on title, stop on arrows, etc.)
+        w2utils.bindEvents(query(overlay.box).find('.w2ui-eaction'), this)
     }
     getMonthHTML(options, month, year) {
         let days = w2utils.settings.fulldays.slice() // creates copy of the array
@@ -7100,12 +7156,14 @@ class DateTooltip extends Tooltip {
             let isSun = (st == 'M' && i == 6) || (st != 'M' && i == 0) ? true : false
             weekDaysHeaderHTML += `<div class="w2ui-day w2ui-weekday ${isSat ? 'w2ui-sunday' : ''} ${isSun ? 'w2ui-saturday' : ''}">${sdays[i]}</div>`
         }
+        let calTitleClass = 'w2ui-cal-title' + (options.dragHandle ? ' w2ui-eaction w2ui-draggable' : '')
+        let calTitleData  = options.dragHandle ? ' data-mousedown="startDrag|event"' : ''
         let html = `
-            <div class="w2ui-cal-title">
-                <div class="w2ui-cal-previous">
+            <div class="${calTitleClass}"${calTitleData}>
+                <div class="w2ui-cal-previous w2ui-eaction" data-mousedown="stop">
                     <div></div>
                 </div>
-                <div class="w2ui-cal-next">
+                <div class="w2ui-cal-next w2ui-eaction" data-mousedown="stop">
                     <div></div>
                 </div>
                 ${w2utils.settings.fullmonths[month-1]}, ${year}
