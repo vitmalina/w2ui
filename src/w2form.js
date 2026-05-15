@@ -1416,7 +1416,7 @@ class w2form extends w2base {
             if (page == null) page = field.html.page
             if (column == null) column = field.html.column
             // input control
-            let input = `<input id="${field.field}" name="${field.field}" class="w2ui-input ${field.html.class ?? ''}" type="text" ${field.html.attr + tabindex_str}>`
+            let input = `<input id="${field.field}" name="${field.field}" class="w2ui-input ${field.html.class ?? ''}" type="text" ${field.html.attr + tabindex_str}/>`
             switch (field.type) {
                 case 'pass':
                 case 'password':
@@ -1425,7 +1425,7 @@ class w2form extends w2base {
                 case 'checkbox': {
                     input = `
                         <label class="w2ui-box-label">
-                            <input id="${field.field}" name="${field.field}" class="w2ui-input ${field.html.class ?? ''}" type="checkbox" ${field.html.attr + tabindex_str}>
+                            <input id="${field.field}" name="${field.field}" class="w2ui-input ${field.html.class ?? ''}" type="checkbox" ${field.html.attr + tabindex_str}/>
                             <span>${field.html.label}</span>
                         </label>`
                     break
@@ -1446,7 +1446,7 @@ class w2form extends w2base {
                             <div class="w2ui-field-item">
                                 <label class="w2ui-box-label">
                                     <input id="${field.field + i}" name="${field.field}" class="w2ui-input ${field.html.class ?? ''}" type="checkbox"
-                                        ${tabindex_str} data-value="${items[i].id}" data-index="${i}">
+                                        ${tabindex_str} data-value="${items[i].id}" data-index="${i}"/>
                                     <span>&#160;${items[i].text}</span>
                                 </label>
                             </div>`
@@ -1470,7 +1470,7 @@ class w2form extends w2base {
                                 <label class="w2ui-box-label">
                                     <input id="${field.field + i}" name="${field.field}" class="w2ui-input ${field.html.class ?? ''}" type="radio"
                                         ${(i === 0 ? tabindex_str : '')}
-                                        data-value="${items[i].id}" data-index="${i}">
+                                        data-value="${items[i].id}" data-index="${i}"/>
                                     <span>&#160;${items[i].text}</span>
                                 </label>
                             </div>`
@@ -1499,7 +1499,7 @@ class w2form extends w2base {
                         <div>
                             <div id="${field.field}-tb" class="w2ui-form-switch ${field.html.class ?? ''}" ${field.html.attr}></div>
                             <input id="${field.field}" name="${field.field}" ${tabindex_str} class="w2ui-input"
-                                style="position: absolute; right: 0px; margin-top: -30px; width: 1px; padding: 0; opacity: 0">
+                                style="position: absolute; right: 0px; margin-top: -30px; width: 1px; padding: 0; opacity: 0"/>
                             <span style="position: absolute; margin-top: -2px;">${field.html.text ?? ''}</span>
                         </div>
                         `
@@ -1514,7 +1514,7 @@ class w2form extends w2base {
                         txt = `<span style="position: relative; left: 4px; top: -4px">${txt}</span>`
                     }
                     input = `<input id="${field.field}" name="${field.field}" class="w2ui-input w2ui-toggle w2ui-small ${field.html.class ?? ''}"
-                                type="checkbox" ${field.html.attr + tabindex_str}>
+                                type="checkbox" ${field.html.attr + tabindex_str}/>
                             <div><div></div></div>
                             ${txt}`
                     break
@@ -1526,7 +1526,7 @@ class w2form extends w2base {
                     field.html.tabindex = tabindex
                     field.html.tabindex_str = tabindex_str
                     input = '<span style="float: right">' + (field.html.text || '') + '</span>' +
-                            '<input id="'+ field.field +'" name="'+ field.field +'" type="hidden" '+ field.html.attr + tabindex_str + '>'+
+                            '<input id="'+ field.field +'" name="'+ field.field +'" type="hidden" '+ field.html.attr + tabindex_str + '/>'+
                             '<div class="w2ui-map-container"></div>'
                     break
                 case 'div':
@@ -2062,7 +2062,7 @@ class w2form extends w2base {
                 (function (obj, field) {
                     field.el.mapAdd = function(field, div, cnt, empty) {
                         let attr = (field.disabled ? ' readOnly ' : '') + (field.html.tabindex_str || '')
-                        let html = `<input type="text" ${(field.html.value.attr ?? '') + attr} class="w2ui-input ${field.html.class ?? ''} w2ui-map value">`
+                        let html = `<input type="text" ${(field.html.value.attr ?? '') + attr} class="w2ui-input ${field.html.class ?? ''} w2ui-map value"/>`
                             + `${field.html.value.text || ''}`
 
                         if (typeof field.html.render == 'function') {
@@ -2080,7 +2080,7 @@ class w2form extends w2base {
                             }
                         } else if (field.type == 'map') {
                             // has key input in front
-                            html = `<input type="text" ${(field.html.key.attr ?? '') + attr} class="w2ui-input ${field.html.class ?? ''} w2ui-map key">
+                            html = `<input type="text" ${(field.html.key.attr ?? '') + attr} class="w2ui-input ${field.html.class ?? ''} w2ui-map key"/>
                                 ${field.html.key.text || ''}
                             ` + html
                         }
