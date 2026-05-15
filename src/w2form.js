@@ -2436,7 +2436,7 @@ class w2form extends w2base {
             // focus field by name
             $input = query(this.box).find(`[name='${focus}']`)
         }
-        if ($input.length > 0){
+        if ($input && $input.length > 0){
             $input.get(0).focus()
         }
         return $input
