@@ -140,6 +140,27 @@ test( "w2grid().hideSearch(), w2grid.showSearch()", function() {
     $().w2destroy('grid');
 });
 
+test( "w2grid().search() regex operator", function() {
+    $().w2grid({
+        name: 'grid',
+        searches: [{ field: 'name', type: 'text' }],
+        records: [{ recid: 1, name: 'Alpha-123' }, { recid: 2, name: 'Beta' }, { recid: 3, name: 'alpha-456' }]
+    });
+
+    w2ui['grid'].search([{ field: 'name', operator: 'regex', value: '^alpha-\\d+$' }]);
+    equal(w2ui['grid'].records.filter(record => record.hidden !== true).length, 2, 'Regex search is case-insensitive');
+    stop();
+    setTimeout(() => {
+        equal(document.querySelectorAll('#grid_grid_records .w2ui-marker').length, 2, 'Regex matches are highlighted');
+        w2ui['grid'].search([{ field: 'name', operator: 'matches', value: '^beta$' }]);
+        setTimeout(() => {
+            equal(w2ui['grid'].records.filter(record => record.hidden !== true).length, 1, 'Matches is accepted as an alias');
+            $().w2destroy('grid');
+            start();
+        }, 100);
+    }, 100);
+});
+
 // === mergeChanges
 
 test( "w2grid().mergeChanges()", function() {

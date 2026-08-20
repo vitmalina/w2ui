@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>w2grid regex operator test</title>
+    <link rel="stylesheet" type="text/css" href="../dist/w2ui.min.css">
+    <style>
+        :root { color-scheme: light; font-family: Georgia, serif; }
+        body { margin: 0; background: #e8edf0; color: #17212b; }
+        main { max-width: 1060px; margin: 36px auto; padding: 0 24px; }
+        h1 { margin: 0 0 8px; font-size: 30px; font-weight: 600; }
+        p { margin: 0 0 18px; font-family: Arial, sans-serif; color: #52616b; }
+        .panel { padding: 20px; background: #fff; border: 1px solid #cbd5da; box-shadow: 0 8px 24px rgba(23, 33, 43, .08); }
+        .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; font-family: Arial, sans-serif; }
+        button { padding: 8px 12px; border: 1px solid #78909c; background: #f8fafb; color: #17212b; cursor: pointer; }
+        button:hover { background: #dce8ed; }
+        #status { min-height: 20px; margin: 10px 0 14px; font: 14px Arial, sans-serif; color: #52616b; }
+        #grid { height: 460px; }
+        code { font-family: Consolas, monospace; }
+    </style>
+</head>
+<body>
+<main>
+    <h1>w2grid regex operator</h1>
+    <p>Open the grid search menu, choose <code>regex</code>, and enter a pattern. The buttons below apply the same search through the public API.</p>
+    <section class="panel">
+        <div class="actions">
+            <button type="button" onclick="runRegex('^A', 'name')">Names beginning with A</button>
+            <button type="button" onclick="runRegex('@example\\.com$', 'email')">example.com addresses</button>
+            <button type="button" onclick="runRegex('\\d{3}', 'phone')">Phone with three digits</button>
+            <button type="button" onclick="clearSearch()">Clear search</button>
+        </div>
+        <div id="status">Ready. Use the grid search icon to inspect the new operator.</div>
+        <div id="grid"></div>
+    </section>
+</main>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script type="module">
+    await import('../src/w2compat.js?globals')
+
+    const records = [
+        { recid: 1, name: 'Alice Adams', email: 'alice@example.com', phone: '+49 30 123' },
+        { recid: 2, name: 'Bruno Becker', email: 'bruno@example.org', phone: '+49 40 456' },
+        { recid: 3, name: 'Amelia Clark', email: 'amelia@example.com', phone: '+49 89 789' },
+        { recid: 4, name: 'Diana Doe', email: 'diana@test.net', phone: '+49 211 12' },
+        { recid: 5, name: 'Felix Fischer', email: 'felix@example.com', phone: '+49 69 345' }
+    ];
+
+    $('#grid').w2grid({
+        name: 'regex-test-grid',
+        show: { toolbar: true, toolbarSearch: true, footer: true },
+        searches: [
+            { field: 'name', label: 'Name', type: 'text', operators: ['is', 'begins', 'contains', 'ends', 'regex'] },
+            { field: 'email', label: 'Email', type: 'text', operators: ['is', 'begins', 'contains', 'ends', 'regex'] },
+            { field: 'phone', label: 'Phone', type: 'text', operators: ['is', 'begins', 'contains', 'ends', 'regex'] }
+        ],
+        columns: [
+            { field: 'name', text: 'Name', size: '30%' },
+            { field: 'email', text: 'Email', size: '40%' },
+            { field: 'phone', text: 'Phone', size: '30%' }
+        ],
+        records: records
+    });
+    const grid = w2ui['regex-test-grid'];
+
+    window.runRegex = function(pattern, field) {
+        grid.search([{ field: field, type: 'text', operator: 'regex', value: pattern }]);
+        document.getElementById('status').textContent = 'Applied regex on ' + field + ': ' + pattern;
+    }
+
+    window.clearSearch = function() {
+        grid.searchReset();
+        document.getElementById('status').textContent = 'Search cleared.';
+    }
+</script>
+</body>
+</html>
