@@ -295,12 +295,12 @@ class w2grid extends w2base {
         }
 
         this.operators = { // for search fields
-            'text': ['is', 'begins', 'contains', 'ends', 'is not'], // could have "in" and "not in"
+            'text': ['is', 'begins', 'contains', 'ends', 'is not', 'regex'], // could have "in" and "not in"
             'number': ['=', 'between', '>', '<', '>=', '<=', '!='],
             'date'    : ['is', { oper: 'less', text: 'before'}, { oper: 'more', text: 'since' }, 'between'],
             'list'    : ['is'],
             'hex'     : ['is', 'between'],
-            'color'   : ['is', 'begins', 'contains', 'ends'],
+            'color'   : ['is', 'begins', 'contains', 'ends', 'regex'],
             'enum'    : ['in', 'not in']
             // -- all possible
             // "text"    : ['is', 'begins', 'contains', 'ends'],
@@ -1280,6 +1280,12 @@ class w2grid extends w2base {
                         break
                     case 'contains':
                         if (val1.indexOf(val2) >= 0) fl++ // do not hide record
+                        break
+                    case 'regex':
+                    case 'matches':
+                        try {
+                            if (val1b != null && typeof val1b != 'object' && new RegExp(sdata.value, 'i').test(val1b)) fl++ // do not hide record
+                        } catch (e) {}
                         break
                     case 'null':
                         if (obj.parseField(rec, search.field) == null) fl++ // do not hide record
@@ -5421,12 +5427,17 @@ class w2grid extends w2base {
                     let fld   = this.getSearch(sdata.field)
                     if (!fld || fld.hidden) continue
                     let ind = this.getColumn(sdata.field, true)
-                    search.push({ field: sdata.field, search: sdata.value, col: ind })
+                    search.push({
+                        field: sdata.field,
+                        search: sdata.value,
+                        col: ind,
+                        isRegex: ['regex', 'matches'].includes(sdata.operator)
+                    })
                 }
                 if (search.length > 0) {
                     search.forEach((item) => {
                         let el = query(this.box).find('td[col="'+ item.col +'"]:not(.w2ui-head)')
-                        w2utils.marker(el, item.search)
+                        w2utils.marker(el, item.search, item.isRegex ? { isRegex: true } : undefined)
                     })
                 }
             }, 50)
@@ -8207,12 +8218,17 @@ class w2grid extends w2base {
                     let fld   = obj.getSearch(sdata.field)
                     if (!fld || fld.hidden) continue
                     let ind = obj.getColumn(sdata.field, true)
-                    search.push({ field: sdata.field, search: sdata.value, col: ind })
+                    search.push({
+                        field: sdata.field,
+                        search: sdata.value,
+                        col: ind,
+                        isRegex: ['regex', 'matches'].includes(sdata.operator)
+                    })
                 }
                 if (search.length > 0) {
                     search.forEach((item) => {
                         let el = query(obj.box).find('td[col="'+ item.col +'"]:not(.w2ui-head)')
-                        w2utils.marker(el, item.search)
+                        w2utils.marker(el, item.search, item.isRegex ? { isRegex: true } : undefined)
                     })
                 }
             }, 50)
