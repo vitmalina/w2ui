@@ -779,12 +779,17 @@ function w2alert(msg, title, callBack) {
     } else {
         prom = w2popup.open(options)
     }
-    prom.ok(event => {
+    let handleOk = (event) => {
         if (typeof event.detail.self?.close == 'function') {
             event.detail.self.close()
         }
         if (typeof callBack == 'function') callBack()
-    })
+    }
+    if (typeof prom.ok === 'function') {
+        prom.ok(handleOk)
+    } else {
+        prom.action(handleOk)
+    }
     return prom
 }
 
