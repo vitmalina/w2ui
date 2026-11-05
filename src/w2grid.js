@@ -5587,7 +5587,7 @@ class w2grid extends w2base {
             })
         }
         if (w2utils.isMobile) {
-            records.append(frecords)
+            records.add(frecords)
                 .on('click', { delegate: 'tr' }, (event) => {
                     let index = query(event.delegate).attr('index') // don't read recid directly as it could be a number or a string
                     let recid = this.records[index]?.recid
