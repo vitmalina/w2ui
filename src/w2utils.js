@@ -1517,6 +1517,14 @@ class Utils {
                     delete options[name + '_' + suffix]
                 }
             })
+            // Keep the action name (yes/no/ok/cancel) as the promise method name.
+            // The dialog builders use the button text as the method name when the
+            // action is a plain string, so a localized label ("Yes" -> "Si") would
+            // expose .si() instead of .yes(). Wrapping the label in an object keeps
+            // the localized text and the canonical method name.
+            if (typeof btn[name] == 'string') {
+                btn[name] = { text: btn[name], class: '', style: '', attrs: '' }
+            }
         })
         if (btns.includes('yes') && btns.includes('no')) {
             if (w2utils.settings.macButtonOrder) {
