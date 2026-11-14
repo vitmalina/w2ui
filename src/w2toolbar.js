@@ -692,7 +692,8 @@ class w2toolbar extends w2base {
                 }
             })
         }
-        if (['menu', 'menu-radio', 'menu-check'].includes(it.type) && it.checked) {
+        // the drop is shown with a timer after the click, so the item can be checked while its menu is not displayed yet
+        if (['menu', 'menu-radio', 'menu-check'].includes(it.type) && it.checked && w2tooltip.get(this.name + '-drop')?.displayed) {
             // check selected items
             let selected = Array.isArray(it.selected) ? it.selected : [it.selected]
             let items = typeof it.items == 'function' ? it.items(it) : [...it.items]
